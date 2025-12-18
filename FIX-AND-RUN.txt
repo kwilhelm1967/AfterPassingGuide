@@ -1,0 +1,32 @@
+========================================
+  QUICK FIX FOR POWERSHELL ERROR
+========================================
+
+The error says "running scripts is disabled"
+
+SOLUTION - Copy and paste this ONE command:
+--------------------------------------------
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+
+Press Enter, type "Y" if it asks, press Enter again.
+
+THEN run:
+---------
+npm run dev
+
+ALTERNATIVE - Use npm.cmd instead:
+-----------------------------------
+& "C:\Program Files\nodejs\npm.cmd" run dev
+
+OR use Command Prompt (cmd) instead of PowerShell:
+----------------------------------------------------
+1. Press Windows key + R
+2. Type: cmd
+3. Press Enter
+4. Type: cd "C:\Users\kelly\OneDrive\Desktop\Vault-Main\LegacyAftercareAssistant"
+5. Press Enter
+6. Type: npm run dev
+7. Press Enter
+
+Once you see "Local: http://localhost:5174", open that URL!
+

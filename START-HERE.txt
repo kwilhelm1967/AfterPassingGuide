@@ -1,0 +1,37 @@
+========================================
+  HOW TO START THE SERVER
+========================================
+
+OPTION 1 - VS Code (EASIEST):
+-------------------------------
+1. Open VS Code
+2. File > Open Folder
+3. Select: C:\Users\kelly\OneDrive\Desktop\Vault-Main\LegacyAftercareAssistant
+4. Press Ctrl+` (backtick key) to open terminal
+5. Type: npm run dev
+6. Press Enter
+7. Wait for: "Local: http://localhost:5174"
+8. Open that URL in your browser
+
+OPTION 2 - Command Prompt:
+--------------------------
+1. Open Command Prompt (cmd)
+2. Type: cd "C:\Users\kelly\OneDrive\Desktop\Vault-Main\LegacyAftercareAssistant"
+3. Press Enter
+4. Type: npm run dev
+5. Press Enter
+6. Wait for: "Local: http://localhost:5174"
+7. Open that URL in your browser
+
+OPTION 3 - Double-click:
+-------------------------
+Double-click: START-SERVER.bat
+Wait for the command window to show the server URL
+Then open that URL in your browser
+
+========================================
+  THE LANDING PAGE IS READY!
+========================================
+File location: src/LAV/LandingPage.tsx
+It will show automatically at http://localhost:5174
+

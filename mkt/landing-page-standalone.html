@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Aftercare Vault - Landing Page</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-background: #1F2534;
+            --color-background-sidebar: #2A3340;
+            --color-background-card: #303A48;
+            --color-background-card-hover: #3A4552;
+            --color-text-primary: #E8EDF2;
+            --color-text-secondary: #A0AAB6;
+            --color-text-muted: #8590A2;
+            --color-accent-gold: #C9AE66;
+            --color-accent-gold-hover: #D1B26E;
+            --color-border-subtle: rgba(255, 255, 255, 0.10);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(180deg, #1F2534 0%, #252D3B 50%, #1F2534 100%);
+            background-color: #1F2534;
+            background-attachment: fixed;
+            color: var(--color-text-primary);
+            height: 100vh;
+            overflow: hidden;
+            padding: 16px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 24px;
+            animation: fadeIn 0.2s ease-out;
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background-color: var(--color-accent-gold);
+            margin-bottom: 12px;
+        }
+
+        .icon-container svg {
+            width: 30px;
+            height: 30px;
+            color: var(--color-background);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .disclaimer {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            max-width: 42rem;
+            margin: 0 auto;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .feature-card {
+            background-color: var(--color-background-card);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--color-border-subtle);
+            transition: background-color 0.2s;
+            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .feature-card:hover {
+            background-color: var(--color-background-card-hover);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feature-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .feature-icon {
+            flex-shrink: 0;
+            color: var(--color-accent-gold);
+        }
+
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .feature-text h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-primary);
+            margin-bottom: 4px;
+        }
+
+        .feature-text p {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Benefits Section */
+        .benefits-card {
+            background-color: var(--color-background-card);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--color-border-subtle);
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .benefits-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .benefits-header svg {
+            width: 16px;
+            height: 16px;
+            color: var(--color-accent-gold);
+        }
+
+        .benefits-header h2 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-primary);
+        }
+
+        .benefits-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .benefits-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .benefits-list svg {
+            width: 14px;
+            height: 14px;
+            color: var(--color-accent-gold);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .benefits-list span {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 24px;
+            background-color: var(--color-accent-gold);
+            color: var(--color-background);
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.875rem;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            background-color: var(--color-accent-gold-hover);
+        }
+
+        .cta-button:focus {
+            outline: 2px solid var(--color-accent-gold);
+            outline-offset: 2px;
+        }
+
+        .cta-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .cta-note {
+            margin-top: 8px;
+            font-size: 0.625rem;
+            color: var(--color-text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .cta-note svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefits-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-height: 800px) {
+            .hero {
+                margin-bottom: 12px;
+            }
+            
+            .icon-container {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 8px;
+            }
+            
+            .icon-container svg {
+                width: 24px;
+                height: 24px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 4px;
+            }
+            
+            .subtitle {
+                font-size: 0.875rem;
+            }
+            
+            .disclaimer {
+                font-size: 0.625rem;
+            }
+            
+            .features-grid {
+                margin-bottom: 12px;
+            }
+            
+            .benefits-card {
+                margin-bottom: 12px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+            </div>
+            
+            <h1>Local Aftercare Vault</h1>
+            
+            <p class="subtitle">Administrative guidance for those navigating loss</p>
+            
+            <p class="disclaimer">
+                This application provides administrative guidance only. It does not provide legal, financial, or medical advice.
+            </p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Personalized Task Plan</h3>
+                        <p>Organized guidance organized by timeline, from the first 48 hours to long-term tasks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Document Management</h3>
+                        <p>Upload and organize important documents in one secure place.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Script Templates</h3>
+                        <p>Phone scripts, letters, and email templates to help with difficult conversations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Executor Tools</h3>
+                        <p>Comprehensive checklist and contact workbook for executors.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits List -->
+        <div class="benefits-card">
+            <div class="benefits-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+                <h2>Privacy & Security</h2>
+            </div>
+            <ul class="benefits-list">
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Fully local — your data stays on your device</span>
+                </li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>No cloud dependencies — works completely offline</span>
+                </li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Privacy-first — encrypted local storage</span>
+                </li>
+                <li>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Administrative guidance — organized and clear</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <a href="#" class="cta-button" onclick="alert('Get Started clicked!'); return false;">
+                <span>Get Started</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+            </a>
+            
+            <p class="cta-note">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                Your data is stored locally and never leaves your device
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

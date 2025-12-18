@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Landing Page Again</title>
+</head>
+<body style="font-family: Arial; padding: 20px; background: #1F2534; color: #E8EDF2;">
+    <h1 style="color: #C9AE66;">Show Landing Page Again</h1>
+    <p>Click the button below to clear localStorage and see the landing page:</p>
+    <button onclick="clearStorage()" style="padding: 10px 20px; background: #C9AE66; color: #1F2534; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+        Clear Storage & Show Landing Page
+    </button>
+    <p id="result" style="margin-top: 20px; color: #A0AAB6;"></p>
+    
+    <script>
+        function clearStorage() {
+            // Clear the landing page flag
+            localStorage.removeItem('aftercare_hasSeenLandingPage');
+            
+            // Also clear profile so it shows landing page first
+            localStorage.removeItem('aftercare_profile');
+            
+            document.getElementById('result').innerHTML = 
+                '<strong style="color: #10B981;">✓ Cleared! Now refresh your app at <a href="http://localhost:5174" style="color: #C9AE66;">http://localhost:5174</a></strong>';
+        }
+    </script>
+</body>
+</html>
+
+

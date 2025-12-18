@@ -1,0 +1,48 @@
+========================================
+  FINAL FIX FOR ONEDRIVE ERROR
+========================================
+
+The error keeps happening because OneDrive is syncing node_modules.
+
+QUICK FIX - Double-click this file:
+------------------------------------
+FIX-ONEDRIVE.bat
+
+This will:
+1. Delete corrupted node_modules
+2. Reinstall everything
+3. Start the server
+
+OR do it manually:
+------------------
+1. Delete node_modules folder (right-click > Delete)
+
+2. In PowerShell, run:
+   & "C:\Program Files\nodejs\npm.cmd" install
+
+3. Wait for it to finish
+
+4. Then run:
+   & "C:\Program Files\nodejs\npm.cmd" run dev
+
+PERMANENT FIX - Stop OneDrive from syncing node_modules:
+--------------------------------------------------------
+1. Open File Explorer
+2. Go to: C:\Users\kelly\OneDrive\Desktop\Vault-Main\LegacyAftercareAssistant
+3. Right-click the "node_modules" folder
+4. Click "Always keep on this device"
+5. This stops OneDrive from syncing it
+
+BEST SOLUTION - Move project out of OneDrive:
+---------------------------------------------
+Move the entire project to:
+C:\Projects\LegacyAftercareAssistant
+
+Then run npm install and npm run dev there.
+OneDrive won't interfere with files outside OneDrive folder.
+
+========================================
+  THE LANDING PAGE IS READY!
+========================================
+Once the server starts, open: http://localhost:5174
+

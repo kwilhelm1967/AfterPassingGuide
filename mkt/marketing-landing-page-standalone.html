@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Aftercare Vault - Administrative Guidance When You Need It Most</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-background: #1F2534;
+            --color-background-sidebar: #2A3340;
+            --color-background-card: #303A48;
+            --color-background-card-hover: #3A4552;
+            --color-text-primary: #E8EDF2;
+            --color-text-secondary: #A0AAB6;
+            --color-text-muted: #8590A2;
+            --color-accent-gold: #C9AE66;
+            --color-accent-gold-hover: #D1B26E;
+            --color-border-subtle: rgba(255, 255, 255, 0.10);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(180deg, #1F2534 0%, #252D3B 50%, #1F2534 100%);
+            background-color: #1F2534;
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(to right, rgba(31, 37, 52, 0.95), rgba(31, 37, 52, 0.98), rgba(31, 37, 52, 0.95));
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(to bottom right, var(--color-accent-gold), #F59E0B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .nav-logo-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .nav-logo-text h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .nav-logo-text p {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+        }
+
+        .nav-button {
+            padding: 0.625rem 1.5rem;
+            background: linear-gradient(to right, var(--color-accent-gold), #F59E0B);
+            color: var(--color-background);
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(201, 174, 102, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(to right, rgba(201, 174, 102, 0.2), rgba(245, 158, 11, 0.2));
+            border-radius: 9999px;
+            border: 1px solid rgba(201, 174, 102, 0.4);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            line-height: 1.2;
+        }
+
+        .hero h1 .gradient-text-1 {
+            background: linear-gradient(to right, var(--color-text-primary), var(--color-accent-gold), var(--color-text-primary));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+        }
+
+        .hero h1 .gradient-text-2 {
+            background: linear-gradient(to right, var(--color-accent-gold), #F59E0B, var(--color-accent-gold));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+            max-width: 48rem;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 300;
+        }
+
+        .hero-description {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 32rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Stats */
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(to bottom right, rgba(48, 58, 72, 0.9), rgba(48, 58, 72, 0.7));
+            border-radius: 0.75rem;
+            border: 1px solid rgba(201, 174, 102, 0.2);
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0s; }
+        .stat-card:nth-child(2) { animation-delay: 0.1s; }
+        .stat-card:nth-child(3) { animation-delay: 0.2s; }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card:hover {
+            border-color: rgba(201, 174, 102, 0.5);
+            box-shadow: 0 8px 16px rgba(201, 174, 102, 0.2);
+            transform: scale(1.05);
+        }
+
+        .stat-icon {
+            color: var(--color-accent-gold);
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(to right, var(--color-accent-gold), #F59E0B, var(--color-accent-gold));
+            background-size: 200% 100%;
+            color: var(--color-background);
+            font-weight: 700;
+            font-size: 1.125rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .btn-primary:hover {
+            background-position: 100% 0;
+            transform: scale(1.1);
+            box-shadow: 0 12px 24px rgba(201, 174, 102, 0.5);
+            animation: none;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border: 2px solid rgba(201, 174, 102, 0.5);
+            color: var(--color-accent-gold);
+            background: transparent;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(201, 174, 102, 0.1);
+            border-color: var(--color-accent-gold);
+            transform: scale(1.05);
+        }
+
+        /* Trust Indicators */
+        .trust-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            background: rgba(48, 58, 72, 0.5);
+            border-radius: 0.5rem;
+        }
+
+        .trust-icon {
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-accent-gold);
+        }
+
+        /* Features Section */
+        .features-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.125rem;
+            color: var(--color-text-secondary);
+            max-width: 32rem;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(to bottom right, rgba(48, 58, 72, 0.9), rgba(48, 58, 72, 0.7));
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+        }
+
+        .feature-card:hover {
+            border-color: rgba(201, 174, 102, 0.5);
+            box-shadow: 0 12px 24px rgba(201, 174, 102, 0.3);
+            transform: scale(1.02);
+            background: linear-gradient(to bottom right, rgba(48, 58, 72, 1), rgba(201, 174, 102, 0.1));
+        }
+
+        .feature-icon {
+            color: var(--color-accent-gold);
+            width: 2.25rem;
+            height: 2.25rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(6deg);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 0.75rem;
+            transition: color 0.3s;
+        }
+
+        .feature-card:hover .feature-title {
+            color: var(--color-accent-gold);
+        }
+
+        .feature-description {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .feature-benefit {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem;
+            background: linear-gradient(to right, rgba(201, 174, 102, 0.1), rgba(245, 158, 11, 0.1));
+            border-radius: 0.5rem;
+            border: 1px solid rgba(201, 174, 102, 0.2);
+        }
+
+        .feature-benefit-icon {
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-accent-gold);
+        }
+
+        .feature-benefit-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-accent-gold);
+        }
+
+        /* Value Propositions */
+        .value-section {
+            background: linear-gradient(to bottom right, rgba(48, 58, 72, 0.5), rgba(31, 37, 52, 0.5));
+            border-top: 1px solid rgba(201, 174, 102, 0.2);
+            border-bottom: 1px solid rgba(201, 174, 102, 0.2);
+            padding: 4rem 1.5rem;
+        }
+
+        .value-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
+            max-width: 64rem;
+            margin: 0 auto;
+        }
+
+        .value-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 2px solid rgba(201, 174, 102, 0.5);
+            background: linear-gradient(to bottom right, rgba(201, 174, 102, 0.2), rgba(245, 158, 11, 0.2));
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        }
+
+        .value-card:hover {
+            box-shadow: 0 8px 16px rgba(201, 174, 102, 0.3);
+            transform: scale(1.05);
+        }
+
+        .value-icon {
+            color: var(--color-accent-gold);
+            width: 1.5rem;
+            height: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        .value-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--color-text-primary);
+            font-weight: 600;
+        }
+
+        /* Security Section */
+        .security-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+        }
+
+        .security-card {
+            background: linear-gradient(to bottom right, rgba(48, 58, 72, 0.9), rgba(48, 58, 72, 0.7));
+            border-radius: 1rem;
+            padding: 2.5rem;
+            border: 2px solid rgba(201, 174, 102, 0.2);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .security-icon-container {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(to bottom right, rgba(201, 174, 102, 0.2), rgba(245, 158, 11, 0.2));
+            border: 1px solid rgba(201, 174, 102, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .security-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--color-accent-gold);
+        }
+
+        .security-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .security-subtitle {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .security-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(31, 37, 52, 0.5);
+            border-radius: 0.5rem;
+        }
+
+        .security-check {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: var(--color-accent-gold);
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        .security-text {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+        }
+
+        .cta-card {
+            background: linear-gradient(to bottom right, rgba(201, 174, 102, 0.2), rgba(245, 158, 11, 0.15), rgba(201, 174, 102, 0.2));
+            border-radius: 1.5rem;
+            padding: 3rem;
+            border: 2px solid rgba(201, 174, 102, 0.4);
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+        }
+
+        .cta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.5rem 1.25rem;
+            background: rgba(201, 174, 102, 0.3);
+            border-radius: 9999px;
+            border: 1px solid rgba(201, 174, 102, 0.5);
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-badge-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--color-accent-gold);
+        }
+
+        .cta-badge-text {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--color-accent-gold);
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 1.25rem;
+        }
+
+        .cta-description {
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+            max-width: 32rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-footer {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+        }
+
+        .cta-footer-icon {
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-accent-gold);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 2px solid rgba(201, 174, 102, 0.2);
+            padding: 2.5rem 1.5rem;
+            background: rgba(31, 37, 52, 0.5);
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+        }
+
+        .footer-text strong {
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .value-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="nav-logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color: #1F2534;">
+                        <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                </div>
+                <div class="nav-logo-text">
+                    <h1>Local Aftercare Vault</h1>
+                    <p>Administrative guidance</p>
+                </div>
+            </div>
+            <button class="nav-button" onclick="scrollToCTA()">Get Started</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" style="color: #C9AE66;">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span style="color: #C9AE66; font-weight: 600; font-size: 0.75rem;">14-Day Free Trial • No Credit Card</span>
+        </div>
+        
+        <h1>
+            <span class="gradient-text-1">Administrative Guidance</span><br>
+            <span class="gradient-text-2">When You Need It Most</span>
+        </h1>
+        
+        <p class="hero-subtitle">
+            A comprehensive organizational tool for families handling paperwork, notifications, and administrative tasks after a loss.
+        </p>
+        
+        <p class="hero-description">
+            Get personalized checklists, secure document management, and ready-to-use templates—all stored securely on your device.
+        </p>
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <div>
+                    <div class="stat-value">50+</div>
+                    <div class="stat-label">Hours Saved</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                </svg>
+                <div>
+                    <div class="stat-value">100+</div>
+                    <div class="stat-label">Tasks</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                <div>
+                    <div class="stat-value">25+</div>
+                    <div class="stat-label">Templates</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTAs -->
+        <div class="cta-buttons">
+            <button class="btn-primary" onclick="scrollToCTA()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span>Start Free Trial</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </button>
+            <button class="btn-secondary" onclick="scrollToFeatures()">
+                <span>Learn More</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Trust Indicators -->
+        <div class="trust-indicators">
+            <div class="trust-item">
+                <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                </svg>
+                <span style="font-weight: 500;">100% Local</span>
+            </div>
+            <div class="trust-item">
+                <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                <span style="font-weight: 500;">Encrypted</span>
+            </div>
+            <div class="trust-item">
+                <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                <span style="font-weight: 500;">Offline</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="section-title">
+            <h2>Everything You Need in One Place</h2>
+            <p>Comprehensive tools designed specifically for executors and families</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                <h3 class="feature-title">Personalized Task Plans</h3>
+                <p class="feature-description">Get a customized checklist organized by timeline—from the critical first 48 hours to long-term administrative tasks.</p>
+                <div class="feature-benefit">
+                    <svg class="feature-benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                    <span class="feature-benefit-text">Save 20+ hours of research</span>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                <h3 class="feature-title">Secure Document Management</h3>
+                <p class="feature-description">Upload, organize, and securely store all important documents in one encrypted location.</p>
+                <div class="feature-benefit">
+                    <svg class="feature-benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                    <span class="feature-benefit-text">Never lose track of paperwork</span>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>
+                <h3 class="feature-title">Ready-to-Use Templates</h3>
+                <p class="feature-description">Pre-written phone scripts, letters, and email templates for difficult conversations.</p>
+                <div class="feature-benefit">
+                    <svg class="feature-benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                    <span class="feature-benefit-text">Know exactly what to say</span>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                </svg>
+                <h3 class="feature-title">Executor Tools and Checklists</h3>
+                <p class="feature-description">Comprehensive executor checklist and contact workbook to track progress.</p>
+                <div class="feature-benefit">
+                    <svg class="feature-benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                    <span class="feature-benefit-text">Stay organized and maintain records</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Propositions -->
+    <section class="value-section">
+        <div class="value-container">
+            <div class="section-title">
+                <h2>Why Choose Local Aftercare Vault?</h2>
+            </div>
+            <div class="value-grid">
+                <div class="value-card">
+                    <svg class="value-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                    <p class="value-text">Save 50+ hours of research</p>
+                </div>
+                <div class="value-card">
+                    <svg class="value-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                        <path d="M16 3.13a4 4 0 010 7.75" />
+                    </svg>
+                    <p class="value-text">Designed for executors and family members</p>
+                </div>
+                <div class="value-card">
+                    <svg class="value-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                    <p class="value-text">US-specific guidance for Social Security, VA, and more</p>
+                </div>
+                <div class="value-card">
+                    <svg class="value-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    <p class="value-text">Timeline-based from first 48 hours to long-term</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Section -->
+    <section class="security-section">
+        <div class="security-card">
+            <div class="security-header">
+                <div class="security-icon-container">
+                    <svg class="security-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="security-title">Privacy and Security First</h2>
+                    <p class="security-subtitle">Your sensitive information deserves the highest protection</p>
+                </div>
+            </div>
+            <div class="security-grid">
+                <div class="security-item">
+                    <svg class="security-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span class="security-text">100% local storage — your data never leaves your device</span>
+                </div>
+                <div class="security-item">
+                    <svg class="security-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span class="security-text">Fully encrypted — all sensitive information is protected</span>
+                </div>
+                <div class="security-item">
+                    <svg class="security-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span class="security-text">Works completely offline — no internet required</span>
+                </div>
+                <div class="security-item">
+                    <svg class="security-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span class="security-text">Zero tracking — no analytics, no telemetry</span>
+                </div>
+                <div class="security-item">
+                    <svg class="security-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span class="security-text">Device-bound security — your data stays with you</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section id="cta" class="final-cta">
+        <div class="cta-card">
+            <div class="cta-badge">
+                <svg class="cta-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <circle cx="12" cy="8" r="7" />
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                </svg>
+                <span class="cta-badge-text">Trusted by Families Nationwide</span>
+            </div>
+            <h2 class="cta-title">Ready to Get Organized?</h2>
+            <p class="cta-description">Start your 14-day free trial today. No credit card required.</p>
+            <button class="btn-primary" onclick="scrollToCTA()" style="margin-bottom: 1.25rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span>Start Free Trial</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </button>
+            <p class="cta-footer">
+                <svg class="cta-footer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                </svg>
+                <span style="font-weight: 500;">All data stored locally • No cloud • No tracking</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-text">
+                <p style="margin-bottom: 0.75rem;">
+                    <strong>Important:</strong> This application provides administrative guidance only. 
+                    It does not provide legal, financial, or medical advice.
+                </p>
+                <p style="color: var(--color-text-secondary);">
+                    For legal, financial, or tax matters, please consult appropriate professionals. 
+                    Guidance is focused on the United States.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToCTA() {
+            document.getElementById('cta').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToFeatures() {
+            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Add hover effect to buttons
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.backgroundPosition = '100% 0';
+            });
+        });
+    </script>
+</body>
+</html>
+
