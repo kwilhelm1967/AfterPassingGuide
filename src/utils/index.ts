@@ -8,4 +8,5 @@ export * from './deviceFingerprint';
 export * from './encryption';
 export * from './documentAnalysis';
 export * from './validation';
+export * from './safeStorage';
 

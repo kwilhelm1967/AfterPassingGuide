@@ -45,12 +45,13 @@ export class ErrorBoundary extends Component<Props, State> {
                   An unexpected error occurred. Your data is safe and stored locally.
                 </p>
                 {this.state.error && (
-                  <details className="mb-4">
+                  <details className="mb-4" open>
                     <summary className="text-xs text-text-muted cursor-pointer mb-2">
                       Error details
                     </summary>
-                    <pre className="text-xs text-text-muted bg-slate-800/50 p-2 rounded overflow-auto">
+                    <pre className="text-xs text-text-muted bg-slate-800/50 p-2 rounded overflow-auto max-h-32">
                       {this.state.error.toString()}
+                      {this.state.error.stack && `\n\n${this.state.error.stack}`}
                     </pre>
                   </details>
                 )}

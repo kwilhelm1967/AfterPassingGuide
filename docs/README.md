@@ -1,6 +1,6 @@
 # Developer Documentation
 
-Welcome to the Local Aftercare Vault developer documentation. This directory contains comprehensive guides for developers working on the project.
+Welcome to the AfterPassing Guide developer documentation. This directory contains comprehensive guides for developers working on the project.
 
 ## Documentation Index
 

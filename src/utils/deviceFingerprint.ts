@@ -1,5 +1,5 @@
 /**
- * Device Fingerprint Utility for Local Aftercare Vault
+ * Device Fingerprint Utility for AfterPassing Guide
  * 
  * Generates a stable, hardware-based device identifier for license binding.
  * Matches the exact implementation from Local Password Vault.

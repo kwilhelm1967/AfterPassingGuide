@@ -50,7 +50,7 @@
   },
   "build": {
     "appId": "com.localvault.aftercare",
-    "productName": "Local Aftercare Vault",
+    "productName": "AfterPassing Guide",
     "directories": {
       "output": "dist"
     },

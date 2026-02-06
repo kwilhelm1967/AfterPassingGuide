@@ -1,0 +1,17 @@
+---
+description: Never modify or depend on Local Legacy Vault when working on AfterPassing Guide
+alwaysApply: true
+---
+
+# Do not touch Local Legacy Vault (LLV)
+
+When working on **AfterPassing Guide**:
+
+- **Only edit, read, or run commands under:** `C:\dev\AfterPassingGuide`
+- **Never edit, read, or run commands under:** `C:\dev\LocalLegacyVault` or any path that refers to "LocalLegacyVault" or "LLV" as the project/codebase
+- The user's workspace may be LocalLegacyVault; that does **not** mean we are working on LLV. AfterPassing Guide is a **separate project** in `C:\dev\AfterPassingGuide`.
+- Before any edit or read_file: check the path. If it is under `LocalLegacyVault`, do **not** use it. Use the equivalent or intended file under `AfterPassingGuide` only.
+- Do not assume LLV and AfterPassing Guide share code or that changes in one should apply to the other unless the user explicitly asks for both.
+- **Localhost / dev server:** If the user says "open localhost", "run the app", "start the server", or similar, use **AfterPassing Guide only**: run `npm run dev` from `C:\dev\AfterPassingGuide` and open `http://localhost:5174`. **Never** open or start Local Legacy Vault (port 5180 or `C:\dev\LocalLegacyVault`).
+
+This rule exists because LLV must not be modified when the task is for AfterPassing Guide.

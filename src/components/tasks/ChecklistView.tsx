@@ -5,15 +5,21 @@
  * Designed for orientation without overwhelm.
  */
 
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { 
   ChevronDown, 
   ChevronRight,
   Filter,
   ArrowLeft,
+  Check,
+  Circle,
+  Minus,
+  Pause,
+  Info,
 } from 'lucide-react';
 import { AftercarePlan, AftercareTask, TaskPhase, TaskStatus } from '../../types';
 import { getPhaseInfo } from '../../services/taskGenerationEngine';
+import { TitleBar } from '../common/TitleBar';
 
 interface ChecklistViewProps {
   plan: AftercarePlan;
@@ -23,20 +29,57 @@ interface ChecklistViewProps {
 
 const PHASES: TaskPhase[] = ['FIRST_48_HOURS', 'WEEK_1', 'WEEKS_2_6', 'DAYS_60_90', 'LONG_TERM'];
 const MAX_VISIBLE_TASKS = 6;
+const STATUS_GUIDE_HIDDEN_KEY = 'checklist_status_guide_hidden';
 
 export const ChecklistView: React.FC<ChecklistViewProps> = ({ 
   plan, 
   onPlanUpdate, 
   onReturnToFocus 
 }) => {
-  // Only First 48 Hours expanded by default
-  const [expandedPhases, setExpandedPhases] = useState<Set<TaskPhase>>(
-    new Set(['FIRST_48_HOURS'])
-  );
+  // Collapse sections by default after first visit; first time only First 48 Hours expanded
+  const [expandedPhases, setExpandedPhases] = useState<Set<TaskPhase>>(() => {
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('checklist_has_visited') === 'true') {
+        return new Set();
+      }
+    } catch (_) {}
+    return new Set(['FIRST_48_HOURS']);
+  });
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('checklist_has_visited', 'true');
+    } catch (_) {}
+  }, []);
   const [showFilters, setShowFilters] = useState(false);
   const [hideCompleted, setHideCompleted] = useState(false);
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [showAllInPhase, setShowAllInPhase] = useState<Set<TaskPhase>>(new Set());
+  const [showStatusGuide, setShowStatusGuide] = useState(false);
+  const [statusGuideLinkHidden, setStatusGuideLinkHidden] = useState(() => {
+    try {
+      return typeof localStorage !== 'undefined' && localStorage.getItem(STATUS_GUIDE_HIDDEN_KEY) === 'true';
+    } catch { return false; }
+  });
+  const statusGuideRef = useRef<HTMLDivElement>(null);
+
+  const hideStatusGuidePermanently = useCallback(() => {
+    try {
+      localStorage.setItem(STATUS_GUIDE_HIDDEN_KEY, 'true');
+      setStatusGuideLinkHidden(true);
+      setShowStatusGuide(false);
+    } catch (_) {}
+  }, []);
+
+  useEffect(() => {
+    if (!showStatusGuide) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (statusGuideRef.current && !statusGuideRef.current.contains(e.target as Node)) {
+        setShowStatusGuide(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showStatusGuide]);
   
   // Properly initialize ref with all phase keys to avoid access-before-set issues
   const phaseRefs = useRef<Record<TaskPhase, HTMLDivElement | null>>(
@@ -104,6 +147,12 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
     return grouped;
   }, [plan.tasks]);
 
+  // Progress: Handled and Not needed count as addressed; Leave for now and Taking care of this do not
+  const progressCount = useMemo(() => {
+    const addressed = plan.tasks.filter(t => t.status === 'DONE' || t.status === 'NOT_APPLICABLE');
+    return { count: addressed.length, total: plan.tasks.length };
+  }, [plan.tasks]);
+
   const getVisibleTasks = useCallback((phaseTasks: AftercareTask[], phase: TaskPhase) => {
     let filtered = hideCompleted 
       ? phaseTasks.filter(t => t.status !== 'DONE' && t.status !== 'NOT_APPLICABLE')
@@ -119,12 +168,14 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
   const firstPhase = 'FIRST_48_HOURS' as TaskPhase;
   const otherPhases = PHASES.filter(p => p !== firstPhase);
 
+  const isFirstPhase = (p: TaskPhase) => p === 'FIRST_48_HOURS';
+
   const renderPhaseCard = (phase: TaskPhase) => {
-    // Use memoized tasksByPhase instead of filtering on every render
     const phaseTasks = tasksByPhase[phase];
     const isExpanded = expandedPhases.has(phase);
     const phaseInfo = getPhaseInfo(phase);
     const { tasks: visibleTasks, hasMore, total } = getVisibleTasks(phaseTasks, phase);
+    const primary = isFirstPhase(phase);
 
     if (phaseTasks.length === 0) return null;
 
@@ -132,7 +183,10 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
       <div 
         key={phase}
         ref={el => { phaseRefs.current[phase] = el; }}
-        className="bg-card-bg rounded-xl border border-border-subtle overflow-hidden"
+        className={primary
+          ? 'rounded-xl border border-accent-gold/25 overflow-hidden bg-card-bg/80'
+          : 'rounded-lg border border-white/5 overflow-hidden bg-card-bg/40'
+        }
       >
         {/* Phase Header */}
         <button
@@ -145,37 +199,56 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
           }}
           aria-expanded={isExpanded}
           aria-controls={`phase-${phase}-content`}
-          aria-label={`${phaseInfo.label} phase, ${phaseTasks.length} items`}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-card-bg-hover transition-colors text-left"
+          aria-label={primary ? `${phaseInfo.label} phase` : `${phaseInfo.label} phase, ${phaseTasks.length} items`}
+          className={`w-full flex items-center justify-between text-left transition-colors ${
+            primary
+              ? 'px-5 py-4 hover:bg-white/[0.03]'
+              : 'px-4 py-2.5 hover:bg-white/[0.02]'
+          }`}
         >
           <div className="flex items-center gap-3">
             {isExpanded ? (
-              <ChevronDown className="w-5 h-5 text-accent-gold" />
+              <ChevronDown className={primary ? 'w-5 h-5 text-accent-gold' : 'w-4 h-4 text-text-muted'} />
             ) : (
-              <ChevronRight className="w-5 h-5 text-text-muted" />
+              <ChevronRight className={primary ? 'w-5 h-5 text-accent-gold' : 'w-4 h-4 text-text-muted'} />
             )}
             <div>
-              <h3 className={`font-medium text-base ${
-                phase === 'FIRST_48_HOURS' ? 'text-accent-gold' : 'text-text-primary'
-              }`}>{phaseInfo.label}</h3>
-              {!isExpanded && (
-                <p className="text-sm text-text-muted">{phaseTasks.length} items</p>
+              <h3 className={primary
+                ? 'font-medium text-base text-accent-gold'
+                : 'font-normal text-sm text-text-muted'
+              }>{phaseInfo.label}</h3>
+              {!isExpanded && !primary && (
+                <p className="text-xs text-text-muted/80 mt-0.5">{phaseTasks.length} items</p>
               )}
             </div>
           </div>
-          {isExpanded && (
-            <span className="text-sm text-text-muted">{phaseTasks.length} items</span>
+          {isExpanded && !primary && (
+            <span className="text-xs text-text-muted/80">{phaseTasks.length} items</span>
           )}
         </button>
 
         {/* Phase Content - Only when expanded */}
         {isExpanded && (
-          <div id={`phase-${phase}-content`} className="border-t border-border-subtle" role="region" aria-label={`${phaseInfo.label} tasks`}>
+          <div id={`phase-${phase}-content`} className={primary ? 'border-t border-accent-gold/15' : 'border-t border-white/5'} role="region" aria-label={`${phaseInfo.label} tasks`}>
             {/* Tasks */}
             <div className="divide-y divide-border-subtle">
               {visibleTasks.map((task) => {
                 const isTaskExpanded = expandedTasks.has(task.id);
-                const isAddressed = task.status === 'DONE' || task.status === 'NOT_APPLICABLE';
+                const status = task.status;
+                // Status behavior: Leave=normal+pause, Taking=brighter+dot, Handled=dimmed+check, Not needed=dimmed+italic, subtext hidden. Never strikethrough.
+                const titleClasses = {
+                  NOT_STARTED: 'text-text-primary font-normal',
+                  IN_PROGRESS: 'text-text-primary font-medium',
+                  DONE: 'text-text-primary/85 font-normal',
+                  NOT_APPLICABLE: 'text-text-primary/70 font-normal italic',
+                }[status];
+                const descClasses = {
+                  NOT_STARTED: 'text-sm text-text-secondary leading-relaxed',
+                  IN_PROGRESS: 'text-sm text-text-secondary leading-relaxed',
+                  DONE: 'text-sm text-text-secondary leading-relaxed opacity-80',
+                  NOT_APPLICABLE: 'text-sm text-text-secondary leading-relaxed opacity-0 pointer-events-none h-0 overflow-hidden', // hidden
+                }[status];
+                const showSubtext = status !== 'NOT_APPLICABLE';
                 
                 return (
                   <div key={task.id} className="px-4 py-3">
@@ -193,11 +266,17 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                         )}
                       </div>
 
+                      {/* Status indicator: pause (leave), progress dot (taking), check (handled), minus (not needed) */}
+                      <div className="flex-shrink-0 w-5 flex items-start justify-center mt-0.5">
+                        {status === 'NOT_STARTED' && <Pause className="w-2.5 h-2.5 text-text-muted mt-1" strokeWidth={2} />}
+                        {status === 'IN_PROGRESS' && <Circle className="w-2 h-2 fill-accent-gold/70 text-accent-gold/70 mt-1" strokeWidth={2.5} />}
+                        {status === 'DONE' && <Check className="w-3.5 h-3.5 text-text-muted mt-1" strokeWidth={2} />}
+                        {status === 'NOT_APPLICABLE' && <Minus className="w-3.5 h-3.5 text-text-muted mt-1" strokeWidth={2} />}
+                      </div>
+
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <h4 className={`text-sm font-medium ${
-                          isAddressed ? 'text-text-muted/60 line-through' : 'text-text-primary'
-                        }`}>
+                        <h4 className={`text-sm ${titleClasses}`}>
                           {task.title}
                         </h4>
                       </div>
@@ -206,75 +285,46 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                     {/* Expanded: Description and Status selector */}
                     {isTaskExpanded && (
                       <div className="mt-3 ml-7 space-y-3">
-                        {task.description && (
-                          <p className="text-sm text-text-secondary leading-relaxed">
-                            {task.description}
-                          </p>
+                        {task.description && showSubtext && (
+                          status === 'DONE' ? (
+                            <details className="group/details">
+                              <summary className="text-xs text-text-muted cursor-pointer hover:text-text-secondary list-none py-0.5">
+                                What this is
+                              </summary>
+                              <p className="mt-1 text-sm text-text-secondary leading-relaxed opacity-80">{task.description}</p>
+                            </details>
+                          ) : (
+                            <p className={descClasses}>{task.description}</p>
+                          )
                         )}
                         
-                        {/* Status Buttons - Hidden for "Take care of yourself" and "Take a moment" tasks */}
+                        {/* Status — one selectable at a time; immediate, quiet; subtle selected state for all */}
                         {task.title !== 'Take care of yourself' && task.title !== 'Take a moment' && (
-                          <div className="flex flex-wrap gap-2 pt-2" role="group" aria-label={`Status options for ${task.title}`}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(task, 'NOT_STARTED');
-                              }}
-                              aria-pressed={task.status === 'NOT_STARTED'}
-                              aria-label={`Mark ${task.title} as not started`}
-                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                task.status === 'NOT_STARTED'
-                                  ? 'bg-accent-gold/20 text-accent-gold border border-accent-gold/40'
-                                  : 'bg-slate-700/50 text-text-secondary hover:bg-slate-700 border border-border-subtle'
-                              }`}
-                            >
-                              Not Started
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(task, 'IN_PROGRESS');
-                              }}
-                              aria-pressed={task.status === 'IN_PROGRESS'}
-                              aria-label={`Mark ${task.title} as in progress`}
-                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                task.status === 'IN_PROGRESS'
-                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                                  : 'bg-slate-700/50 text-text-secondary hover:bg-slate-700 border border-border-subtle'
-                              }`}
-                            >
-                              In Progress
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(task, 'DONE');
-                              }}
-                              aria-pressed={task.status === 'DONE'}
-                              aria-label={`Mark ${task.title} as done`}
-                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                task.status === 'DONE'
-                                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
-                                  : 'bg-slate-700/50 text-text-secondary hover:bg-slate-700 border border-border-subtle'
-                              }`}
-                            >
-                              Done
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(task, 'NOT_APPLICABLE');
-                              }}
-                              aria-pressed={task.status === 'NOT_APPLICABLE'}
-                              aria-label={`Mark ${task.title} as not applicable`}
-                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                                task.status === 'NOT_APPLICABLE'
-                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50'
-                                  : 'bg-slate-700/50 text-text-secondary hover:bg-slate-700 border border-border-subtle'
-                              }`}
-                            >
-                              Not Applicable
-                            </button>
+                          <div className="flex flex-wrap gap-1.5 pt-2" role="group" aria-label={`Status options for ${task.title}`}>
+                            {(['NOT_STARTED', 'IN_PROGRESS', 'DONE', 'NOT_APPLICABLE'] as const).map((s) => {
+                              const label = { NOT_STARTED: 'Leave for now', IN_PROGRESS: 'Taking care of this', DONE: 'Handled', NOT_APPLICABLE: 'Not needed' }[s];
+                              const isPressed = task.status === s;
+                              return (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleStatusChange(task, s);
+                                  }}
+                                  aria-pressed={isPressed}
+                                  aria-label={`Mark ${task.title} as ${label.toLowerCase()}`}
+                                  className={`px-2.5 py-1.5 text-[11px] font-normal rounded transition-colors cursor-pointer border ${
+                                    isPressed
+                                      ? 'bg-white/8 text-text-primary border-white/15'
+                                      : 'bg-transparent text-text-muted hover:bg-white/5 hover:text-text-primary border-transparent'
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -307,19 +357,94 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">Full Aftercare Checklist</h1>
-          <p className="text-text-muted text-sm">You don't need to do everything. This is here so nothing gets missed.</p>
+      {/* Header — flat zone: subtle gradient, bottom inner shadow, thin gold rule */}
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="page-header-zone flex flex-col items-center text-center flex-1 min-w-0 relative">
+          <div className="flex flex-col items-center">
+            <h1 className="text-xl font-semibold text-text-primary">Checklist</h1>
+            <TitleBar className="mt-1.5" />
+          </div>
+          <p className="text-text-muted text-sm mt-1.5">A place to start.</p>
+          {plan.tasks.length > 0 && (
+            <div className="w-full max-w-xs mt-2 mx-auto">
+              <div className="h-1 bg-slate-700/60 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-accent-gold/70 rounded-full transition-all"
+                  style={{ width: `${progressCount.total ? (progressCount.count / progressCount.total) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors"
-        >
-          <Filter className="w-4 h-4" />
-          {showFilters ? 'Hide Filters' : 'Filters'}
-        </button>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {!statusGuideLinkHidden && (
+            <div className="relative" ref={statusGuideRef}>
+              <button
+                type="button"
+                onClick={() => setShowStatusGuide(prev => !prev)}
+                className="inline-flex items-center gap-1 text-text-muted text-xs hover:text-text-secondary transition-colors py-2 px-1"
+                aria-expanded={showStatusGuide}
+                aria-haspopup="true"
+              >
+                <Info className="w-3.5 h-3.5" />
+                <span>Status guide</span>
+              </button>
+              {showStatusGuide && (
+                <div
+                  className="absolute right-0 top-full mt-1.5 z-20 w-64 p-3 bg-card-bg border border-border-subtle rounded-lg shadow-lg text-left"
+                  role="dialog"
+                  aria-label="Status guide"
+                >
+                  <div className="space-y-2 text-xs text-text-secondary">
+                    <div className="flex items-start gap-2">
+                      <Pause className="w-4 h-4 shrink-0 mt-0.5 text-text-muted" />
+                      <span><strong className="text-text-primary font-medium">Leave for now.</strong> Stays active; not counted as addressed.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="w-4 h-4 shrink-0 mt-0.5 rounded-full bg-accent-gold/60 border border-accent-gold/40" />
+                      <span><strong className="text-text-primary font-medium">Taking care of this.</strong> In progress; not counted as addressed.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 shrink-0 mt-0.5 text-text-muted" />
+                      <span><strong className="text-text-primary font-medium">Handled.</strong> Collapses by default; counts as addressed.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Minus className="w-4 h-4 shrink-0 mt-0.5 text-text-muted" />
+                      <span><strong className="text-text-primary font-medium">Not needed.</strong> Muted; not counted against progress.</span>
+                    </div>
+                  </div>
+                  <p className="text-text-muted text-xs mt-2.5 border-t border-border-subtle pt-2">
+                    Handled and Not needed count as addressed. Leave for now and Taking care of this do not.
+                  </p>
+                  <div className="flex items-center justify-between gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowStatusGuide(false)}
+                      className="text-xs text-accent-gold hover:underline"
+                    >
+                      Got it
+                    </button>
+                    <button
+                      type="button"
+                      onClick={hideStatusGuidePermanently}
+                      className="text-xs text-text-muted hover:text-text-secondary"
+                    >
+                      Don't show again
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            title="Filters"
+            aria-label={showFilters ? 'Hide filters' : 'Show filters'}
+            className="p-2 text-text-muted/70 hover:text-text-muted rounded transition-colors"
+          >
+            <Filter className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Filters - Only visible when toggled */}
@@ -334,43 +459,44 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
             />
             <span className="text-sm text-text-secondary">Hide completed items</span>
           </label>
+          {statusGuideLinkHidden && (
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  localStorage.removeItem(STATUS_GUIDE_HIDDEN_KEY);
+                  setStatusGuideLinkHidden(false);
+                } catch (_) {}
+              }}
+              className="mt-2 text-sm text-text-muted hover:text-text-secondary"
+            >
+              Show status guide
+            </button>
+          )}
         </div>
       )}
 
-      {/* Two Column Layout */}
+      {/* Sections */}
       {plan.tasks.length === 0 ? (
-        <div className="text-center py-12 bg-card-bg rounded-xl border border-border-subtle">
+        <div className="text-center py-8 bg-card-bg/50 rounded-xl border border-white/5">
           <p className="text-text-secondary mb-2">No guidance items yet</p>
           <p className="text-text-muted text-sm">
             Go to Settings to update your situation and generate personalized guidance.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-5">
-          {/* Left Column - First 48 Hours */}
-          <div>
-            {renderPhaseCard(firstPhase)}
-          </div>
-
-          {/* Right Column - Other Phases */}
-          <div className="space-y-3">
-            {otherPhases.map(phase => renderPhaseCard(phase))}
+        <div className="space-y-8">
+          {/* The first few days — full width, primary */}
+          {tasksByPhase.FIRST_48_HOURS.length > 0 && renderPhaseCard('FIRST_48_HOURS')}
+          {/* Other sections — single column, visually quieter */}
+          <div className="space-y-6">
+            {otherPhases.map(phase => tasksByPhase[phase].length > 0 ? renderPhaseCard(phase) : null)}
           </div>
         </div>
       )}
 
-      {/* Legal Footer - Centered */}
-      <div className="mt-6 text-center space-y-2">
-        <p className="text-xs text-text-secondary">
-          Not everything here will apply to your situation. Skip anything that doesn't.
-        </p>
-        <p className="text-xs text-text-muted">
-          This tool provides organizational guidance only. For legal, financial, or medical advice, please consult a qualified professional.
-        </p>
-      </div>
-
-      {/* Return to Focus */}
-      <div className="mt-4">
+      {/* Footer: Return to Focus */}
+      <div className="mt-6 pt-4 border-t border-white/5">
         <button
           onClick={onReturnToFocus}
           className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors"

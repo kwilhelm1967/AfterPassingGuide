@@ -1,5 +1,5 @@
 /**
- * Local Aftercare Vault - Core Type Definitions
+ * AfterPassing Guide - Core Type Definitions
  * 
  * This application provides administrative guidance only.
  * It does not provide legal, financial, or medical advice.
@@ -173,16 +173,38 @@ export interface LegacyVaultRecord {
 // DOCUMENT TYPES
 // ============================================================================
 
-export type DocumentType = 
-  | 'WILL'
-  | 'TRUST'
-  | 'INSURANCE_POLICY'
-  | 'BANK_STATEMENT'
-  | 'LOAN_DOCUMENT'
-  | 'DEED'
-  | 'TITLE'
-  | 'TAX_RETURN'
-  | 'OTHER';
+/** Document type (recommended). Default: Other. */
+export type DocumentType =
+  | 'Bond'
+  | 'Will'
+  | 'Insurance'
+  | 'Bank'
+  | 'Property'
+  | 'Tax'
+  | 'ID'
+  | 'Medical'
+  | 'Other';
+
+/** Owner / related person (optional). */
+export type DocumentOwner =
+  | 'Me'
+  | 'Spouse'
+  | 'Child'
+  | 'Parent'
+  | 'Estate'
+  | 'Other';
+
+/** Importance for filtering and executor focus (optional). */
+export type DocumentImportance = 'Critical' | 'Important' | 'Reference';
+
+/** Applies to estate, ongoing life, or after-passing only (optional). */
+export type DocumentAppliesTo = 'Estate' | 'Ongoing Life' | 'After Passing Only';
+
+/** Optional document category for organization (do not force selection). */
+export type DocumentCategory = 'Legal' | 'Financial' | 'Personal' | 'Property' | 'Other';
+
+/** Optional document status. */
+export type DocumentStatus = 'Reference' | 'Original' | 'Copy' | 'Not sure';
 
 export interface UploadedDocument {
   id: string;
@@ -190,8 +212,25 @@ export interface UploadedDocument {
   fileName: string;
   fileSize: number;
   uploadedAt: string;
+  /** Type: Bond, Will, Insurance, Bank, Property, Tax, ID, Medical, Other. Default: Other. */
   documentType?: DocumentType;
   userLabel?: string;
+  /** Optional category: Legal, Financial, Personal, Property, Other */
+  category?: DocumentCategory;
+  /** Optional notes (user-editable). */
+  notes?: string;
+  /** Optional status: Reference, Original, Copy, Not sure */
+  documentStatus?: DocumentStatus;
+  /** Owner / related person (optional). */
+  ownerOrRelatedPerson?: DocumentOwner;
+  /** Importance for filtering (optional). */
+  importance?: DocumentImportance;
+  /** Estate, ongoing life, or after-passing only (optional). */
+  appliesTo?: DocumentAppliesTo;
+  /** If true, surfaces in checklist view. */
+  actionRequired?: boolean;
+  /** Optional link to an executor checklist item id. */
+  linkedTaskId?: string;
   summary?: string;
   keyPoints?: string[];
 }
@@ -255,7 +294,18 @@ export interface ScriptRenderContext {
 // EXECUTOR TYPES
 // ============================================================================
 
-export type ExecutorChecklistCategory = 
+export type ExecutorChecklistCategory =
+  | 'IMMEDIATE_LEGAL_DOCUMENTS'
+  | 'COURT_AND_PROBATE'
+  | 'FINANCIAL_ACCOUNTS'
+  | 'DEBTS_OBLIGATIONS'
+  | 'PROPERTY_REAL_ESTATE'
+  | 'TAXES_GOVERNMENT'
+  | 'BENEFICIARIES_DISTRIBUTIONS'
+  | 'BUSINESS_INTERESTS'
+  | 'DIGITAL_ASSETS'
+  | 'FINAL_CLOSEOUT'
+  // Legacy (for migration); map to new categories when loading
   | 'DOCUMENTS'
   | 'COMMUNICATION'
   | 'ASSET_TRACKING'
@@ -266,13 +316,20 @@ export interface ExecutorChecklistItem {
   id: string;
   category: ExecutorChecklistCategory;
   title: string;
+  /** What this is (1–2 sentences). */
   description: string;
-  status: 'PENDING' | 'DONE';
+  /** Addressed | Not applicable; PENDING = not yet set. */
+  status: 'PENDING' | 'DONE' | 'NOT_APPLICABLE';
   completedAt?: string;
+  /** Optional: why it matters (concise). */
+  whyItMatters?: string;
+  /** Optional: documents, info, contacts (bullet list). */
+  whatYouMayNeed?: string[];
+  /** Free-text notes (optional). */
   notes?: string;
 }
 
-export type ContactType = 
+export type ContactType =
   | 'BANK'
   | 'INSURANCE'
   | 'EMPLOYER'
@@ -282,6 +339,16 @@ export type ContactType =
   | 'ATTORNEY'
   | 'ACCOUNTANT'
   | 'GOVERNMENT'
+  | 'OTHER';
+
+/** Role for manual contact entry (executor-first). */
+export type ContactRole =
+  | 'EXECUTOR'
+  | 'ATTORNEY'
+  | 'FUNERAL_HOME'
+  | 'BANK'
+  | 'EMPLOYER'
+  | 'FAMILY'
   | 'OTHER';
 
 export interface ContactEntry {
@@ -296,6 +363,14 @@ export interface ContactEntry {
   notes?: string;
   lastContactedAt?: string;
   contactStatus?: 'NOT_CONTACTED' | 'IN_PROGRESS' | 'COMPLETED';
+  /** Role for manual contacts (executor, attorney, etc.). */
+  role?: ContactRole;
+  /** Organization (optional). */
+  organization?: string;
+  /** Mark as key contact; included in Export Binder. */
+  isKeyContact?: boolean;
+  /** 'manual' = user-created; 'vault' = from Local Legacy Vault import. */
+  source?: 'manual' | 'vault';
 }
 
 // ============================================================================
@@ -334,10 +409,12 @@ export interface TaskGenerationResult {
 // NAVIGATION TYPES
 // ============================================================================
 
-export type NavigationTab = 
+export type NavigationTab =
   | 'guidance'
+  | 'checklist'
   | 'documents'
   | 'templates'
+  | 'contacts'
   | 'executor'
   | 'settings';
 

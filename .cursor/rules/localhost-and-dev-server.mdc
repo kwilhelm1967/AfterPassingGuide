@@ -1,0 +1,20 @@
+---
+description: Localhost and dev server — AfterPassing Guide only. Never use Local Legacy Vault.
+alwaysApply: true
+---
+
+# Localhost and dev server: AfterPassing Guide ONLY
+
+When the user asks to **open localhost**, **run the app**, **start the server**, **preview**, or similar:
+
+- **ONLY** use **AfterPassing Guide**: `C:\dev\AfterPassingGuide`
+- **URL:** `http://localhost:5174` (Vite port in `vite.config.ts`)
+- **Command:** `npm run dev` from `C:\dev\AfterPassingGuide`
+
+**NEVER:**
+
+- Open or start **Local Legacy Vault** (port 5180 or `C:\dev\LocalLegacyVault`)
+- Run `npm run dev` or `npm run dev:vite` from LocalLegacyVault when the task is for AfterPassing Guide
+- Open `http://localhost:5180` when the user intends to work on AfterPassing Guide
+
+The workspace may be LocalLegacyVault; the **project we are working on** is AfterPassing Guide. Default all "open localhost" / "run app" / "start server" requests to AfterPassing Guide at port 5174.

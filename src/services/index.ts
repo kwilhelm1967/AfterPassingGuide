@@ -14,6 +14,9 @@ export {
   generateContactsFromVault,
   getChecklistProgress,
   getContactProgress,
+  hasLegacyChecklistCategories,
+  getExecutorChecklistCategoryOrder,
+  getChecklistCategoryInfo,
 } from './executorService';
 export { SCRIPT_TEMPLATES, renderScript, getAllTemplateTypes, getTemplateTypeInfo } from './scriptTemplates';
 export { exportPlanToPdf, exportAftercareBinder } from './exportService';

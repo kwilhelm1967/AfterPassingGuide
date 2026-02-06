@@ -22,10 +22,10 @@ export default {
         'accent-gold': '#C9AE66',
         'accent-gold-hover': '#D1B26E',
         
-        // Text Colors
-        'text-primary': '#E8EDF2',
-        'text-secondary': '#8C98A4',
-        'text-muted': '#6B7280',
+        // Text Colors - Ivory, not bright white
+        'text-primary': '#FFF8E7',
+        'text-secondary': '#A0AAB6',
+        'text-muted': '#8590A2',
         
         // Borders
         'border-subtle': 'rgba(255, 255, 255, 0.10)',
@@ -33,6 +33,7 @@ export default {
         // Legacy aliases for compatibility
         'brand-gold': '#C9AE66',
         'burnt-orange': '#cc6600',
+        white: '#FFF8E7',
       },
       borderRadius: {
         'card': '12px',

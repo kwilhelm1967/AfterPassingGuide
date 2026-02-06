@@ -1,6 +1,6 @@
 /**
  * Electron Preload Script
- * Local Aftercare Vault
+ * AfterPassing Guide
  * 
  * Exposes safe APIs to the renderer process.
  */

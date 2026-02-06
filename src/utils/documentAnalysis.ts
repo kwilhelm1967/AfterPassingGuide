@@ -120,7 +120,7 @@ function generateOrganizationalNotes(metadata: DocumentMetadata): string[] {
   
   if (metadata.suggestedCategory === 'Vital Records') {
     notes.push('Keep certified copies in a safe location');
-    notes.push('You may need multiple copies for various institutions');
+    notes.push('Multiple copies are often needed for various institutions');
   }
   
   // General notes
@@ -137,18 +137,19 @@ export function analyzeDocument(doc: UploadedDocument, metadata?: DocumentMetada
   keyPoints: string[];
 } {
   const docTypeLabels: Record<string, string> = {
-    'DEATH_CERTIFICATE': 'death certificate',
-    'WILL': 'will or testament',
-    'TRUST': 'trust document',
-    'INSURANCE_POLICY': 'insurance policy',
-    'BANK_STATEMENT': 'bank statement',
-    'DEED': 'property deed',
-    'TAX_DOCUMENT': 'tax document',
-    'POWER_OF_ATTORNEY': 'power of attorney',
+    Bond: 'bond',
+    Will: 'will',
+    Insurance: 'insurance',
+    Bank: 'bank',
+    Property: 'property',
+    Tax: 'tax',
+    ID: 'ID',
+    Medical: 'medical',
+    Other: 'document',
   };
-  
-  const docLabel = doc.documentType 
-    ? docTypeLabels[doc.documentType] || doc.documentType.toLowerCase().replace('_', ' ')
+
+  const docLabel = doc.documentType
+    ? docTypeLabels[doc.documentType] ?? doc.documentType.toLowerCase()
     : 'document';
   
   const summary = `This ${docLabel} has been added to your records for reference. ${metadata?.organizationalNotes?.[0] || 'You can add notes below to track important details.'}`;

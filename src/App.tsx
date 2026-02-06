@@ -1,12 +1,13 @@
 /**
- * Local Aftercare Vault
+ * AfterPassing Guide
  * 
  * Administrative guidance for those navigating loss.
  * This application does not provide legal, financial, or medical advice.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, AlertTriangle, Lock } from 'lucide-react';
+import { safeSetItem } from './utils/safeStorage';
+import { AlertTriangle, Lock, ArrowLeft } from 'lucide-react';
 
 // Types
 import type { 
@@ -31,6 +32,7 @@ import {
   generateAftercarePlan,
   generateExecutorChecklist,
   generateContactsFromVault,
+  hasLegacyChecklistCategories,
 } from './services';
 
 // Components
@@ -40,12 +42,13 @@ import {
   ChecklistView,
   DocumentsView,
   ScriptsView,
+  ContactsView,
   ExecutorTools,
   SettingsView,
-  DisclaimerBanner,
   LicenseActivationScreen,
   TrialStatusBanner,
 } from './components';
+import { FaveIcon } from './components/common/FaveIcon';
 import { LandingPage } from './LAV/LandingPage';
 import { MarketingLandingPage } from './LAV/MarketingLandingPage';
 
@@ -69,7 +72,6 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLandingPage, setShowLandingPage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [showFullChecklist, setShowFullChecklist] = useState(false);
   const [showActivation, setShowActivation] = useState(false);
   const [isLicensed, setIsLicensed] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
@@ -141,7 +143,11 @@ function App() {
         const savedPlan = await storageService.loadPlan();
         const savedDocs = await storageService.loadDocuments();
         const savedContacts = await storageService.loadContacts();
-        const savedChecklist = await storageService.loadChecklist();
+        let savedChecklist = await storageService.loadChecklist();
+        if (savedChecklist.length > 0 && hasLegacyChecklistCategories(savedChecklist)) {
+          savedChecklist = generateExecutorChecklist();
+          await storageService.saveChecklist(savedChecklist);
+        }
         
         setProfile(savedProfile);
         setPlan(savedPlan);
@@ -184,14 +190,54 @@ function App() {
   // ============================================================================
 
   const handleLandingPageDismiss = useCallback(() => {
-    localStorage.setItem('aftercare_hasSeenLandingPage', 'true');
+    // Push app view so browser Back returns to marketing (showroom pattern)
+    const baseUrl = window.location.pathname + window.location.search;
+    window.history.pushState({ view: 'app' }, '', baseUrl);
+    safeSetItem('aftercare_hasSeenLandingPage', 'true');
     setShowLandingPage(false);
-    
-    // Show onboarding if no profile exists
     if (!profile) {
       setShowOnboarding(true);
     }
   }, [profile]);
+
+  const handleBackToOverview = useCallback(() => {
+    const baseUrl = window.location.pathname + window.location.search;
+    window.history.pushState({ view: 'marketing' }, '', baseUrl);
+    setShowOnboarding(false);
+    setShowLandingPage(true);
+  }, []);
+
+  /** Open Local Legacy Vault purchase flow (same process as in the Local Legacy Vault app). */
+  const handlePurchaseLocalLegacyVault = useCallback(() => {
+    const purchaseUrl = (import.meta as any).env?.VITE_LLV_PURCHASE_URL || 'https://locallegacyvault.com/pricing.html#pricing';
+    const api = (window as any).electronAPI;
+    if (api?.openExternal) {
+      api.openExternal(purchaseUrl).then((ok: boolean) => {
+        if (!ok) window.open(purchaseUrl, '_blank', 'noopener,noreferrer');
+      }).catch(() => {
+        window.open(purchaseUrl, '_blank', 'noopener,noreferrer');
+      });
+    } else {
+      window.open(purchaseUrl, '_blank', 'noopener,noreferrer');
+    }
+  }, []);
+
+  // Keep marketing as current history entry when it's visible; allow Back from app to return
+  useEffect(() => {
+    if (!showLandingPage) return;
+    const baseUrl = window.location.pathname + window.location.search;
+    window.history.replaceState({ view: 'marketing' }, '', baseUrl);
+  }, [showLandingPage]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      if (window.history.state?.view === 'marketing') {
+        setShowLandingPage(true);
+      }
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   // ============================================================================
   // ONBOARDING COMPLETION
@@ -261,9 +307,12 @@ function App() {
 
   // Show landing page if not seen before (show this FIRST, before license check)
   if (showLandingPage) {
-    // TEMPORARY: Show marketing landing page for preview
-    return <MarketingLandingPage onGetStarted={handleLandingPageDismiss} />;
-    // return <LandingPage onGetStarted={handleLandingPageDismiss} />;
+    return (
+      <MarketingLandingPage
+        onGetStarted={handleLandingPageDismiss}
+        onPurchaseLocalLegacyVault={handlePurchaseLocalLegacyVault}
+      />
+    );
   }
 
   // TEMPORARY: Skip activation to work on landing page
@@ -282,7 +331,12 @@ function App() {
   // }
 
   if (showOnboarding || !profile) {
-    return <OnboardingWizard onComplete={handleOnboardingComplete} />;
+    return (
+      <OnboardingWizard
+        onComplete={handleOnboardingComplete}
+        onBackToOverview={handleBackToOverview}
+      />
+    );
   }
 
   return (
@@ -290,17 +344,15 @@ function App() {
       {/* Sidebar - LLV Style */}
       <aside className="w-60 h-screen flex flex-col bg-sidebar-bg border-r border-border-subtle">
         {/* Header */}
-        <div className="p-4 border-b border-border-subtle">
+        <div className="p-3 border-b border-border-subtle">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-accent-gold">
-              <Heart className="w-[18px] h-[18px] text-vault-dark" strokeWidth={1.75} />
-            </div>
+            <FaveIcon size={36} heartClassName="text-accent-gold" circleClassName="bg-accent-gold/15" />
             <div>
               <h1 className="text-[15px] font-semibold text-text-primary leading-tight">
-                Local Aftercare Vault
+                AfterPassing Guide
               </h1>
-              <p className="text-[11px] text-text-secondary mt-0.5">
-                Guidance and Support
+              <p className="text-[11px] text-text-secondary mt-0.5 leading-snug">
+                A local, offline tool for organizing administrative tasks after a loss.
               </p>
             </div>
           </div>
@@ -317,18 +369,23 @@ function App() {
               <span>Return to Local Legacy Vault</span>
             </button>
           )}
+          {mode === 'STANDALONE' && (
+            <button
+              onClick={handleBackToOverview}
+              className="flex items-center gap-1.5 mt-2.5 text-[11px] text-text-secondary hover:text-accent-gold transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" strokeWidth={1.75} />
+              <span>Back to overview</span>
+            </button>
+          )}
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 py-2.5 pr-1.5 overflow-y-auto">
-          <div className="px-4 mb-1.5">
-            <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
-              Tools
-            </span>
-          </div>
           <div className="flex flex-col gap-px">
             {NAV_ITEMS.map((item) => {
               const isActive = activeTab === item.id;
+              const isOptional = item.optional;
               return (
                 <button
                   key={item.id}
@@ -348,9 +405,9 @@ function App() {
                   role="tab"
                   aria-selected={isActive}
                   tabIndex={0}
-                  className={`nav-item-hover ${isActive ? 'nav-item-selected' : ''} flex items-center w-full h-[38px] px-4 gap-1.5 rounded-r-md border-none cursor-pointer bg-transparent relative transition-colors`}
+                  className={`nav-item-hover ${isActive ? 'nav-item-selected' : ''} flex items-center w-full h-[38px] px-4 gap-1.5 rounded-r-md border-none cursor-pointer bg-transparent relative transition-colors ${isOptional && !isActive ? 'opacity-80' : ''}`}
                 >
-                  <span className="text-accent-gold">
+                  <span className={isActive ? 'text-accent-gold' : 'text-text-muted'}>
                     {item.icon}
                   </span>
                   <span className={`text-[13px] ${isActive ? 'font-medium text-text-primary' : 'text-text-secondary'}`}>
@@ -371,9 +428,9 @@ function App() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main ref={mainContentRef} className="flex-1 overflow-y-auto">
-        <div className="min-h-full p-6">
+      {/* Main Content — subtle textured background for depth */}
+      <main ref={mainContentRef} className="flex-1 overflow-y-auto bg-vault-dark">
+        <div className="min-h-full p-4 md:p-5 bg-textured">
           {/* Trial Status Banner */}
           {mode === 'STANDALONE' && (
             <TrialStatusBanner 
@@ -391,27 +448,18 @@ function App() {
             />
           )}
           
-          {/* Disclaimer Banner */}
-          <DisclaimerBanner />
-
           {/* Tab Content */}
           <div className="mt-4">
             {activeTab === 'guidance' && plan && (
-              <>
-                {!showFullChecklist ? (
-                  /* Focus View - Calm, minimal first landing */
-                  <FocusView 
-                    onViewFullChecklist={() => setShowFullChecklist(true)}
-                  />
-                ) : (
-                  /* Checklist View - Calm expansion */
-                  <ChecklistView 
-                    plan={plan}
-                    onPlanUpdate={handlePlanUpdate}
-                    onReturnToFocus={() => setShowFullChecklist(false)}
-                  />
-                )}
-              </>
+              <FocusView onViewFullChecklist={() => setActiveTab('checklist')} />
+            )}
+
+            {activeTab === 'checklist' && plan && (
+              <ChecklistView
+                plan={plan}
+                onPlanUpdate={handlePlanUpdate}
+                onReturnToFocus={() => setActiveTab('guidance')}
+              />
             )}
 
             {activeTab === 'documents' && (
@@ -419,6 +467,7 @@ function App() {
                 documents={documents}
                 onDocumentsChange={setDocuments}
                 profile={profile}
+                checklistItems={executorChecklist}
               />
             )}
 
@@ -426,11 +475,16 @@ function App() {
               <ScriptsView profile={profile} />
             )}
 
+            {activeTab === 'contacts' && (
+              <ContactsView contacts={contacts} onContactsChange={setContacts} />
+            )}
+
             {activeTab === 'executor' && (
               <ExecutorTools 
                 checklist={executorChecklist}
                 contacts={contacts}
                 plan={plan}
+                documents={documents}
                 onChecklistChange={setExecutorChecklist}
                 onContactsChange={setContacts}
               />

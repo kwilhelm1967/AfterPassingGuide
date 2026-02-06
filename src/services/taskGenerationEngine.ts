@@ -56,7 +56,7 @@ const CATEGORY_TASK_TEMPLATES: Record<LegacyVaultCategory, TaskTemplate[]> = {
   CREDIT_CARD: [
     {
       titleTemplate: 'Review {{institutionName}} credit card',
-      descriptionTemplate: 'You may want to contact the card company when convenient. Automatic payments can be stopped if needed.',
+      descriptionTemplate: 'Contact the card company when convenient. Automatic payments can be stopped if needed.',
       reason: 'Reviewing statements can help identify recurring charges.',
       phase: 'WEEKS_2_6',
       category: 'FINANCIAL',
@@ -96,7 +96,7 @@ const CATEGORY_TASK_TEMPLATES: Record<LegacyVaultCategory, TaskTemplate[]> = {
   PROPERTY: [
     {
       titleTemplate: 'Check on property at {{name}}',
-      descriptionTemplate: 'When you have time, you may want to check that the property is secure. This may already be handled.',
+      descriptionTemplate: 'When you have time, check that the property is secure.',
       reason: 'A quick check provides peace of mind.',
       phase: 'WEEK_1',
       category: 'PROPERTY',
@@ -166,7 +166,7 @@ const CATEGORY_TASK_TEMPLATES: Record<LegacyVaultCategory, TaskTemplate[]> = {
   PERSONAL_INFO: [
     {
       titleTemplate: 'Note {{name}} information',
-      descriptionTemplate: 'This information may be useful for reference. No action required.',
+      descriptionTemplate: 'For reference. No action required.',
       reason: 'Just for your awareness.',
       phase: 'WEEKS_2_6',
       category: 'PERSONAL',
@@ -214,7 +214,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Review any funeral or cremation plans',
-    description: 'This may already be in place or handled by someone else. If you have a Local Legacy Vault, check if final wishes were recorded there. If not, a funeral home can walk you through options when you are ready.',
+    description: "Check whether funeral or cremation wishes were documented. If final wishes were recorded in a Local Legacy Vault, start there. A funeral home can guide you through the next steps when you're ready.",
     reason: 'Funeral homes often guide families through immediate decisions.',
     phase: 'FIRST_48_HOURS',
     category: 'ADMINISTRATIVE',
@@ -222,7 +222,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Let close family or friends know',
-    description: "Start with one or two people you trust. Others can wait. If you have a Local Legacy Vault, trusted contacts may already be listed there. You can also ask someone to help share the news.",
+    description: "Start with one or two people you trust. If you have a Local Legacy Vault, check there for trusted contacts. You can ask someone to help share the news.",
     reason: 'Sharing with a few trusted people can provide support.',
     phase: 'FIRST_48_HOURS',
     category: 'NOTIFICATION',
@@ -230,7 +230,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Check on dependents or pets',
-    description: 'This may already be arranged. Adjust only if needed. Temporary help is fine while things settle.',
+    description: 'Make sure dependents or pets are cared for. Short-term arrangements are fine while things settle.',
     reason: 'Knowing dependents are cared for can ease your mind.',
     phase: 'FIRST_48_HOURS',
     category: 'PERSONAL',
@@ -238,7 +238,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Locate important personal documents',
-    description: "You're just noting where things are, not organizing yet. If you have a Local Legacy Vault, documents and their locations may already be recorded there. Otherwise, check common places like a home safe, filing cabinet, or with an attorney.",
+    description: "Note where important personal documents are located. You're only identifying where things are for now. If a Local Legacy Vault exists, documents and locations may already be listed.",
     reason: 'Knowing where documents are helps later.',
     phase: 'FIRST_48_HOURS',
     category: 'LEGAL',
@@ -250,7 +250,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   // ============================================================================
   {
     title: 'Consider memorial or service details',
-    description: "This can be simple or postponed. There's no right approach. If you have a Local Legacy Vault, check if any preferences were recorded. The funeral home can also help if you want guidance.",
+    description: "Decide whether to plan memorial or service details now or later. If preferences were recorded in a Local Legacy Vault, review them there. A funeral home can offer guidance if and when you want it.",
     reason: 'Services can happen when the time feels right.',
     phase: 'WEEK_1',
     category: 'ADMINISTRATIVE',
@@ -258,7 +258,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Review mail and messages',
-    description: "Just notice what's arriving. You don't need to respond to everything. Forwarding mail can help catch things you might miss.",
+    description: "Notice what's arriving by mail or message. You don't need to respond to everything right away. Forwarding mail can help catch anything important.",
     reason: 'Mail sometimes reveals accounts or obligations.',
     phase: 'WEEK_1',
     category: 'ADMINISTRATIVE',
@@ -266,7 +266,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Check whether any immediate notifications are needed',
-    description: 'Some organizations can wait. Focus only on what feels necessary right now. If you have a Local Legacy Vault, account and contact information may be recorded there. Many notifications can happen in the coming weeks.',
+    description: 'Decide whether any organizations need to be notified right now. Focus only on what feels necessary. If a Local Legacy Vault exists, account or contact information may already be recorded there.',
     reason: 'Most notifications are not time-sensitive.',
     phase: 'WEEK_1',
     category: 'NOTIFICATION',
@@ -282,7 +282,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Consider whether to request death certificates',
-    description: 'Many institutions ask for certified copies. The funeral home can often help with this. 10-15 copies is common, but you can order more later if needed.',
+    description: 'Decide whether to request certified copies of the death certificate. Many institutions require them. Funeral homes often help with this. Ordering 10–15 copies is common, and more can be requested later if needed.',
     reason: 'Having copies available can make other steps easier.',
     phase: 'WEEK_1',
     category: 'ADMINISTRATIVE',
@@ -290,8 +290,8 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Check whether Social Security was notified',
-    description: 'Funeral homes often report this automatically. You can confirm by calling 1-800-772-1213. Ask about survivor benefits if applicable.',
-    reason: 'This is often already done. Confirming gives peace of mind.',
+    description: 'Confirm whether Social Security was notified. Funeral homes often report this automatically. You can also confirm by calling 1-800-772-1213 and asking about survivor benefits if applicable.',
+    reason: 'Confirming gives peace of mind.',
     phase: 'WEEK_1',
     category: 'NOTIFICATION',
     priority: 'MEDIUM',
@@ -321,7 +321,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   // ============================================================================
   {
     title: 'Gather financial and account information',
-    description: "Collect what you can find. Missing items are okay. If you have a Local Legacy Vault, financial accounts may already be documented there. You're just building awareness of what exists.",
+    description: "Gather what you can find. Missing items are okay. If a Local Legacy Vault exists, financial accounts may already be documented there. You're simply becoming aware of what's there.",
     reason: 'A rough picture is more useful than perfection.',
     phase: 'WEEKS_2_6',
     category: 'FINANCIAL',
@@ -329,7 +329,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Review insurance policies and benefits',
-    description: "You're only identifying what exists. If you have a Local Legacy Vault, insurance policies may already be recorded there. Claims can be started when you feel ready. Many policies have no strict deadline.",
+    description: "Identify any insurance policies or benefits that exist. If a Local Legacy Vault exists, policies may already be recorded there. Claims can be started when you're ready.",
     reason: 'Knowing what coverage exists helps with planning.',
     phase: 'WEEKS_2_6',
     category: 'INSURANCE',
@@ -337,7 +337,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Consider whether legal or professional help is needed',
-    description: "This is about deciding, not committing. An estate attorney or accountant can answer questions if you have them.",
+    description: "Decide whether professional guidance would be helpful. An estate attorney or accountant can answer questions if and when you want support.",
     reason: 'Professional help is available if you want it.',
     phase: 'WEEKS_2_6',
     category: 'LEGAL',
@@ -345,7 +345,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Begin organizing documents in one place',
-    description: 'A folder or box is enough. Perfection is not required. If you have a Local Legacy Vault, many documents may already be organized there. You can add to it or reorganize later when things feel more settled.',
+    description: 'Begin gathering documents in one place. A folder or box is enough. If a Local Legacy Vault exists, documents may already be organized there. You can add to or reorganize later.',
     reason: 'Having things in one spot reduces searching later.',
     phase: 'WEEKS_2_6',
     category: 'ADMINISTRATIVE',
@@ -353,7 +353,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Review recurring charges and subscriptions',
-    description: 'Check bank and credit statements when you have time. If you have a Local Legacy Vault, subscriptions may already be listed there. Canceling can wait until you are ready.',
+    description: "Review bank and credit statements when you have time. If a Local Legacy Vault exists, subscriptions may already be listed there. Canceling can wait until you're ready.",
     reason: 'Stopping charges gradually is fine.',
     phase: 'WEEKS_2_6',
     category: 'ADMINISTRATIVE',
@@ -361,7 +361,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Consider how to handle digital accounts',
-    description: 'Social media, email, and online accounts can be memorialized, downloaded, or closed. If you have a Local Legacy Vault, digital account information may already be recorded there. There is no rush to decide.',
+    description: "Decide how to handle digital accounts such as email, social media, and online services. If a Local Legacy Vault exists, digital account information may already be recorded there. There's no need to decide right away.",
     reason: 'Digital accounts will wait for you.',
     phase: 'WEEKS_2_6',
     category: 'DIGITAL',
@@ -378,7 +378,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Note any receipts for estate expenses',
-    description: 'If you are paying for funeral costs, bills, or other expenses, keep receipts loosely gathered. These may be reimbursable from the estate.',
+    description: 'If you are paying for funeral costs, bills, or other expenses, keep receipts loosely gathered. These can be reimbursable from the estate.',
     reason: 'Loose notes now save searching later.',
     phase: 'WEEKS_2_6',
     category: 'ADMINISTRATIVE',
@@ -391,7 +391,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   // ============================================================================
   {
     title: 'Review ongoing household or property needs',
-    description: 'Address items as they come up, not all at once. If you have a Local Legacy Vault, property details may already be recorded there. Utilities, maintenance, and property matters can be handled gradually.',
+    description: 'Address household or property needs as they come up. If a Local Legacy Vault exists, property details may already be recorded there. Utilities, maintenance, and related matters can be handled gradually.',
     reason: 'One thing at a time is enough.',
     phase: 'DAYS_60_90',
     category: 'PROPERTY',
@@ -399,7 +399,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Check in on open accounts or subscriptions',
-    description: 'You can handle these gradually. If you have a Local Legacy Vault, accounts may already be listed there. Review what is still active and decide what to address next.',
+    description: "Review any accounts or subscriptions that remain active. If a Local Legacy Vault exists, they may already be listed there. Decide what to address next when you're ready.",
     reason: 'Slow progress is still progress.',
     phase: 'DAYS_60_90',
     category: 'FINANCIAL',
@@ -407,7 +407,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Consider longer-term decisions',
-    description: 'Nothing needs to be finalized right now. Property, belongings, and legal matters can be addressed when you feel steady.',
+    description: 'Recognize that longer-term decisions do not need to be made now. Matters involving property, belongings, or legal issues can be addressed later, when you feel steadier.',
     reason: 'Big decisions can wait for clarity.',
     phase: 'DAYS_60_90',
     category: 'ADMINISTRATIVE',
@@ -415,7 +415,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Check status of any pending claims or benefits',
-    description: 'If you started insurance claims or benefit applications, you can check on their progress when convenient.',
+    description: "If insurance claims or benefit applications were started, check their status when it's convenient.",
     reason: 'Following up is optional and can wait.',
     phase: 'DAYS_60_90',
     category: 'INSURANCE',
@@ -423,7 +423,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Consider tax filing needs when ready',
-    description: 'A tax professional can help with final returns when the time comes. This is usually handled within the normal tax year.',
+    description: 'Plan to address tax filing needs when the time comes. A tax professional can help with final returns, which are typically handled within the normal tax year.',
     reason: 'Professional help is available when you need it.',
     phase: 'DAYS_60_90',
     category: 'FINANCIAL',
@@ -435,7 +435,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   // ============================================================================
   {
     title: 'Review estate or legacy details when ready',
-    description: 'This can wait until you feel steady. If you have a Local Legacy Vault, estate wishes and important details may already be recorded there. Closing accounts and finalizing matters happen in their own time.',
+    description: 'Review estate or legacy details when you feel ready. If a Local Legacy Vault exists, wishes and important information may already be recorded there. Finalizing matters can happen in their own time.',
     reason: 'There is no deadline for closure.',
     phase: 'LONG_TERM',
     category: 'LEGAL',
@@ -443,7 +443,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Update records if needed',
-    description: 'Only if something has changed. Titles, deeds, and beneficiary designations can be updated when convenient.',
+    description: 'Update records only if something has changed. Titles, deeds, and beneficiary designations can be addressed when convenient.',
     reason: 'Updates can happen gradually.',
     phase: 'LONG_TERM',
     category: 'ADMINISTRATIVE',
@@ -451,7 +451,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Store documents for future reference',
-    description: 'This is about ease later, not urgency now. If you have a Local Legacy Vault, you can add documents there. Otherwise, a simple folder or digital backup is enough.',
+    description: 'Store documents in a way that makes them easy to find later. If a Local Legacy Vault exists, documents can be added there. A simple folder or digital backup is also enough.',
     reason: 'Organized records help if questions come up later.',
     phase: 'LONG_TERM',
     category: 'ADMINISTRATIVE',
@@ -459,7 +459,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Consider your own planning when ready',
-    description: 'This experience sometimes prompts reflection on your own plans. There is no pressure to act.',
+    description: "This experience may prompt reflection on your own plans. There's no pressure to act.",
     reason: 'Planning ahead is a gift to those you love.',
     phase: 'LONG_TERM',
     category: 'PERSONAL',
@@ -467,7 +467,7 @@ const GENERAL_TASKS: GeneralTask[] = [
   },
   {
     title: 'Take care of yourself',
-    description: 'Grief has no timeline. Support groups, counseling, or simply time can all help. You have done something hard.',
+    description: "Grief has no timeline. Support groups, counseling, or quiet time can all help. You've been carrying something difficult.",
     reason: 'Your wellbeing matters most.',
     phase: 'LONG_TERM',
     category: 'PERSONAL',
@@ -587,10 +587,10 @@ function generateSummary(
   const phaseWeek1 = tasks.filter(t => t.phase === 'WEEK_1').length;
   
   let summary = `Based on your situation and ${recordCount} record${recordCount !== 1 ? 's' : ''}, `;
-  summary += `we've gathered ${taskCount} item${taskCount !== 1 ? 's' : ''} that may be helpful.\n\n`;
+  summary += `we've gathered ${taskCount} item${taskCount !== 1 ? 's' : ''} for you to consider.\n\n`;
   
   if (phaseFirst48 > 0) {
-    summary += `• ${phaseFirst48} item${phaseFirst48 !== 1 ? 's' : ''} for the first 48 hours\n`;
+    summary += `• ${phaseFirst48} item${phaseFirst48 !== 1 ? 's' : ''} for the first few days\n`;
   }
   if (phaseWeek1 > 0) {
     summary += `• ${phaseWeek1} item${phaseWeek1 !== 1 ? 's' : ''} for the first week\n`;
@@ -652,15 +652,15 @@ export function generateAftercarePlan(input: TaskGenerationInput): TaskGeneratio
 export function getPhaseInfo(phase: TaskPhase): { label: string; description: string } {
   switch (phase) {
     case 'FIRST_48_HOURS':
-      return { label: 'First 48 Hours', description: 'Grounding and stabilizing' };
+      return { label: 'The first few days', description: 'Grounding and stabilizing' };
     case 'WEEK_1':
-      return { label: 'Week 1', description: 'Gentle awareness' };
+      return { label: 'The first week', description: 'Gentle awareness' };
     case 'WEEKS_2_6':
-      return { label: 'Weeks 2-6', description: 'Gathering at your pace' };
+      return { label: 'The weeks ahead', description: 'Gathering at your pace' };
     case 'DAYS_60_90':
-      return { label: 'Days 60-90', description: 'Checking in when ready' };
+      return { label: 'A few months out', description: 'Checking in when ready' };
     case 'LONG_TERM':
-      return { label: 'Long Term', description: 'No rush' };
+      return { label: 'Later on', description: 'No rush' };
     default:
       return { label: phase, description: '' };
   }

@@ -1,5 +1,5 @@
 @echo off
-echo Starting Local Aftercare Vault Dev Server...
+echo Starting AfterPassing Guide Dev Server...
 echo.
 npm run dev
 pause

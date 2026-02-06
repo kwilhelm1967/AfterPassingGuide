@@ -1,0 +1,33 @@
+---
+description: Where and how to use the product summary; one per surface, defines what the product is
+alwaysApply: true
+---
+
+# Product summary placement
+
+**Product summary (single line):**  
+"A local, offline tool for organizing administrative tasks after a loss."
+
+It defines what the product is, not what the user should do.
+
+## Primary placement
+
+- **Global header subtitle** under the product name (main shell sidebar).
+- Example: "AfterPassing Guide" with subtitle "A local, offline tool for organizing administrative tasks after a loss."
+
+## Secondary placements
+
+- **About card:** Settings → About — single line only (no stacking with other lines of the same message).
+- **Footer:** Lightweight, muted (e.g. version + "Administrative guidance only" — do not repeat the full product summary in the same surface as About).
+
+## Do not place
+
+- Inside task content
+- Repeated on every page body
+- Inside disclaimers
+- Inside emotional or instructional copy
+
+## Rule
+
+- The product summary should appear **once per surface**, not stacked.
+- It defines what the product is, not what the user should do.

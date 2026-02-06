@@ -2,7 +2,7 @@
  * Executor Service
  * 
  * Provides executor-specific tools for estate administration.
- * Included in Local Aftercare Vault.
+ * Designed for people actively administering an estate.
  * 
  * IMPORTANT: This provides administrative guidance only.
  * For legal advice, users should consult appropriate professionals.
@@ -13,312 +13,302 @@ import {
   ExecutorChecklistCategory,
   ContactEntry,
   ContactType,
+  ContactRole,
   LegacyVaultRecord,
 } from '../types';
 
 // ============================================================================
-// EXECUTOR CHECKLIST SEED DATA
+// EXECUTOR CHECKLIST SEED DATA (10 phases, spec order)
 // ============================================================================
+
+const NEW_CATEGORIES: ExecutorChecklistCategory[] = [
+  'IMMEDIATE_LEGAL_DOCUMENTS',
+  'COURT_AND_PROBATE',
+  'FINANCIAL_ACCOUNTS',
+  'DEBTS_OBLIGATIONS',
+  'PROPERTY_REAL_ESTATE',
+  'TAXES_GOVERNMENT',
+  'BENEFICIARIES_DISTRIBUTIONS',
+  'BUSINESS_INTERESTS',
+  'DIGITAL_ASSETS',
+  'FINAL_CLOSEOUT',
+];
 
 interface ChecklistItemSeed {
   category: ExecutorChecklistCategory;
   title: string;
   description: string;
+  whyItMatters?: string;
+  whatYouMayNeed?: string[];
 }
 
 const EXECUTOR_CHECKLIST_SEED: ChecklistItemSeed[] = [
-  // ============================================================================
-  // IMMEDIATE PRIORITIES (First 48-72 Hours)
-  // ============================================================================
+  // -------------------------------------------------------------------------
+  // Immediate Legal Documents
+  // -------------------------------------------------------------------------
   {
-    category: 'DOCUMENTS',
+    category: 'IMMEDIATE_LEGAL_DOCUMENTS',
     title: 'Obtain certified copies of death certificate',
-    description: 'Request 10-15 certified copies from funeral home or vital records. Most institutions ask for originals, not photocopies.',
+    description: 'Request multiple certified copies from the funeral home or vital records. Most institutions require originals.',
+    whatYouMayNeed: ['Funeral home or vital records contact', 'ID', 'Proof of relationship or executor status'],
   },
   {
-    category: 'DOCUMENTS',
+    category: 'IMMEDIATE_LEGAL_DOCUMENTS',
     title: 'Locate the original will',
-    description: 'Check safe deposit boxes, home safe, filing cabinets, or with attorneys. Original may be needed for probate.',
+    description: 'Locate the original will. Check safe deposit boxes, home safe, filing cabinets, or with the drafting attorney.',
+    whatYouMayNeed: ['Safe deposit key or access', 'Attorney contact if applicable'],
   },
   {
-    category: 'DOCUMENTS',
+    category: 'IMMEDIATE_LEGAL_DOCUMENTS',
     title: 'Locate trust documents if applicable',
-    description: 'Find all trust documents including any amendments. Trusts may allow you to avoid probate for certain assets.',
+    description: 'Find all trust documents and any amendments. Trust assets may be administered outside of probate.',
+    whatYouMayNeed: ['Trust agreement', 'Amendments', 'Trustee contact'],
   },
   {
-    category: 'DOCUMENTS',
+    category: 'IMMEDIATE_LEGAL_DOCUMENTS',
     title: 'Locate Social Security card and birth certificate',
     description: 'Needed for government notifications and benefit claims.',
+    whatYouMayNeed: ['Social Security number', 'Birth certificate (certified copy if possible)'],
   },
   {
-    category: 'DOCUMENTS',
+    category: 'IMMEDIATE_LEGAL_DOCUMENTS',
     title: 'Find military discharge papers (DD-214) if veteran',
-    description: 'Commonly requested for VA benefits, burial benefits, and headstone requests.',
+    description: 'Often required for VA benefits, burial benefits, and headstone requests.',
+    whatYouMayNeed: ['DD-214 or equivalent', 'VA claim number if applicable'],
   },
   {
-    category: 'DOCUMENTS',
+    category: 'IMMEDIATE_LEGAL_DOCUMENTS',
     title: 'Locate marriage certificate if applicable',
-    description: 'May be needed for survivor benefits and account transfers.',
+    description: 'May be required for survivor benefits and account transfers.',
+    whatYouMayNeed: ['Certified marriage certificate'],
   },
 
-  // ============================================================================
-  // DOCUMENTS TO GATHER
-  // ============================================================================
+  // -------------------------------------------------------------------------
+  // Court and Probate Filings
+  // -------------------------------------------------------------------------
   {
-    category: 'DOCUMENTS',
-    title: 'Gather financial account statements',
-    description: 'Collect recent statements from all bank, investment, and retirement accounts.',
+    category: 'COURT_AND_PROBATE',
+    title: 'File petition to open probate',
+    description: 'File the required petition with the probate court to begin the formal process where applicable.',
+    whatYouMayNeed: ['Death certificate', 'Original will', 'Petition forms', 'Filing fee'],
   },
   {
-    category: 'DOCUMENTS',
-    title: 'Locate insurance policies',
-    description: 'Gather life, health, auto, home, and any other insurance policies.',
+    category: 'COURT_AND_PROBATE',
+    title: 'Obtain Letters Testamentary / Letters of Administration',
+    description: 'Court-issued documents that prove your authority to act on behalf of the estate.',
+    whatYouMayNeed: ['Court order', 'ID', 'Multiple certified copies for institutions'],
   },
   {
-    category: 'DOCUMENTS',
-    title: 'Find property deeds and titles',
-    description: 'Locate deeds for real property and titles for vehicles, boats, etc.',
+    category: 'COURT_AND_PROBATE',
+    title: 'Publish required legal notices',
+    description: 'Many jurisdictions require publishing notice to creditors in a newspaper. Your attorney or the court can advise.',
+    whatYouMayNeed: ['Court requirements', 'Newspaper contact', 'Proof of publication'],
   },
   {
-    category: 'DOCUMENTS',
-    title: 'Collect tax returns from last 3-5 years',
-    description: 'These reveal income sources, deductions, and may be needed for final returns.',
-  },
-  {
-    category: 'DOCUMENTS',
-    title: 'Locate loan documents and mortgage papers',
-    description: 'Find documentation for mortgages, car loans, personal loans, and lines of credit.',
-  },
-  {
-    category: 'DOCUMENTS',
-    title: 'Find business documents if applicable',
-    description: 'Locate partnership agreements, corporate documents, or business ownership records.',
+    category: 'COURT_AND_PROBATE',
+    title: 'Attend probate hearings if required',
+    description: 'The court may set hearings for approval of accounts, distributions, or other matters.',
+    whatYouMayNeed: ['Hearing notices', 'Required filings', 'Attorney if retained'],
   },
 
-  // ============================================================================
-  // NOTIFICATIONS - CRITICAL
-  // ============================================================================
+  // -------------------------------------------------------------------------
+  // Financial Accounts and Assets
+  // -------------------------------------------------------------------------
   {
-    category: 'COMMUNICATION',
-    title: 'Coordinate with funeral home',
-    description: 'Confirm arrangements, costs, and any documents the funeral home needs from you.',
+    category: 'FINANCIAL_ACCOUNTS',
+    title: 'Open estate bank account',
+    description: 'A dedicated account for estate funds keeps records clear and separates estate activity from personal.',
+    whatYouMayNeed: ['Letters Testamentary or equivalent', 'EIN if obtained', 'ID'],
   },
   {
-    category: 'COMMUNICATION',
-    title: 'Place obituary if desired',
-    description: 'Work with funeral home or newspapers. Include service details and memorial donation info.',
+    category: 'FINANCIAL_ACCOUNTS',
+    title: 'Transfer funds into estate account',
+    description: 'Move estate funds from the decedent’s accounts into the estate account as allowed by each institution.',
+    whatYouMayNeed: ['Death certificate', 'Letters Testamentary', 'Account statements'],
   },
   {
-    category: 'COMMUNICATION',
-    title: 'Notify immediate family and close friends',
-    description: 'Ensure loved ones are informed. Consider delegating some calls to a trusted friend.',
+    category: 'FINANCIAL_ACCOUNTS',
+    title: 'Freeze or retitle accounts',
+    description: 'Work with each institution to freeze accounts or retitle them in the estate’s name as appropriate.',
+    whatYouMayNeed: ['Death certificate', 'Letters Testamentary', 'Institution contact'],
   },
   {
-    category: 'COMMUNICATION',
-    title: 'Notify employer if applicable',
-    description: 'Contact HR about final pay, unused vacation, life insurance, retirement benefits, and COBRA.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify Social Security Administration',
-    description: 'Call 1-800-772-1213. Ask about stopping benefits and survivor benefit eligibility.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify the three credit bureaus',
-    description: 'Contact Equifax, Experian, and TransUnion to place deceased alert and prevent identity fraud.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify Veterans Affairs if veteran',
-    description: 'Call 1-800-827-1000 to inquire about burial benefits, headstone, and survivor benefits.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify financial institutions',
-    description: 'Contact all banks, credit cards, investment firms, and brokerages.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify insurance companies',
-    description: 'Consider starting life insurance claims and notifying health, auto, and property insurers when ready.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Request student loan discharge',
-    description: 'Federal loans: Call 1-800-557-7394. Private loans: Contact each lender. Loans are discharged, not transferred to family.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify pension and retirement administrators',
-    description: 'Contact 401(k) providers, pension plans, and IRA custodians about beneficiary claims.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify utilities and service providers',
-    description: 'Transfer or cancel electric, gas, water, internet, phone, and cable services.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify DMV to cancel driver\'s license',
-    description: 'Prevents identity fraud. May be done by mail with death certificate.',
-  },
-  {
-    category: 'COMMUNICATION',
-    title: 'Notify post office to forward mail',
-    description: 'Forward mail to executor address to catch bills and account notices.',
+    category: 'FINANCIAL_ACCOUNTS',
+    title: 'Close individual accounts after settlement',
+    description: 'After debts and distributions are handled, close the decedent’s accounts per institution procedures.',
+    whatYouMayNeed: ['Final statements', 'Closing forms', 'Proof of authority'],
   },
 
-  // ============================================================================
-  // ASSET INVENTORY
-  // ============================================================================
+  // -------------------------------------------------------------------------
+  // Debts and Ongoing Obligations
+  // -------------------------------------------------------------------------
   {
-    category: 'ASSET_TRACKING',
-    title: 'Create inventory of bank accounts',
-    description: 'List all accounts with institution, account number, type, and approximate balance.',
+    category: 'DEBTS_OBLIGATIONS',
+    title: 'Identify outstanding debts',
+    description: 'Compile a list of known debts: mortgages, loans, credit cards, medical bills, utilities, and other obligations.',
+    whatYouMayNeed: ['Mail', 'Statements', 'Online account access', 'Estate inventory'],
   },
   {
-    category: 'ASSET_TRACKING',
-    title: 'Create inventory of investment accounts',
-    description: 'List brokerage accounts, IRAs, 401(k)s, annuities, and other investments.',
+    category: 'DEBTS_OBLIGATIONS',
+    title: 'Notify creditors',
+    description: 'Send notice of death to known creditors. Follow your state’s rules for creditor claims and deadlines.',
+    whatYouMayNeed: ['Death certificate', 'Creditor addresses', 'Proof of mailing'],
   },
   {
-    category: 'ASSET_TRACKING',
-    title: 'Create inventory of real property',
-    description: 'List all real estate with address, estimated value, mortgage balance, and how titled.',
+    category: 'DEBTS_OBLIGATIONS',
+    title: 'Validate claims',
+    description: 'Review creditor claims for validity and timing. Reject or dispute invalid or time-barred claims as advised.',
+    whatYouMayNeed: ['Claim forms', 'State law on claim periods', 'Attorney or advisor'],
   },
   {
-    category: 'ASSET_TRACKING',
-    title: 'Create inventory of vehicles',
-    description: 'List all vehicles with make, model, year, VIN, value, and loan balance.',
+    category: 'DEBTS_OBLIGATIONS',
+    title: 'Pay approved claims in correct order',
+    description: 'State law sets the order in which claims must be paid. Pay in that order to protect yourself and the estate.',
+    whatYouMayNeed: ['Priority list per state', 'Estate account', 'Receipts'],
+  },
+
+  // -------------------------------------------------------------------------
+  // Property and Real Estate
+  // -------------------------------------------------------------------------
+  {
+    category: 'PROPERTY_REAL_ESTATE',
+    title: 'Secure real property',
+    description: 'Ensure properties are locked, insured, and maintained. Change locks if keys are unaccounted for.',
+    whatYouMayNeed: ['Keys', 'Insurance info', 'Property address list'],
   },
   {
-    category: 'ASSET_TRACKING',
-    title: 'Create inventory of valuable personal property',
-    description: 'Document jewelry, art, antiques, collectibles, and other valuable items with estimated values.',
+    category: 'PROPERTY_REAL_ESTATE',
+    title: 'Maintain insurance coverage',
+    description: 'Keep homeowners, liability, and other relevant insurance in force while the estate is open.',
+    whatYouMayNeed: ['Policy numbers', 'Agent contact', 'Payment records'],
   },
   {
-    category: 'ASSET_TRACKING',
+    category: 'PROPERTY_REAL_ESTATE',
+    title: 'Arrange appraisals',
+    description: 'Obtain appraisals when needed for distribution, sale, or tax reporting.',
+    whatYouMayNeed: ['Licensed appraiser', 'Access to property', 'Purpose of appraisal'],
+  },
+  {
+    category: 'PROPERTY_REAL_ESTATE',
+    title: 'Prepare property for sale or transfer',
+    description: 'When selling or transferring property, complete required disclosures and follow local and contract requirements.',
+    whatYouMayNeed: ['Deed', 'Title report', 'Realtor or attorney as needed'],
+  },
+
+  // -------------------------------------------------------------------------
+  // Taxes and Government Filings
+  // -------------------------------------------------------------------------
+  {
+    category: 'TAXES_GOVERNMENT',
+    title: 'File final personal income tax return',
+    description: 'The decedent’s final Form 1040 is typically due by the usual deadline for the year of death.',
+    whatYouMayNeed: ['W-2s', '1099s', 'Prior returns', 'CPA or preparer'],
+  },
+  {
+    category: 'TAXES_GOVERNMENT',
+    title: 'File estate income tax return (if required)',
+    description: 'Form 1041 may be required if the estate has income. A tax professional can determine filing requirements.',
+    whatYouMayNeed: ['EIN', 'Income records', 'CPA or tax attorney'],
+  },
+  {
+    category: 'TAXES_GOVERNMENT',
+    title: 'Pay estate taxes if applicable',
+    description: 'Federal or state estate tax may apply in some cases. Deadlines and forms vary.',
+    whatYouMayNeed: ['Valuations', 'Estate tax forms', 'Tax advisor'],
+  },
+  {
+    category: 'TAXES_GOVERNMENT',
+    title: 'Obtain tax clearance if required',
+    description: 'Some states require a tax clearance or consent before closing the estate or distributing assets.',
+    whatYouMayNeed: ['State requirements', 'Filed returns', 'Clearance application'],
+  },
+
+  // -------------------------------------------------------------------------
+  // Beneficiaries and Distributions
+  // -------------------------------------------------------------------------
+  {
+    category: 'BENEFICIARIES_DISTRIBUTIONS',
+    title: 'Verify beneficiary designations',
+    description: 'Confirm beneficiaries on retirement accounts, life insurance, and other non-probate assets.',
+    whatYouMayNeed: ['Account statements', 'Beneficiary forms', 'Institution contact'],
+  },
+  {
+    category: 'BENEFICIARIES_DISTRIBUTIONS',
+    title: 'Distribute assets per will or trust',
+    description: 'After debts and expenses are paid and any waiting period has passed, distribute according to the will or trust.',
+    whatYouMayNeed: ['Will or trust', 'Accounting', 'Receipts or releases if required'],
+  },
+  {
+    category: 'BENEFICIARIES_DISTRIBUTIONS',
+    title: 'Obtain receipts/releases from beneficiaries',
+    description: 'Document distributions and, where required, obtain receipts or releases from beneficiaries.',
+    whatYouMayNeed: ['Distribution records', 'Release forms', 'Attorney guidance'],
+  },
+
+  // -------------------------------------------------------------------------
+  // Business Interests (if applicable)
+  // -------------------------------------------------------------------------
+  {
+    category: 'BUSINESS_INTERESTS',
+    title: 'Identify business interests',
+    description: 'List any sole proprietorships, partnerships, LLCs, or corporate interests and locate governing documents.',
+    whatYouMayNeed: ['Operating agreements', 'Partnership agreements', 'Stock certificates'],
+  },
+  {
+    category: 'BUSINESS_INTERESTS',
+    title: 'Notify business partners or co-owners',
+    description: 'Inform other owners and key personnel. Review agreements for buy-sell or succession provisions.',
+    whatYouMayNeed: ['Agreements', 'Contact list', 'Attorney or CPA'],
+  },
+  {
+    category: 'BUSINESS_INTERESTS',
+    title: 'Maintain or wind down operations',
+    description: 'Depending on the business and documents, you may maintain operations, sell, or wind down. Professional advice is often needed.',
+    whatYouMayNeed: ['Governing documents', 'Valuation', 'Attorney and CPA'],
+  },
+
+  // -------------------------------------------------------------------------
+  // Digital Assets and Accounts
+  // -------------------------------------------------------------------------
+  {
+    category: 'DIGITAL_ASSETS',
     title: 'Inventory digital assets',
-    description: 'List online accounts, digital subscriptions, cryptocurrency, domain names, and digital files.',
+    description: 'List online accounts, subscriptions, cryptocurrency, domain names, and important digital files.',
+    whatYouMayNeed: ['Password manager or list', 'Email access', 'Device access'],
   },
   {
-    category: 'ASSET_TRACKING',
-    title: 'Access and inventory safe deposit box',
-    description: 'Schedule bank appointment to access box. Bring death certificate and executor documents.',
+    category: 'DIGITAL_ASSETS',
+    title: 'Close or transfer online accounts',
+    description: 'Follow each platform’s process for memorialization, closure, or transfer. Requirements vary.',
+    whatYouMayNeed: ['Death certificate', 'Proof of authority', 'Account policies'],
   },
   {
-    category: 'ASSET_TRACKING',
-    title: 'Identify all debts and liabilities',
-    description: 'List mortgages, loans, credit cards, medical bills, and any other obligations.',
-  },
-  {
-    category: 'ASSET_TRACKING',
-    title: 'Review life insurance beneficiary designations',
-    description: 'Confirm beneficiaries and gather policy information for claim filing.',
+    category: 'DIGITAL_ASSETS',
+    title: 'Preserve records as needed',
+    description: 'Download or export important emails, files, and records before closing accounts if needed for the estate.',
+    whatYouMayNeed: ['Access', 'Storage', 'Backup method'],
   },
 
-  // ============================================================================
-  // LEGAL/PROBATE
-  // ============================================================================
+  // -------------------------------------------------------------------------
+  // Final Close-Out Tasks
+  // -------------------------------------------------------------------------
   {
-    category: 'RECORD_KEEPING',
-    title: 'Consult with estate attorney if needed',
-    description: 'Many families choose to consult an attorney to understand whether probate applies and what the executor role involves.',
+    category: 'FINAL_CLOSEOUT',
+    title: 'Provide final accounting',
+    description: 'Prepare an accounting of assets, income, expenses, and distributions for the court or beneficiaries as required.',
+    whatYouMayNeed: ['Bank statements', 'Receipts', 'Distribution records'],
   },
   {
-    category: 'RECORD_KEEPING',
-    title: 'Consider filing will with probate court',
-    description: 'Some states expect the will to be filed with the court, even if full probate is not needed. An attorney can advise.',
+    category: 'FINAL_CLOSEOUT',
+    title: 'Close estate account',
+    description: 'After all distributions and expenses are paid, close the estate bank account and retain final statements.',
+    whatYouMayNeed: ['Final statements', 'Zero balance', 'Bank closing forms'],
   },
   {
-    category: 'RECORD_KEEPING',
-    title: 'Apply for Letters Testamentary if needed',
-    description: 'Court document proving your authority to act on behalf of the estate.',
-  },
-  {
-    category: 'RECORD_KEEPING',
-    title: 'Open estate checking account',
-    description: 'Use for receiving estate income and paying estate expenses. Keeps records clean.',
-  },
-  {
-    category: 'RECORD_KEEPING',
-    title: 'Set up organized filing system',
-    description: 'Create folders for: correspondence, financial statements, bills paid, legal documents, tax documents.',
-  },
-  {
-    category: 'RECORD_KEEPING',
-    title: 'Track all expenses paid from estate',
-    description: 'Keep receipts for funeral, attorney fees, accounting, property maintenance, etc.',
-  },
-  {
-    category: 'RECORD_KEEPING',
-    title: 'Maintain communication log',
-    description: 'Record every call: date, who you spoke with, their reference number, and what was discussed.',
-  },
-  {
-    category: 'RECORD_KEEPING',
-    title: 'Collect and organize incoming mail weekly',
-    description: 'Watch for bills, statements, and notices. These often reveal unknown accounts.',
-  },
-  {
-    category: 'RECORD_KEEPING',
-    title: 'Obtain EIN for the estate if needed',
-    description: 'Many estates obtain an EIN if there is ongoing income or the estate will be open for an extended period. You can apply at IRS.gov.',
-  },
-
-  // ============================================================================
-  // FOLLOW-UP AND ONGOING
-  // ============================================================================
-  {
-    category: 'FOLLOW_UP',
-    title: 'Follow up on insurance claims after 30 days',
-    description: 'Check claim status. Be persistent - claims can get stuck in processing.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Follow up on benefit applications',
-    description: 'Check status of pension, Social Security survivor, and other benefit claims.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Review account statements monthly',
-    description: 'Watch for unexpected charges, subscriptions, or suspicious activity.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Pay ongoing bills and property taxes',
-    description: 'Keep utilities on, insurance current, and property taxes paid while estate is open.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Respond to creditor inquiries',
-    description: 'Handle legitimate creditor communications. Know your state\'s rules on creditor claims.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Consider final income tax return',
-    description: 'Typically due April 15 of the year after death. Many families consult a CPA for this.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Consider estate income tax return',
-    description: 'Form 1041 may apply if the estate had income. A tax professional can help determine if this applies.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Prepare accounting for beneficiaries',
-    description: 'Document assets, income received, expenses paid, and distributions made.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Make distributions to beneficiaries',
-    description: 'After debts are paid and waiting period has passed, distribute according to will.',
-  },
-  {
-    category: 'FOLLOW_UP',
-    title: 'Work toward closing the estate',
-    description: 'This typically involves distributions, final returns, and closing accounts. Many families work with professionals for this step.',
+    category: 'FINAL_CLOSEOUT',
+    title: 'Retain records for required period',
+    description: 'Keep estate records for the period required by your state and for tax purposes.',
+    whatYouMayNeed: ['State retention rules', 'Organized files', 'Secure storage'],
   },
 ];
 
@@ -331,7 +321,7 @@ function generateId(): string {
 }
 
 /**
- * Generate the initial executor checklist
+ * Generate the initial executor checklist (new 10-phase structure).
  */
 export function generateExecutorChecklist(): ExecutorChecklistItem[] {
   return EXECUTOR_CHECKLIST_SEED.map((seed): ExecutorChecklistItem => ({
@@ -339,8 +329,18 @@ export function generateExecutorChecklist(): ExecutorChecklistItem[] {
     category: seed.category,
     title: seed.title,
     description: seed.description,
-    status: 'PENDING' as const,
+    whyItMatters: seed.whyItMatters,
+    whatYouMayNeed: seed.whatYouMayNeed,
+    status: 'PENDING',
   }));
+}
+
+/**
+ * Returns true if the checklist uses legacy categories. Caller can replace with generateExecutorChecklist().
+ */
+export function hasLegacyChecklistCategories(checklist: ExecutorChecklistItem[]): boolean {
+  const legacy: ExecutorChecklistCategory[] = ['DOCUMENTS', 'COMMUNICATION', 'ASSET_TRACKING', 'RECORD_KEEPING', 'FOLLOW_UP'];
+  return checklist.some(item => legacy.includes(item.category));
 }
 
 /**
@@ -354,28 +354,23 @@ export function getChecklistByCategory(
 }
 
 /**
- * Calculate checklist progress
+ * Calculate checklist progress (for internal use; UI does not emphasize counts).
  */
 export function getChecklistProgress(checklist: ExecutorChecklistItem[]): {
   total: number;
   completed: number;
   percentage: number;
-  byCategory: Record<ExecutorChecklistCategory, { total: number; completed: number }>;
+  byCategory: Record<string, { total: number; completed: number }>;
 } {
   const total = checklist.length;
-  const completed = checklist.filter(item => item.status === 'DONE').length;
-  
-  const categories: ExecutorChecklistCategory[] = [
-    'DOCUMENTS', 'COMMUNICATION', 'ASSET_TRACKING', 'RECORD_KEEPING', 'FOLLOW_UP'
-  ];
-  
-  const byCategory: Record<ExecutorChecklistCategory, { total: number; completed: number }> = {} as any;
-  
-  for (const cat of categories) {
+  const completed = checklist.filter(item => item.status === 'DONE' || item.status === 'NOT_APPLICABLE').length;
+
+  const byCategory: Record<string, { total: number; completed: number }> = {};
+  for (const cat of NEW_CATEGORIES) {
     const catItems = checklist.filter(item => item.category === cat);
     byCategory[cat] = {
       total: catItems.length,
-      completed: catItems.filter(item => item.status === 'DONE').length,
+      completed: catItems.filter(item => item.status === 'DONE' || item.status === 'NOT_APPLICABLE').length,
     };
   }
   
@@ -388,51 +383,83 @@ export function getChecklistProgress(checklist: ExecutorChecklistItem[]): {
 }
 
 /**
- * Get category display information
+ * Get category display information (10 executor phases + legacy for migration).
  */
 export function getChecklistCategoryInfo(category: ExecutorChecklistCategory): {
   label: string;
   description: string;
   icon: string;
 } {
-  const info: Record<ExecutorChecklistCategory, { label: string; description: string; icon: string }> = {
-    DOCUMENTS: {
-      label: 'Documents',
-      description: 'Gathering and organizing important documents',
+  const info: Record<string, { label: string; description: string; icon: string }> = {
+    IMMEDIATE_LEGAL_DOCUMENTS: {
+      label: 'Immediate Legal Documents',
+      description: 'Essential documents to locate and obtain early.',
       icon: 'FileText',
     },
-    COMMUNICATION: {
-      label: 'Communication',
-      description: 'Notifying institutions and individuals',
-      icon: 'MessageSquare',
+    COURT_AND_PROBATE: {
+      label: 'Court and Probate Filings',
+      description: 'Court filings and authority to act for the estate.',
+      icon: 'Scale',
     },
-    ASSET_TRACKING: {
-      label: 'Asset Tracking',
-      description: 'Inventorying and documenting assets',
-      icon: 'ClipboardList',
+    FINANCIAL_ACCOUNTS: {
+      label: 'Financial Accounts and Assets',
+      description: 'Estate accounts, transfers, and account closure.',
+      icon: 'Landmark',
     },
-    RECORD_KEEPING: {
-      label: 'Record Keeping',
-      description: 'Maintaining organized records',
-      icon: 'FolderOpen',
+    DEBTS_OBLIGATIONS: {
+      label: 'Debts and Ongoing Obligations',
+      description: 'Identifying, notifying, and paying creditors.',
+      icon: 'FileCheck',
     },
-    FOLLOW_UP: {
-      label: 'Follow Up',
-      description: 'Ongoing monitoring and follow-up tasks',
-      icon: 'Clock',
+    PROPERTY_REAL_ESTATE: {
+      label: 'Property and Real Estate',
+      description: 'Securing, insuring, and disposing of real property.',
+      icon: 'Home',
     },
+    TAXES_GOVERNMENT: {
+      label: 'Taxes and Government Filings',
+      description: 'Final and estate tax returns and clearances.',
+      icon: 'Receipt',
+    },
+    BENEFICIARIES_DISTRIBUTIONS: {
+      label: 'Beneficiaries and Distributions',
+      description: 'Verifying designations and making distributions.',
+      icon: 'Users',
+    },
+    BUSINESS_INTERESTS: {
+      label: 'Business Interests (if applicable)',
+      description: 'Identifying and handling business interests.',
+      icon: 'Briefcase',
+    },
+    DIGITAL_ASSETS: {
+      label: 'Digital Assets and Accounts',
+      description: 'Inventorying and closing or transferring digital assets.',
+      icon: 'Smartphone',
+    },
+    FINAL_CLOSEOUT: {
+      label: 'Final Close-Out Tasks',
+      description: 'Accounting, closing the estate account, and retaining records.',
+      icon: 'Archive',
+    },
+    // Legacy
+    DOCUMENTS: { label: 'Documents', description: 'Gathering and organizing important documents', icon: 'FileText' },
+    COMMUNICATION: { label: 'Communication', description: 'Notifying institutions and individuals', icon: 'MessageSquare' },
+    ASSET_TRACKING: { label: 'Asset Tracking', description: 'Inventorying and documenting assets', icon: 'ClipboardList' },
+    RECORD_KEEPING: { label: 'Record Keeping', description: 'Maintaining organized records', icon: 'FolderOpen' },
+    FOLLOW_UP: { label: 'Follow Up', description: 'Ongoing monitoring and follow-up tasks', icon: 'Clock' },
   };
-  
-  return info[category];
+  return info[category] ?? { label: category, description: '', icon: 'Circle' };
+}
+
+/** Display order for executor checklist sections. */
+export function getExecutorChecklistCategoryOrder(): ExecutorChecklistCategory[] {
+  return [...NEW_CATEGORIES];
 }
 
 // ============================================================================
 // CONTACT WORKBOOK FUNCTIONS
 // ============================================================================
 
-/**
- * Generate contacts from vault records
- */
 export function generateContactsFromVault(records: LegacyVaultRecord[]): ContactEntry[] {
   const contacts: ContactEntry[] = [];
   const seenInstitutions = new Set<string>();
@@ -440,21 +467,15 @@ export function generateContactsFromVault(records: LegacyVaultRecord[]): Contact
   for (const record of records) {
     const institutionKey = (record.institutionName || record.name).toLowerCase().trim();
     
-    // Skip if we've already created a contact for this institution
     if (seenInstitutions.has(institutionKey)) {
-      // Find existing contact and add this record ID
-      const existing = contacts.find(c => 
-        c.name.toLowerCase().trim() === institutionKey
-      );
-      if (existing && existing.relatedVaultRecordIds) {
+      const existing = contacts.find(c => c.name.toLowerCase().trim() === institutionKey);
+      if (existing?.relatedVaultRecordIds) {
         existing.relatedVaultRecordIds.push(record.id);
       }
       continue;
     }
     
     seenInstitutions.add(institutionKey);
-    
-    // Map vault category to contact type
     const contactType = mapVaultCategoryToContactType(record.category);
     
     contacts.push({
@@ -466,6 +487,7 @@ export function generateContactsFromVault(records: LegacyVaultRecord[]): Contact
       website: record.contactWebsite,
       relatedVaultRecordIds: [record.id],
       contactStatus: 'NOT_CONTACTED',
+      source: 'vault',
     });
   }
   
@@ -483,20 +505,13 @@ function mapVaultCategoryToContactType(category: string): ContactType {
     SUBSCRIPTION: 'SUBSCRIPTION',
     LOAN: 'BANK',
   };
-  
-  return mapping[category] || 'OTHER';
+  return mapping[category] ?? 'OTHER';
 }
 
-/**
- * Get contacts by type
- */
 export function getContactsByType(contacts: ContactEntry[], type: ContactType): ContactEntry[] {
   return contacts.filter(c => c.type === type);
 }
 
-/**
- * Get contact type display information
- */
 export function getContactTypeInfo(type: ContactType): { label: string; icon: string; color: string } {
   const info: Record<ContactType, { label: string; icon: string; color: string }> = {
     BANK: { label: 'Banks and Financial', icon: 'Building2', color: '#10b981' },
@@ -510,13 +525,56 @@ export function getContactTypeInfo(type: ContactType): { label: string; icon: st
     GOVERNMENT: { label: 'Government', icon: 'Landmark', color: '#64748b' },
     OTHER: { label: 'Other', icon: 'MoreHorizontal', color: '#94a3b8' },
   };
-  
   return info[type];
 }
 
-/**
- * Get contact status display
- */
+/** Role labels for manual contact entry. */
+export const CONTACT_ROLES: { value: ContactRole; label: string }[] = [
+  { value: 'EXECUTOR', label: 'Executor' },
+  { value: 'ATTORNEY', label: 'Attorney' },
+  { value: 'FUNERAL_HOME', label: 'Funeral home' },
+  { value: 'BANK', label: 'Bank' },
+  { value: 'EMPLOYER', label: 'Employer' },
+  { value: 'FAMILY', label: 'Family' },
+  { value: 'OTHER', label: 'Other' },
+];
+
+export function getContactRoleInfo(role: ContactRole): { label: string; color: string } {
+  const info: Record<ContactRole, { label: string; color: string }> = {
+    EXECUTOR: { label: 'Executor', color: '#C9AE66' },
+    ATTORNEY: { label: 'Attorney', color: '#6366f1' },
+    FUNERAL_HOME: { label: 'Funeral home', color: '#64748b' },
+    BANK: { label: 'Bank', color: '#10b981' },
+    EMPLOYER: { label: 'Employer', color: '#8b5cf6' },
+    FAMILY: { label: 'Family', color: '#ec4899' },
+    OTHER: { label: 'Other', color: '#94a3b8' },
+  };
+  return info[role];
+}
+
+/** Create a new manual contact. */
+export function createManualContact(overrides: Partial<ContactEntry> = {}): ContactEntry {
+  return {
+    id: `contact_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    type: 'OTHER',
+    name: '',
+    source: 'manual',
+    ...overrides,
+  };
+}
+
+/** Display label for a contact (role for manual, type for vault-imported). */
+export function getContactDisplayLabel(contact: ContactEntry): string {
+  if (contact.role) return getContactRoleInfo(contact.role).label;
+  return getContactTypeInfo(contact.type).label;
+}
+
+/** Display color for a contact. */
+export function getContactDisplayColor(contact: ContactEntry): string {
+  if (contact.role) return getContactRoleInfo(contact.role).color;
+  return getContactTypeInfo(contact.type).color;
+}
+
 export function getContactStatusInfo(status: string): { label: string; color: string } {
   switch (status) {
     case 'NOT_CONTACTED':
@@ -530,9 +588,6 @@ export function getContactStatusInfo(status: string): { label: string; color: st
   }
 }
 
-/**
- * Calculate contact progress
- */
 export function getContactProgress(contacts: ContactEntry[]): {
   total: number;
   contacted: number;
@@ -542,7 +597,6 @@ export function getContactProgress(contacts: ContactEntry[]): {
   const total = contacts.length;
   const contacted = contacts.filter(c => c.contactStatus === 'COMPLETED').length;
   const inProgress = contacts.filter(c => c.contactStatus === 'IN_PROGRESS').length;
-  
   return {
     total,
     contacted,
@@ -550,4 +604,3 @@ export function getContactProgress(contacts: ContactEntry[]): {
     percentage: total > 0 ? Math.round((contacted / total) * 100) : 0,
   };
 }
-

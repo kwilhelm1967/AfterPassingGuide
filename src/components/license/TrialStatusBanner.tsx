@@ -54,7 +54,7 @@ export const TrialStatusBanner = ({ onPurchase, onDismiss, onExport }: TrialStat
             <div className="flex-1">
               <h3 className="font-semibold text-red-400 mb-1">Trial Expired</h3>
               <p className="text-sm text-text-secondary mb-3">
-                Your 14-day trial has ended. To continue using Local Aftercare Vault, please purchase a license.
+                Your 14-day trial has ended. To continue using AfterPassing Guide, please purchase a license.
               </p>
               <div className="flex gap-2">
                 {onPurchase && (

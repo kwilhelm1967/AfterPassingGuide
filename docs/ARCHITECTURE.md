@@ -2,7 +2,7 @@
 
 ## Overview
 
-Local Aftercare Vault is a React-based desktop application built with Electron, providing administrative guidance for families handling paperwork after a death. The application is designed to be fully local (no cloud dependencies) and can run in two modes: standalone or embedded within Local Legacy Vault.
+AfterPassing Guide is a React-based desktop application built with Electron, providing administrative guidance for families handling paperwork after a death. The application is designed to be fully local (no cloud dependencies) and can run in two modes: standalone or embedded within Local Legacy Vault.
 
 ## Technology Stack
 

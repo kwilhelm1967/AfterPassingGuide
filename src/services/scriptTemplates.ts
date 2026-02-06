@@ -2,7 +2,7 @@
  * Script and Letter Templates Service
  * 
  * Provides templates for common communications needed during estate administration.
- * Included in Local Aftercare Vault.
+ * Included in AfterPassing Guide.
  * 
  * IMPORTANT: These templates provide administrative guidance only.
  * Users should customize them for their specific situation.
@@ -651,32 +651,47 @@ export function renderScript(template: ScriptTemplate, context: ScriptRenderCont
 }
 
 /**
- * Get template type display information
+ * Get template type display information (category labels for left column).
  */
 export function getTemplateTypeInfo(type: ScriptTemplateType): { label: string; icon: string } {
   const info: Record<ScriptTemplateType, { label: string; icon: string }> = {
-    BANK_NOTIFICATION: { label: 'Bank Notification', icon: 'Building2' },
-    CREDIT_CARD_CLOSURE: { label: 'Credit Card Closure', icon: 'CreditCard' },
-    UTILITY_CANCELLATION: { label: 'Utility Services', icon: 'Lightbulb' },
-    SUBSCRIPTION_CANCELLATION: { label: 'Subscription Cancellation', icon: 'RefreshCcw' },
-    EMPLOYER_NOTIFICATION: { label: 'Employer Notification', icon: 'Briefcase' },
-    INSURANCE_CLAIM_REQUEST: { label: 'Insurance Claim', icon: 'Shield' },
+    BANK_NOTIFICATION: { label: 'Banks', icon: 'Building2' },
+    CREDIT_CARD_CLOSURE: { label: 'Credit Cards', icon: 'CreditCard' },
+    UTILITY_CANCELLATION: { label: 'Utilities', icon: 'Lightbulb' },
+    SUBSCRIPTION_CANCELLATION: { label: 'Subscriptions', icon: 'RefreshCcw' },
+    EMPLOYER_NOTIFICATION: { label: 'Employer', icon: 'Briefcase' },
+    INSURANCE_CLAIM_REQUEST: { label: 'Insurance', icon: 'Shield' },
     PENSION_BENEFITS_REQUEST: { label: 'Pension Benefits', icon: 'Wallet' },
     GOVERNMENT_BENEFITS_NOTIFICATION: { label: 'Government Benefits', icon: 'Landmark' },
-    LANDLORD_NOTIFICATION: { label: 'Landlord Notification', icon: 'Home' },
-    CREDITOR_NOTIFICATION: { label: 'Creditor Notification', icon: 'FileText' },
+    LANDLORD_NOTIFICATION: { label: 'Landlord', icon: 'Home' },
+    CREDITOR_NOTIFICATION: { label: 'Creditors', icon: 'FileText' },
     SOCIAL_SECURITY_NOTIFICATION: { label: 'Social Security', icon: 'Landmark' },
-    CREDIT_BUREAU_NOTIFICATION: { label: 'Credit Bureaus', icon: 'AlertTriangle' },
-    MORTGAGE_NOTIFICATION: { label: 'Mortgage Company', icon: 'Home' },
+    CREDIT_BUREAU_NOTIFICATION: { label: 'Credit Bureaus', icon: 'FileText' },
+    MORTGAGE_NOTIFICATION: { label: 'Mortgage', icon: 'Home' },
     VETERANS_NOTIFICATION: { label: 'Veterans Affairs', icon: 'Shield' },
-    DMV_NOTIFICATION: { label: 'DMV / Driver\'s License', icon: 'Car' },
+    DMV_NOTIFICATION: { label: 'DMV', icon: 'Car' },
     HEALTH_INSURANCE_NOTIFICATION: { label: 'Health Insurance', icon: 'Heart' },
     MEMBERSHIP_CANCELLATION: { label: 'Memberships', icon: 'Users' },
     SOCIAL_MEDIA_NOTIFICATION: { label: 'Social Media', icon: 'Share2' },
     STUDENT_LOAN_DISCHARGE: { label: 'Student Loans', icon: 'GraduationCap' },
   };
-  
   return info[type] || { label: type, icon: 'FileText' };
+}
+
+/** Short, humanized display title for template list (optional override). */
+const TEMPLATE_DISPLAY_TITLES: Record<string, string> = {
+  'bank-notification-phone': 'Call a bank',
+  'bank-notification-letter': 'Write to a bank',
+  'credit-card-closure-phone': 'Call a credit card company',
+  'utility-cancellation-phone': 'Call a utility provider',
+  'subscription-cancellation-email': 'Cancel a subscription',
+  'employer-notification-phone': 'Notify an employer',
+  'insurance-claim-phone': 'Call an insurance provider',
+  'insurance-claim-letter': 'Write to an insurance provider',
+};
+
+export function getTemplateDisplayTitle(template: ScriptTemplate): string {
+  return TEMPLATE_DISPLAY_TITLES[template.id] ?? template.title;
 }
 
 /**

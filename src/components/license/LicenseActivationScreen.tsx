@@ -154,7 +154,7 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
         <div className="bg-card-bg border border-border-subtle rounded-2xl p-6 shadow-2xl">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-2 bg-accent-gold/20 border border-accent-gold/40">
+            <div className="flex justify-center mb-2">
               <svg 
                 className="w-6 h-6 text-accent-gold" 
                 viewBox="0 0 24 24" 
@@ -174,7 +174,7 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
               </svg>
             </div>
             <h1 className="text-sm font-semibold text-accent-gold mb-1">
-              Local Aftercare Vault
+              AfterPassing Guide
             </h1>
             <h2 className="text-lg font-semibold text-text-primary mb-1">
               Activate Your Vault

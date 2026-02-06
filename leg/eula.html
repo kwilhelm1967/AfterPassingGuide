@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>End User License Agreement - Local Aftercare Vault</title>
-  <meta name="description" content="End User License Agreement (EULA) for Local Aftercare Vault software.">
-  
+  <title>End User License Agreement - AfterPassing Guide</title>
+  <meta name="description" content="End User License Agreement (EULA) for AfterPassing Guide software.">
+
   <style>
     :root {
       --bg-dark: #1F2534;
@@ -15,92 +15,142 @@
       --gold-light: #D1B26E;
       --gold-dark: #B49A52;
       --gold-glow: rgba(201, 174, 102, 0.25);
-      --text-primary: #E8EDF2;
+      --text-primary: #FFF8E7;
       --text-secondary: #A0AAB6;
       --text-muted: #8590A2;
       --border-subtle: rgba(255, 255, 255, 0.10);
-      --gradient-gold: linear-gradient(135deg, #D1B26E 0%, #B49A52 100%);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; font-size: 16px; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif; background: var(--bg-darker); color: var(--text-primary); line-height: 1.6; font-size: 16px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif; background: var(--bg-dark); color: var(--text-primary); line-height: 1.6; font-size: 16px; }
 
-    .page-hero { padding: 80px 2rem 32px; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%); text-align: center; }
-    .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; margin-bottom: 0.75rem; }
-    .page-hero p { color: var(--text-secondary); font-size: 1.1rem; }
+    .bg-textured { position: relative; min-height: 100vh; }
+    .bg-textured::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-textured > * { position: relative; z-index: 1; }
+
+    .page-hero { padding: 80px 2rem 32px; text-align: center; }
+    .page-hero .title-block { display: flex; flex-direction: column; align-items: center; }
+    .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }
+    .title-bar { width: 45%; min-width: 60px; height: 2px; background: var(--gold); margin: 0.75rem auto 0; }
+    .page-hero p { color: var(--text-secondary); font-size: 1.1rem; margin-top: 0.5rem; }
 
     .legal-content { padding: 40px 2rem 100px; }
     .legal-container { max-width: 800px; margin: 0 auto; }
     .legal-container h2 { font-size: 1.5rem; margin: 40px 0 16px; color: var(--text-primary); }
-    .legal-container p { color: var(--text-secondary); margin-bottom: 16px; line-height: 1.8; }
-    .legal-container ul, .legal-container ol { color: var(--text-secondary); margin-bottom: 16px; padding-left: 24px; }
+    .legal-container p { color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
+    .legal-container ul { color: var(--text-secondary); margin-bottom: 16px; padding-left: 24px; }
     .legal-container li { margin-bottom: 8px; }
     .effective-date { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px; }
   </style>
+  <link rel="stylesheet" href="footer.css">
 </head>
-<body>
+<body class="bg-textured">
+  <nav class="back-nav">
+    <a href="/">← Back to AfterPassing Guide</a>
+  </nav>
   <section class="page-hero">
-    <h1>End User License Agreement</h1>
-    <p>Terms governing your use of Legacy Aftercare Assistant</p>
+    <div class="title-block">
+      <h1>End User License Agreement</h1>
+      <div class="title-bar" aria-hidden="true"></div>
+    </div>
+    <p>AfterPassing Guide</p>
   </section>
 
   <section class="legal-content">
     <div class="legal-container">
-      <p class="effective-date">Effective Date: January 1, 2025</p>
+      <p class="effective-date">Last Updated: February 2026</p>
 
-      <p>This End User License Agreement ("Agreement") is a legal agreement between you ("User") and Local Vault Software ("Licensor") for the use of Local Aftercare Vault software ("Software").</p>
+      <p>This End User License Agreement ("Agreement") is a legal agreement between you and AfterPassing Guide.</p>
 
-      <p>By installing, copying, or using the Software, you agree to be bound by the terms of this Agreement. If you do not agree, do not install or use the Software.</p>
+      <h2>1. License</h2>
+      <p>You are granted a limited, revocable license to use the Software in accordance with this Agreement.</p>
 
-      <h2>1. Grant of License</h2>
-      <p>Subject to the terms of this Agreement, Licensor grants you a limited, non-exclusive, non-transferable license to install and use the Software on one (1) computer for personal, non-commercial use. This license is device-bound and may be transferred to a new device in accordance with the license transfer provisions.</p>
+      <h2>2. Device-Bound Use</h2>
+      <p>The Software may use device-based mechanisms to enforce licensing. Licenses are intended for use by the purchaser only and may not be shared.</p>
 
-      <h2>2. License Restrictions</h2>
+      <h2>3. No Transfer</h2>
+      <p>Licenses may not be transferred, sold, or assigned without written permission.</p>
+
+      <h2>4. Prohibited Use</h2>
       <p>You may not:</p>
       <ul>
-        <li>Copy, modify, or distribute the Software</li>
-        <li>Reverse engineer, decompile, or disassemble the Software</li>
-        <li>Rent, lease, or lend the Software to third parties</li>
-        <li>Use the Software for commercial purposes without a commercial license</li>
-        <li>Remove or alter any proprietary notices or labels</li>
-        <li>Share your license key with others</li>
+        <li>Circumvent licensing protections</li>
+        <li>Modify or redistribute the Software</li>
+        <li>Use the Software in violation of applicable law</li>
       </ul>
 
-      <h2>3. Ownership</h2>
-      <p>The Software is licensed, not sold. Licensor retains all rights, title, and interest in and to the Software, including all intellectual property rights. Your license confers no ownership rights.</p>
+      <h2>5. Termination</h2>
+      <p>This Agreement terminates automatically if you breach its terms. Termination does not entitle you to a refund.</p>
 
-      <h2>4. Updates</h2>
-      <p>Licensor may provide updates, patches, or new versions of the Software. These updates are subject to this Agreement unless accompanied by a separate license. Your license includes free updates for the lifetime of the product.</p>
+      <h2>6. Disclaimer and Liability</h2>
+      <p>All disclaimers and liability limitations in the Terms and Conditions apply equally to this Agreement.</p>
 
-      <h2>5. Data and Privacy</h2>
-      <p>The Software operates entirely on your local device. Your data is stored locally and is never transmitted to Licensor or any third party. You are solely responsible for maintaining backups of your data.</p>
-
-      <h2>6. No Warranty</h2>
-      <p>THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. LICENSOR DOES NOT WARRANT THAT THE SOFTWARE WILL BE ERROR-FREE OR UNINTERRUPTED.</p>
-
-      <h2>7. Limitation of Liability</h2>
-      <p>IN NO EVENT SHALL LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF DATA, PROFITS, OR BUSINESS OPPORTUNITIES, ARISING OUT OF OR RELATED TO YOUR USE OF THE SOFTWARE, EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
-
-      <h2>8. Indemnification</h2>
-      <p>You agree to indemnify and hold harmless Licensor from any claims, damages, or expenses arising from your use of the Software or violation of this Agreement.</p>
-
-      <h2>9. Termination</h2>
-      <p>This Agreement is effective until terminated. Your rights under this Agreement will terminate automatically without notice if you fail to comply with any term. Upon termination, you must cease all use of the Software and destroy all copies.</p>
-
-      <h2>10. Governing Law</h2>
-      <p>This Agreement shall be governed by and construed in accordance with the laws of the State of Texas, United States, without regard to its conflict of law provisions.</p>
-
-      <h2>11. Entire Agreement</h2>
-      <p>This Agreement constitutes the entire agreement between you and Licensor regarding the Software and supersedes all prior agreements and understandings.</p>
-
-      <h2>12. Severability</h2>
-      <p>If any provision of this Agreement is held to be unenforceable, the remaining provisions will continue in full force and effect.</p>
-
-      <h2>13. Contact Information</h2>
-      <p>For questions about this Agreement, contact: support@localvaultsoftware.com</p>
+      <h2>7. Entire Agreement</h2>
+      <p>This Agreement constitutes the entire agreement regarding use of AfterPassing Guide.</p>
     </div>
   </section>
+
+  <p class="footer-tagline">Built for privacy. Designed for real life.</p>
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="name">AfterPassing Guide</div>
+          <div class="tagline">Administrative guidance. No legal or financial advice.</div>
+          <p>A local, offline tool for organizing administrative tasks after a loss.</p>
+          <p>Part of the Local Legacy Vault ecosystem.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="/#features">Features</a></li>
+            <li><a href="/leg/security.html">Security and Privacy</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+            <li><a href="/#faqs">FAQs</a></li>
+            <li><a href="/#pricing">Local Legacy Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="/#user-guide">User Guide</a></li>
+            <li><a href="/#official-resources">Official Resources (US)</a></li>
+            <li><a href="/#support">Contact Support</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-trust">
+          <h4>Trust and Privacy</h4>
+          <ul>
+            <li>100% Local Storage</li>
+            <li>Fully Encrypted</li>
+            <li>Offline by Design</li>
+            <li>No Tracking</li>
+            <li>No accounts. No cloud sync.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-legal">Administrative guidance only. This application does not provide legal, financial, tax, or medical advice. Guidance is based on common U.S. processes and may vary by state. Consult qualified professionals for decisions.</p>
+      <div class="footer-bottom">
+        <span>© 2026 AfterPassing Guide <span style="opacity: 0.85">· Built for offline use</span></span>
+        <span class="footer-bottom-links">
+          <a href="/leg/privacy.html">Privacy Policy</a>
+          <a href="/leg/terms.html">Terms</a>
+          <a href="/leg/disclaimer.html">Disclaimer</a>
+          <a href="/leg/eula.html">EULA</a>
+          <a href="/leg/refund.html">Refund</a>
+          <a href="/leg/security.html">Security Overview</a>
+        </span>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
-

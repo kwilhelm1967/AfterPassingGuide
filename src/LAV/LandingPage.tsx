@@ -68,7 +68,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </div>
           
           <h1 className="text-4xl font-semibold text-text-primary mb-3">
-            Local Aftercare Vault
+            AfterPassing Guide
           </h1>
           
           <p className="text-base text-text-secondary mb-1 max-w-xl mx-auto">

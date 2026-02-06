@@ -1,4 +1,4 @@
-# Local Aftercare Vault
+# AfterPassing Guide
 
 Administrative guidance tool for families handling paperwork and notifications after a death.
 

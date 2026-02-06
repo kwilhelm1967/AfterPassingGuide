@@ -1,249 +1,271 @@
 /**
  * Documents View
- * 
- * Upload and manage documents with summarization.
+ *
+ * A secure place to keep important documents easy to find.
+ * Clarity over completeness; fewer decisions. No required fields beyond upload.
  */
 
-import React, { useState, useMemo } from 'react';
-import { 
-  Upload, 
-  FileText, 
-  Trash2, 
-  AlertTriangle,
-} from 'lucide-react';
-import type { UploadedDocument, AftercareProfile, DocumentType } from '../../types';
+import React, { useState } from 'react';
+import { Upload, Trash2 } from 'lucide-react';
+import { TitleBar } from '../common/TitleBar';
+import type {
+  UploadedDocument,
+  AftercareProfile,
+  DocumentCategory,
+  DocumentStatus,
+  DocumentType,
+  DocumentOwner,
+  DocumentImportance,
+  DocumentAppliesTo,
+  ExecutorChecklistItem,
+} from '../../types';
 import { storageService } from '../../services/storageService';
-import { DOCUMENT_TYPES } from '../../constants/documentTypes';
-import { extractDocumentMetadata, analyzeDocument } from '../../utils/documentAnalysis';
-import { VirtualizedList } from '../common/VirtualizedList';
+import {
+  DOCUMENT_CATEGORIES,
+  DOCUMENT_STATUSES,
+  DOCUMENT_TYPES,
+  DOCUMENT_OWNERS,
+  DOCUMENT_IMPORTANCE,
+  APPLIES_TO,
+} from '../../constants/documentTypes';
 
 interface DocumentsViewProps {
   documents: UploadedDocument[];
   onDocumentsChange: (docs: UploadedDocument[]) => void;
   profile: AftercareProfile;
+  checklistItems?: ExecutorChecklistItem[];
 }
 
 export const DocumentsView: React.FC<DocumentsViewProps> = ({
   documents,
   onDocumentsChange,
+  checklistItems = [],
 }) => {
-  const [selectedDoc, setSelectedDoc] = useState<UploadedDocument | null>(null);
+  const saveDocs = async (updated: UploadedDocument[]) => {
+    onDocumentsChange(updated);
+    await storageService.saveDocuments(updated);
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try {
-      // Extract metadata and analyze document
-      const metadata = extractDocumentMetadata(file);
-      const tempDoc: UploadedDocument = {
+      const newDoc: UploadedDocument = {
         id: crypto.randomUUID(),
         filePath: '',
         fileName: file.name,
         fileSize: file.size,
         uploadedAt: new Date().toISOString(),
-        documentType: metadata.suggestedCategory ? 
-          (DOCUMENT_TYPES.find(dt => dt.label === metadata.suggestedCategory)?.value as DocumentType | undefined) :
-          undefined,
         userLabel: '',
+        documentType: 'Other',
       };
-      const analysis = analyzeDocument(tempDoc, metadata);
-
-      const newDoc: UploadedDocument = {
-        id: crypto.randomUUID(),
-        filePath: '', // Would be set by Electron file dialog
-        fileName: file.name,
-        fileSize: file.size,
-        uploadedAt: new Date().toISOString(),
-        documentType: metadata.suggestedCategory ? 
-          (DOCUMENT_TYPES.find(dt => dt.label === metadata.suggestedCategory)?.value as DocumentType | undefined) :
-          undefined,
-        userLabel: '',
-        summary: analysis.summary,
-        keyPoints: analysis.keyPoints,
-      };
-
-      const updated = [...documents, newDoc];
-      onDocumentsChange(updated);
-      await storageService.saveDocuments(updated);
+      await saveDocs([...documents, newDoc]);
     } catch (error) {
-      console.error('Failed to process document:', error);
-      // Fallback to basic document entry
-      const newDoc: UploadedDocument = {
-        id: crypto.randomUUID(),
-        filePath: '',
-        fileName: file.name,
-        fileSize: file.size,
-        uploadedAt: new Date().toISOString(),
-        documentType: undefined,
-        userLabel: '',
-      };
-      const updated = [...documents, newDoc];
-      onDocumentsChange(updated);
-      await storageService.saveDocuments(updated);
+      console.error('Failed to add document:', error);
     }
-    
-    // Reset input
     e.target.value = '';
   };
 
   const handleDelete = async (docId: string) => {
-    const updated = documents.filter(d => d.id !== docId);
-    onDocumentsChange(updated);
-    await storageService.saveDocuments(updated);
-    if (selectedDoc?.id === docId) {
-      setSelectedDoc(null);
-    }
+    await saveDocs(documents.filter((d) => d.id !== docId));
   };
 
-  const handleTypeChange = async (docId: string, type: DocumentType) => {
-    const updated = documents.map(d => 
-      d.id === docId ? { ...d, documentType: type } : d
-    );
-    onDocumentsChange(updated);
-    await storageService.saveDocuments(updated);
+  const handleCategoryChange = async (docId: string, category: DocumentCategory | '') => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, category: category || undefined } : d
+    ));
   };
 
-  const handleLabelChange = async (docId: string, label: string) => {
-    const updated = documents.map(d =>
-      d.id === docId ? { ...d, userLabel: label } : d
-    );
-    onDocumentsChange(updated);
-    await storageService.saveDocuments(updated);
+  const handleNotesChange = async (docId: string, notes: string) => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, notes } : d
+    ));
   };
 
+  const handleStatusChange = async (docId: string, documentStatus: DocumentStatus | '') => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, documentStatus: documentStatus || undefined } : d
+    ));
+  };
+
+  const handleLabelChange = async (docId: string, userLabel: string) => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, userLabel } : d
+    ));
+  };
+
+  const handleTypeChange = async (docId: string, documentType: DocumentType) => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, documentType } : d
+    ));
+  };
+
+  const handleOwnerChange = async (docId: string, ownerOrRelatedPerson: DocumentOwner | '') => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, ownerOrRelatedPerson: ownerOrRelatedPerson || undefined } : d
+    ));
+  };
+
+  const handleImportanceChange = async (docId: string, importance: DocumentImportance | '') => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, importance: importance || undefined } : d
+    ));
+  };
+
+  const handleAppliesToChange = async (docId: string, appliesTo: DocumentAppliesTo | '') => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, appliesTo: appliesTo || undefined } : d
+    ));
+  };
+
+  const handleActionRequiredChange = async (docId: string, actionRequired: boolean) => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, actionRequired } : d
+    ));
+  };
+
+  const handleLinkedTaskChange = async (docId: string, linkedTaskId: string) => {
+    await saveDocs(documents.map((d) =>
+      d.id === docId ? { ...d, linkedTaskId: linkedTaskId || undefined } : d
+    ));
+  };
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-white">Documents</h2>
-          <p className="text-slate-400 text-sm mt-1">
-            Upload and organize important documents for reference
-          </p>
+    <div className="space-y-4">
+      <div className="page-header-zone flex flex-col items-center text-center">
+        <div className="flex flex-col items-center">
+          <h2 className="text-xl font-semibold text-text-primary">Documents</h2>
+          <TitleBar className="mt-1.5" />
         </div>
+        <p className="text-slate-400 text-sm mt-1.5 max-w-md">
+          A secure place to keep important documents easy to find.
+        </p>
       </div>
 
-      {/* Disclaimer */}
-      <div className="bg-brand-gold/10 border border-brand-gold/20 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-brand-gold flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm text-brand-gold/80 mb-2">
-              Document summaries are for organizational purposes only. 
-              They do not interpret legal meaning. For legal interpretation, 
-              please consult an attorney.
-            </p>
-            <p className="text-xs text-brand-gold/60">
-              <strong>Note:</strong> This feature stores document references only—actual files remain on your device.
-              Full document scanning coming in a future update.
-            </p>
-          </div>
-        </div>
+      {/* Compact disclaimer under title only */}
+      <div className="rounded-lg bg-slate-800/30 border border-slate-700/50 p-3">
+        <p className="text-xs text-slate-500 leading-relaxed">
+          For reference only. Not legal advice. For legal, financial, or medical decisions, consult a qualified professional.
+        </p>
       </div>
 
-      {/* Upload Area */}
-      <label 
-        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-600 rounded-xl hover:border-brand-gold cursor-pointer transition-colors"
-        aria-label="Upload document"
-      >
-        <Upload className="w-10 h-10 text-slate-500 mb-3" aria-hidden="true" />
-        <span className="text-slate-300 font-medium">Upload Document</span>
-        <span className="text-slate-500 text-sm mt-1">PDF, images, or documents</span>
+      {/* Single compact card: Add document button + drag hint. When docs exist, only button. */}
+      <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-text-primary bg-slate-800/50 border border-slate-700 hover:border-slate-600 transition-colors w-fit"
+        >
+          <Upload className="w-4 h-4" aria-hidden="true" />
+          Add document
+        </button>
         <input
+          ref={fileInputRef}
           type="file"
           onChange={handleFileUpload}
           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
           className="hidden"
           aria-label="Select file to upload"
         />
-      </label>
+        {documents.length === 0 && (
+          <p className="text-[11px] text-slate-500">Or drag a file here. Stored on this device only.</p>
+        )}
+      </div>
 
-      {/* Document List */}
-      {documents.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {documents.map((doc) => (
-            <div
-              key={doc.id}
-              className="bg-slate-800/50 border border-slate-700 rounded-xl p-4"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-brand-gold/20 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-brand-gold" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white truncate max-w-[200px]">
-                      {doc.userLabel || doc.fileName}
-                    </h4>
-                    <p className="text-xs text-slate-400">
+      {/* Document list — filename + date in header; metadata inline two-column; notes collapsible; delete on hover */}
+      {documents.length > 0 && (
+        <div className="max-w-xl space-y-2">
+          {documents.map((doc) => {
+            const displayName = doc.userLabel || doc.fileName;
+            return (
+              <div
+                key={doc.id}
+                className="group/doc bg-slate-800/30 border border-slate-700/50 rounded-lg p-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-text-primary truncate text-sm">
+                      {doc.fileName}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
                       {new Date(doc.uploadedAt).toLocaleDateString()}
+                      {doc.userLabel ? ` · ${doc.userLabel}` : ''}
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(doc.id)}
+                    className="p-1.5 text-slate-500 opacity-0 group-hover/doc:opacity-100 hover:text-slate-400 rounded transition-all flex-shrink-0"
+                    aria-label="Remove document"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => handleDelete(doc.id)}
-                  className="p-2 text-slate-500 hover:text-burnt-orange rounded-lg hover:bg-slate-700"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+
+                {/* Metadata: inline two-column; notes collapsible (collapsed by default) */}
+                <details className="mt-2 pt-2 border-t border-slate-700/40 group/details">
+                  <summary className="text-[11px] text-slate-500 cursor-pointer hover:text-slate-400 list-none py-0.5">
+                    {doc.userLabel || doc.category || doc.documentStatus || doc.notes ? 'Details' : 'Add details'}
+                  </summary>
+                  <div className="mt-2 space-y-2">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                      <div>
+                        <label className="text-[10px] text-slate-500 block mb-0.5">Label</label>
+                        <input
+                          type="text"
+                          value={doc.userLabel || ''}
+                          onChange={(e) => handleLabelChange(doc.id, e.target.value)}
+                          placeholder="Optional label"
+                          className="block w-full text-xs text-text-primary placeholder-slate-500 bg-transparent border border-slate-700/50 rounded px-2 py-1 focus:outline-none focus:border-slate-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-text-muted block mb-0.5">Category</label>
+                        <select
+                          value={doc.category || ''}
+                          onChange={(e) => handleCategoryChange(doc.id, e.target.value as DocumentCategory | '')}
+                          className="doc-select block w-full text-xs bg-card-bg border border-border-subtle rounded px-2 py-1.5 pr-8 text-text-primary focus:outline-none focus:border-accent-gold/50"
+                        >
+                          <option value="">—</option>
+                          {DOCUMENT_CATEGORIES.map((c) => (
+                            <option key={c.value} value={c.value}>{c.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-text-muted block mb-0.5">Status</label>
+                        <select
+                          value={doc.documentStatus || ''}
+                          onChange={(e) => handleStatusChange(doc.id, e.target.value as DocumentStatus | '')}
+                          className="doc-select block w-full text-xs bg-card-bg border border-border-subtle rounded px-2 py-1.5 pr-8 text-text-primary focus:outline-none focus:border-accent-gold/50"
+                        >
+                          <option value="">—</option>
+                          {DOCUMENT_STATUSES.map((s) => (
+                            <option key={s.value} value={s.value}>{s.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <details className="group/notes">
+                      <summary className="text-[11px] text-slate-500 cursor-pointer hover:text-slate-400 list-none py-0.5">
+                        {doc.notes ? 'Note' : 'Note (optional)'}
+                      </summary>
+                      <textarea
+                        value={doc.notes || ''}
+                        onChange={(e) => handleNotesChange(doc.id, e.target.value)}
+                        rows={2}
+                        className="mt-1 w-full text-xs text-text-primary placeholder-slate-500 bg-transparent border border-slate-700/50 rounded px-2 py-1.5 focus:outline-none focus:border-slate-600 resize-none"
+                      />
+                    </details>
+                  </div>
+                </details>
               </div>
-
-              {/* Type Selector */}
-              <select
-                value={doc.documentType || ''}
-                onChange={(e) => handleTypeChange(doc.id, e.target.value as DocumentType)}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm mb-3"
-              >
-                <option value="">Select document type...</option>
-                {DOCUMENT_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
-
-              {/* Label Input */}
-              <input
-                type="text"
-                value={doc.userLabel || ''}
-                onChange={(e) => handleLabelChange(doc.id, e.target.value)}
-                placeholder="Add a label..."
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-400 mb-3"
-              />
-
-              {/* Notes Section */}
-              {doc.summary && (
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <h5 className="text-xs font-medium text-slate-400 mb-2">Notes</h5>
-                  <p className="text-sm text-slate-300">{doc.summary}</p>
-                  {doc.keyPoints && doc.keyPoints.length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {doc.keyPoints.map((point, i) => (
-                        <li key={i} className="text-xs text-slate-400 flex items-start gap-2">
-                          <span className="text-brand-gold">•</span>
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <FileText className="w-12 h-12 text-accent-gold mx-auto mb-4" />
-          <p className="text-slate-400">No documents uploaded yet</p>
-          <p className="text-slate-500 text-sm mt-1">
-            Upload documents to organize and summarize them
-          </p>
-          <p className="text-slate-500 text-xs mt-3">
-            If you have a Local Legacy Vault, you may already have important documents stored there.
-          </p>
+            );
+          })}
         </div>
       )}
     </div>
   );
 };
-

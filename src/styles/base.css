@@ -1,0 +1,37 @@
+/**
+ * Typography and readability — global normalization.
+ * Import after theme.css.
+ */
+
+html,
+body {
+  font-size: var(--font-base);
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--text);
+  line-height: var(--line);
+}
+
+p,
+li,
+label,
+.muted {
+  color: var(--text-muted);
+}
+
+small,
+.faint {
+  color: var(--text-faint);
+}
+
+/* Minimum readable size — 14px */
+.small-text {
+  font-size: 0.875rem;
+}
+
+/* Body text contrast: at least muted */
+.readable {
+  color: var(--text-muted);
+}

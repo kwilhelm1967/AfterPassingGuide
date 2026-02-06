@@ -1,6 +1,6 @@
 /**
  * Electron Main Process
- * Local Aftercare Vault
+ * AfterPassing Guide
  */
 
 const { app, BrowserWindow, ipcMain } = require('electron');

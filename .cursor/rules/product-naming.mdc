@@ -1,0 +1,9 @@
+---
+description: Use correct product name in user-facing text; never use repo/folder name as product name
+alwaysApply: true
+---
+
+# Product naming
+
+- **Product name**: Use **AfterPassing Guide** only. Do not use the repository or folder name as the product name in instructions, docs, or replies to the user.
+- In instructions (e.g. terminal, setup), refer to the project location as "the project folder", "your project directory", or "the AfterPassing Guide project" — not by the repo/folder name.

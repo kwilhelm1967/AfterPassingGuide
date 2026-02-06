@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Overview - AfterPassing Guide</title>
+  <meta name="description" content="Security Overview for AfterPassing Guide. How we protect your data: local storage, encryption, offline design, no tracking.">
+
+  <style>
+    :root {
+      --bg-dark: #1F2534;
+      --bg-darker: #0f172a;
+      --bg-card: #2A3340;
+      --gold: #C9AE66;
+      --gold-light: #D1B26E;
+      --gold-dark: #B49A52;
+      --gold-glow: rgba(201, 174, 102, 0.25);
+      --text-primary: #FFF8E7;
+      --text-secondary: #A0AAB6;
+      --text-muted: #8590A2;
+      --border-subtle: rgba(255, 255, 255, 0.10);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; background: linear-gradient(180deg, #1F2534 0%, #252D3B 50%, #1F2534 100%); background-color: #1F2534; background-attachment: fixed; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif; background: transparent; color: var(--text-primary); line-height: 1.5; font-size: 14px; }
+
+    .bg-textured { position: relative; min-height: 100vh; }
+    .bg-textured::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-textured > * { position: relative; z-index: 1; }
+
+    .page-hero { padding: 80px 2rem 32px; text-align: center; }
+    .page-hero .title-block { display: flex; flex-direction: column; align-items: center; }
+    .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }
+    .title-bar { width: 45%; min-width: 60px; height: 2px; background: var(--gold); margin: 0.75rem auto 0; }
+    .page-hero p { color: var(--text-secondary); font-size: 1.1rem; margin-top: 0.5rem; }
+
+    .legal-content { padding: 40px 2rem 100px; }
+    .legal-container { max-width: 800px; margin: 0 auto; }
+    .legal-container h2 { font-size: 1.5rem; margin: 40px 0 16px; color: var(--text-primary); }
+    .legal-container p { color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
+    .legal-container ul { color: var(--text-secondary); margin-bottom: 16px; padding-left: 24px; }
+    .legal-container li { margin-bottom: 8px; }
+    .link { color: var(--gold); text-decoration: none; }
+    .link:hover { text-decoration: underline; }
+  </style>
+  <link rel="stylesheet" href="footer.css">
+</head>
+<body class="bg-textured">
+  <nav class="back-nav">
+    <a href="/">← Back to AfterPassing Guide</a>
+  </nav>
+  <section class="page-hero">
+    <div class="title-block">
+      <h1>Security Overview</h1>
+      <div class="title-bar" aria-hidden="true"></div>
+    </div>
+    <p>AfterPassing Guide</p>
+  </section>
+
+  <section class="legal-content">
+    <div class="legal-container">
+      <p>AfterPassing Guide is designed with one principle above all others: your information stays with you.</p>
+      <p>This application is built to function entirely offline, without accounts, cloud storage, or background data collection.</p>
+
+      <h2>Data Location</h2>
+      <ul>
+        <li>All data is stored locally on your device</li>
+        <li>Nothing is uploaded to external servers</li>
+        <li>No cloud backups, sync services, or third-party storage</li>
+        <li>No remote access by us or anyone else</li>
+      </ul>
+      <p>Your information never leaves your device unless you explicitly export it.</p>
+
+      <h2>Encryption</h2>
+      <ul>
+        <li>All stored data is encrypted at rest</li>
+        <li>Encryption is applied locally on your device</li>
+        <li>Access to data requires your device and your credentials</li>
+        <li>Exported files are generated only when you initiate them</li>
+      </ul>
+      <p>There is no plaintext storage of sensitive information within the application.</p>
+
+      <h2>Offline by Design</h2>
+      <ul>
+        <li>Works completely offline</li>
+        <li>No internet connection required to use the product</li>
+        <li>No background network activity</li>
+        <li>No automatic updates that transmit data</li>
+      </ul>
+      <p>Connectivity is not required for daily use.</p>
+
+      <h2>No Accounts. No Tracking.</h2>
+      <ul>
+        <li>No user accounts</li>
+        <li>No analytics</li>
+        <li>No telemetry</li>
+        <li>No behavioral tracking</li>
+        <li>No usage monitoring</li>
+      </ul>
+      <p>We do not know how you use the product, what you store, or what actions you take inside it.</p>
+
+      <h2>Device-Bound Use</h2>
+      <ul>
+        <li>Data is tied to the device where the application is installed</li>
+        <li>There is no server-side recovery of data</li>
+        <li>You are responsible for local device security and backups</li>
+      </ul>
+      <p>This design prioritizes privacy and control over convenience.</p>
+
+      <h2>Exports and Sharing</h2>
+      <ul>
+        <li>You control when and what is exported</li>
+        <li>Exports are generated locally on your device</li>
+        <li>Common export formats include PDF for estate and administrative handoff</li>
+        <li>Once exported, files are under your control and responsibility</li>
+      </ul>
+      <p>AfterPassing Guide does not track or restrict how exported files are used.</p>
+
+      <h2>What We Do Not Do</h2>
+      <p>To be explicit, AfterPassing Guide does not:</p>
+      <ul>
+        <li>Store your data in the cloud</li>
+        <li>Sync data across devices</li>
+        <li>Collect usage statistics</li>
+        <li>Share information with third parties</li>
+        <li>Provide remote access or recovery</li>
+      </ul>
+
+      <h2>Your Responsibility</h2>
+      <p>Because this is a fully local product:</p>
+      <ul>
+        <li>You are responsible for device security</li>
+        <li>You are responsible for backups if desired</li>
+        <li>Lost devices or deleted data cannot be recovered by us</li>
+      </ul>
+      <p>This is a deliberate tradeoff made in favor of privacy.</p>
+
+      <h2>Scope of the Product</h2>
+      <p>AfterPassing Guide provides administrative guidance only. It does not provide legal, financial, tax, or medical advice.</p>
+      <p>Guidance is based on common U.S. administrative processes and may vary by state or situation. Always consult qualified professionals for decisions requiring expert judgment.</p>
+    </div>
+  </section>
+
+  <p class="footer-tagline">Built for privacy. Designed for real life.</p>
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="name">AfterPassing Guide</div>
+          <div class="tagline">Administrative guidance. No legal or financial advice.</div>
+          <p>A local, offline tool for organizing administrative tasks after a loss.</p>
+          <p>Part of the Local Legacy Vault ecosystem.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="/#features">Features</a></li>
+            <li><a href="/leg/security.html">Security and Privacy</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+            <li><a href="/#faqs">FAQs</a></li>
+            <li><a href="/#pricing">Local Legacy Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="/#user-guide">User Guide</a></li>
+            <li><a href="/#official-resources">Official Resources (US)</a></li>
+            <li><a href="/#support">Contact Support</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-trust">
+          <h4>Trust and Privacy</h4>
+          <ul>
+            <li>100% Local Storage</li>
+            <li>Fully Encrypted</li>
+            <li>Offline by Design</li>
+            <li>No Tracking</li>
+            <li>No accounts. No cloud sync.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-legal">Administrative guidance only. This application does not provide legal, financial, tax, or medical advice. Guidance is based on common U.S. processes and may vary by state. Consult qualified professionals for decisions.</p>
+      <div class="footer-bottom">
+        <span>© 2026 AfterPassing Guide <span style="opacity: 0.85">· Built for offline use</span></span>
+        <span class="footer-bottom-links">
+          <a href="/leg/privacy.html">Privacy Policy</a>
+          <a href="/leg/terms.html">Terms</a>
+          <a href="/leg/disclaimer.html">Disclaimer</a>
+          <a href="/leg/eula.html">EULA</a>
+          <a href="/leg/refund.html">Refund</a>
+          <a href="/leg/security.html">Security Overview</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

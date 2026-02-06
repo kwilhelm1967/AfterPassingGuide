@@ -1,5 +1,5 @@
 /**
- * License Service for Local Aftercare Vault
+ * License Service for AfterPassing Guide
  * 
  * Implements the same licensing model as LPV and LLV:
  * - Single-device activation with transfer capability

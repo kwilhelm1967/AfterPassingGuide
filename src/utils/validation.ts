@@ -261,6 +261,9 @@ export interface ProfileValidationResult {
   };
 }
 
+/** Profile fields that must be completed before save */
+export const PROFILE_REQUIRED_FIELDS: (keyof ProfileValidationResult['errors'])[] = ['relationship'];
+
 export function validateProfile(profile: {
   deceasedName?: string;
   relationship?: string;
@@ -273,6 +276,10 @@ export function validateProfile(profile: {
   country?: string;
 }): ProfileValidationResult {
   const errors: ProfileValidationResult['errors'] = {};
+  
+  if (!profile.relationship || String(profile.relationship).trim() === '') {
+    errors.relationship = 'Your relationship is required';
+  }
   
   if (profile.deceasedName) {
     const nameValidation = validateName(profile.deceasedName, 'Deceased name');

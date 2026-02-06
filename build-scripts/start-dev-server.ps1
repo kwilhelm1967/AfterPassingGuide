@@ -1,4 +1,4 @@
-Write-Host "Starting Local Aftercare Vault Dev Server..." -ForegroundColor Green
+Write-Host "Starting AfterPassing Guide Dev Server..." -ForegroundColor Green
 Write-Host ""
 npm run dev
 

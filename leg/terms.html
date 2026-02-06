@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms of Service - Local Aftercare Vault</title>
-  <meta name="description" content="Terms of Service for Local Aftercare Vault.">
-  
+  <title>Terms and Conditions - AfterPassing Guide</title>
+  <meta name="description" content="Terms and Conditions for AfterPassing Guide.">
+
   <style>
     :root {
       --bg-dark: #1F2534;
@@ -15,7 +15,7 @@
       --gold-light: #D1B26E;
       --gold-dark: #B49A52;
       --gold-glow: rgba(201, 174, 102, 0.25);
-      --text-primary: #E8EDF2;
+      --text-primary: #FFF8E7;
       --text-secondary: #A0AAB6;
       --text-muted: #8590A2;
       --border-subtle: rgba(255, 255, 255, 0.10);
@@ -23,92 +23,167 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; font-size: 16px; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif; background: var(--bg-darker); color: var(--text-primary); line-height: 1.6; font-size: 16px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif; background: var(--bg-dark); color: var(--text-primary); line-height: 1.6; font-size: 16px; }
 
-    .page-hero { padding: 80px 2rem 32px; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%); text-align: center; }
-    .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; margin-bottom: 0.75rem; }
-    .page-hero p { color: var(--text-secondary); font-size: 1.1rem; }
+    .bg-textured { position: relative; min-height: 100vh; }
+    .bg-textured::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-textured > * { position: relative; z-index: 1; }
+
+    .page-hero { padding: 80px 2rem 32px; text-align: center; }
+    .page-hero .title-block { display: flex; flex-direction: column; align-items: center; }
+    .page-hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }
+    .title-bar { width: 45%; min-width: 60px; height: 2px; background: var(--gold); margin: 0.75rem auto 0; }
+    .page-hero p { color: var(--text-secondary); font-size: 1.1rem; margin-top: 0.5rem; }
 
     .legal-content { padding: 40px 2rem 100px; }
     .legal-container { max-width: 800px; margin: 0 auto; }
     .legal-container h2 { font-size: 1.5rem; margin: 40px 0 16px; color: var(--text-primary); }
-    .legal-container p { color: var(--text-secondary); margin-bottom: 16px; line-height: 1.8; }
-    .legal-container ul, .legal-container ol { color: var(--text-secondary); margin-bottom: 16px; padding-left: 24px; }
+    .legal-container p { color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
+    .legal-container ul { color: var(--text-secondary); margin-bottom: 16px; padding-left: 24px; }
     .legal-container li { margin-bottom: 8px; }
     .effective-date { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px; }
+    .link { color: var(--gold); text-decoration: none; }
+    .link:hover { text-decoration: underline; }
   </style>
+  <link rel="stylesheet" href="footer.css">
 </head>
-<body>
+<body class="bg-textured">
+  <nav class="back-nav">
+    <a href="/">← Back to AfterPassing Guide</a>
+  </nav>
   <section class="page-hero">
-    <h1>Terms of Service</h1>
-    <p>Terms and conditions for using Legacy Aftercare Assistant</p>
+    <div class="title-block">
+      <h1>Terms and Conditions</h1>
+      <div class="title-bar" aria-hidden="true"></div>
+    </div>
+    <p>AfterPassing Guide</p>
   </section>
 
   <section class="legal-content">
     <div class="legal-container">
-      <p class="effective-date">Effective Date: January 1, 2025</p>
+      <p class="effective-date">Last Updated: February 2026</p>
 
-      <p>These Terms of Service ("Terms") govern your access to and use of Local Aftercare Vault ("Service") provided by Local Vault Software ("we," "us," or "our"). By using the Service, you agree to be bound by these Terms.</p>
+      <p>These Terms and Conditions govern your use of AfterPassing Guide (the "Software"), provided by AfterPassing Guide ("we," "us," or "our").</p>
+      <p>By downloading, installing, or using the Software, you agree to these Terms. If you do not agree, do not use the Software.</p>
 
-      <h2>1. Acceptance of Terms</h2>
-      <p>By accessing or using the Service, you agree to comply with and be bound by these Terms. If you do not agree to these Terms, you may not use the Service.</p>
-
-      <h2>2. Description of Service</h2>
-      <p>Local Aftercare Vault is a software application designed to provide administrative guidance and organizational tools for families handling paperwork and notifications after a death. The Service helps organize tasks, documents, contacts, and templates.</p>
-
-      <h2>3. Use of Service</h2>
-      <p>You agree to use the Service only for lawful purposes and in accordance with these Terms. You agree not to:</p>
+      <h2>1. Product Description</h2>
+      <p>AfterPassing Guide is an offline administrative organization tool designed to help individuals and families manage tasks, documents, and notifications following a loss.</p>
+      <p>The Software:</p>
       <ul>
-        <li>Use the Service in any way that violates applicable laws or regulations</li>
-        <li>Attempt to gain unauthorized access to the Service or its related systems</li>
-        <li>Interfere with or disrupt the Service or servers connected to the Service</li>
-        <li>Use the Service to transmit any malicious code or harmful content</li>
-        <li>Copy, modify, or create derivative works of the Service</li>
+        <li>Runs locally on your device</li>
+        <li>Stores data only on your device</li>
+        <li>Does not require an account</li>
+        <li>Does not transmit data to us</li>
       </ul>
 
-      <h2>4. License and Activation</h2>
-      <p>The Service requires a valid license key for activation. Your license is device-bound and may be transferred to a new device in accordance with our license transfer policy. Sharing license keys is prohibited and may result in license revocation.</p>
+      <h2>2. Administrative Guidance Only</h2>
+      <p>AfterPassing Guide provides administrative and organizational guidance only.</p>
+      <p>It does not provide legal, financial, tax, medical, or estate planning advice. Content is informational and based on common U.S. administrative processes, which may vary by state or circumstance.</p>
+      <p>You are responsible for consulting qualified professionals for decisions involving legal, financial, tax, or medical matters.</p>
 
-      <h2>5. User Data and Privacy</h2>
-      <p>The Service operates entirely on your local device. All data you enter remains on your device and is never transmitted to us or any third party. You are solely responsible for maintaining backups of your data.</p>
+      <h2>3. Eligibility</h2>
+      <p>You must be at least 18 years old to use the Software.</p>
 
-      <h2>6. No Professional Advice</h2>
-      <p>The Service provides administrative guidance and organizational tools only. It does not provide legal, financial, tax, or medical advice. You should consult with qualified professionals for matters requiring professional expertise.</p>
+      <h2>4. License Grant</h2>
+      <p>We grant you a limited, non-exclusive, non-transferable license to install and use AfterPassing Guide on devices you own or control, subject to these Terms.</p>
 
-      <h2>7. User Responsibilities</h2>
-      <p>You are responsible for:</p>
+      <h2>5. License Restrictions</h2>
+      <p>You may not:</p>
       <ul>
-        <li>Maintaining the security of your device and license key</li>
-        <li>Creating and maintaining backups of your data</li>
-        <li>Ensuring the accuracy of information you enter</li>
-        <li>Complying with all applicable laws and regulations</li>
+        <li>Copy, resell, rent, or sublicense the Software</li>
+        <li>Reverse engineer, decompile, or attempt to extract source code</li>
+        <li>Circumvent license or device-based protections</li>
+        <li>Use the Software for unlawful purposes</li>
       </ul>
 
-      <h2>8. Modifications to Service</h2>
-      <p>We reserve the right to modify, suspend, or discontinue the Service at any time, with or without notice. We are not liable to you or any third party for any modification, suspension, or discontinuation of the Service.</p>
+      <h2>6. Ownership</h2>
+      <p>AfterPassing Guide, including all content, design, and intellectual property, remains the exclusive property of AfterPassing Guide.</p>
+      <p>No ownership rights are transferred to you.</p>
 
-      <h2>9. Termination</h2>
-      <p>We may terminate or suspend your access to the Service immediately, without prior notice, for any breach of these Terms. Upon termination, your right to use the Service will cease immediately.</p>
+      <h2>7. Updates</h2>
+      <p>We may provide updates or improvements at our discretion. We are not obligated to maintain compatibility with prior versions.</p>
 
-      <h2>10. Disclaimer of Warranties</h2>
-      <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+      <h2>8. Termination</h2>
+      <p>Your license terminates automatically if you violate these Terms. Upon termination, you must stop using the Software.</p>
 
-      <h2>11. Limitation of Liability</h2>
-      <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.</p>
+      <h2>9. Disclaimer of Warranties</h2>
+      <p>The Software is provided "as is" and "as available." We disclaim all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
 
-      <h2>12. Indemnification</h2>
-      <p>You agree to indemnify and hold harmless Local Vault Software and its officers, directors, employees, and agents from any claims, damages, obligations, losses, liabilities, costs, or debt arising from your use of the Service or violation of these Terms.</p>
+      <h2>10. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law:</p>
+      <ul>
+        <li>We are not liable for indirect, incidental, or consequential damages</li>
+        <li>Our total liability shall not exceed the amount you paid for the Software</li>
+      </ul>
 
-      <h2>13. Governing Law</h2>
-      <p>These Terms shall be governed by and construed in accordance with the laws of the State of Texas, United States, without regard to its conflict of law provisions.</p>
+      <h2>11. Governing Law</h2>
+      <p>These Terms are governed by the laws of the United States and the state in which the business is registered, without regard to conflict-of-law principles.</p>
 
-      <h2>14. Changes to Terms</h2>
-      <p>We reserve the right to modify these Terms at any time. Changes will be posted on this page with an updated effective date. Your continued use of the Service after changes are posted constitutes acceptance of the modified Terms.</p>
-
-      <h2>15. Contact Information</h2>
-      <p>For questions about these Terms, contact: support@localvaultsoftware.com</p>
+      <h2>12. Contact</h2>
+      <p>Questions may be directed to: <a href="mailto:support@afterpassingguide.com" class="link">support@afterpassingguide.com</a></p>
     </div>
   </section>
+
+  <p class="footer-tagline">Built for privacy. Designed for real life.</p>
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="name">AfterPassing Guide</div>
+          <div class="tagline">Administrative guidance. No legal or financial advice.</div>
+          <p>A local, offline tool for organizing administrative tasks after a loss.</p>
+          <p>Part of the Local Legacy Vault ecosystem.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="/#features">Features</a></li>
+            <li><a href="/leg/security.html">Security and Privacy</a></li>
+            <li><a href="/#pricing">Pricing</a></li>
+            <li><a href="/#faqs">FAQs</a></li>
+            <li><a href="/#pricing">Local Legacy Vault</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="/#user-guide">User Guide</a></li>
+            <li><a href="/#official-resources">Official Resources (US)</a></li>
+            <li><a href="/#support">Contact Support</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-trust">
+          <h4>Trust and Privacy</h4>
+          <ul>
+            <li>100% Local Storage</li>
+            <li>Fully Encrypted</li>
+            <li>Offline by Design</li>
+            <li>No Tracking</li>
+            <li>No accounts. No cloud sync.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-legal">Administrative guidance only. This application does not provide legal, financial, tax, or medical advice. Guidance is based on common U.S. processes and may vary by state. Consult qualified professionals for decisions.</p>
+      <div class="footer-bottom">
+        <span>© 2026 AfterPassing Guide <span style="opacity: 0.85">· Built for offline use</span></span>
+        <span class="footer-bottom-links">
+          <a href="/leg/privacy.html">Privacy Policy</a>
+          <a href="/leg/terms.html">Terms</a>
+          <a href="/leg/disclaimer.html">Disclaimer</a>
+          <a href="/leg/eula.html">EULA</a>
+          <a href="/leg/refund.html">Refund</a>
+          <a href="/leg/security.html">Security Overview</a>
+        </span>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
-

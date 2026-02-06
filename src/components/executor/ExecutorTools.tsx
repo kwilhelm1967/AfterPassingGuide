@@ -1,35 +1,33 @@
 /**
  * Executor Tools
- * 
- * Comprehensive tools for executors including checklist and contact workbook.
+ *
+ * Serious executor workspace for people actively administering an estate.
+ * Structured, complete, no gamification. Feels like a competent desk.
  */
 
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import { 
-  CheckSquare, 
-  Users, 
+import {
+  CheckSquare,
+  Users,
   FileDown,
-  CheckCircle2,
-  Circle,
-  Phone,
-  Mail,
-  Globe,
   ChevronDown,
   ChevronRight,
   Check,
 } from 'lucide-react';
-import { VirtualizedList } from '../common/VirtualizedList';
-import { 
-  ExecutorChecklistItem, 
-  ContactEntry, 
+import { TitleBar } from '../common/TitleBar';
+import {
+  ExecutorChecklistItem,
+  ContactEntry,
   AftercarePlan,
   ExecutorChecklistCategory,
+  UploadedDocument,
 } from '../../types';
-import { 
-  getChecklistProgress, 
+import {
   getChecklistCategoryInfo,
   getContactTypeInfo,
-  getContactProgress,
+  getContactDisplayLabel,
+  getContactDisplayColor,
+  getExecutorChecklistCategoryOrder,
 } from '../../services/executorService';
 import { storageService } from '../../services/storageService';
 
@@ -37,6 +35,7 @@ interface ExecutorToolsProps {
   checklist: ExecutorChecklistItem[];
   contacts: ContactEntry[];
   plan: AftercarePlan | null;
+  documents?: UploadedDocument[];
   onChecklistChange: (checklist: ExecutorChecklistItem[]) => void;
   onContactsChange: (contacts: ContactEntry[]) => void;
 }
@@ -47,106 +46,145 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
   checklist,
   contacts,
   plan,
+  documents = [],
   onChecklistChange,
   onContactsChange,
 }) => {
   const [activeTab, setActiveTab] = useState<ExecutorTab>('checklist');
+  const categoryOrder = useMemo(() => getExecutorChecklistCategoryOrder(), []);
   const [expandedCategories, setExpandedCategories] = useState<Set<ExecutorChecklistCategory>>(
-    new Set(['DOCUMENTS', 'COMMUNICATION'])
+    new Set(['IMMEDIATE_LEGAL_DOCUMENTS', 'COURT_AND_PROBATE'])
   );
-  
-  // Export options state
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [quickFilter, setQuickFilter] = useState<'all' | 'required' | 'optional' | 'legal' | 'financial'>('all');
+  const [hideCompleted, setHideCompleted] = useState(false);
+
   const [exportOptions, setExportOptions] = useState({
-    includeTasks: true,
-    includeChecklist: true,
-    includeContacts: true,
-    includeDocumentSummaries: false,
+    includeChecklistSummary: true,
+    includeNotesPerItem: true,
+    includeKeyDocumentsList: true,
+    includeKeyContacts: true,
   });
   const [exportStatus, setExportStatus] = useState<'idle' | 'copying' | 'copied'>('idle');
 
-  // Memoize progress calculations
-  const checklistProgress = useMemo(() => getChecklistProgress(checklist), [checklist]);
-  const contactProgress = useMemo(() => getContactProgress(contacts), [contacts]);
-  
-  // Properly initialize category refs
-  const categories: ExecutorChecklistCategory[] = [
-    'DOCUMENTS', 'COMMUNICATION', 'ASSET_TRACKING', 'RECORD_KEEPING', 'FOLLOW_UP'
-  ];
-  const categoryRefs = useRef<Record<ExecutorChecklistCategory, HTMLDivElement | null>>(
-    categories.reduce((acc, cat) => ({ ...acc, [cat]: null }), {} as Record<ExecutorChecklistCategory, HTMLDivElement | null>)
-  );
+  const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const toggleCategory = useCallback((category: ExecutorChecklistCategory) => {
-    setExpandedCategories(prev => {
-      const wasExpanded = prev.has(category);
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(category)) {
-        newExpanded.delete(category);
-      } else {
-        newExpanded.add(category);
-      }
-      // Scroll into view when expanding
-      if (!wasExpanded) {
-        setTimeout(() => {
-          categoryRefs.current[category]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
-      }
-      return newExpanded;
+    setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
     });
   }, []);
 
-  const toggleChecklistItem = useCallback(async (itemId: string) => {
-    const updated = checklist.map(item =>
-      item.id === itemId
-        ? { 
-            ...item, 
-            status: item.status === 'DONE' ? 'PENDING' as const : 'DONE' as const,
-            completedAt: item.status === 'PENDING' ? new Date().toISOString() : undefined,
-          }
-        : item
-    );
-    onChecklistChange(updated);
-    await storageService.saveChecklist(updated);
-  }, [checklist, onChecklistChange]);
+  const setItemStatus = useCallback(
+    async (itemId: string, status: 'DONE' | 'NOT_APPLICABLE') => {
+      const updated = checklist.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              status,
+              completedAt: status === 'DONE' ? new Date().toISOString() : undefined,
+            }
+          : item
+      );
+      onChecklistChange(updated);
+      await storageService.saveChecklist(updated);
+    },
+    [checklist, onChecklistChange]
+  );
 
-  const updateContactStatus = useCallback(async (contactId: string, status: ContactEntry['contactStatus']) => {
-    const updated = contacts.map(c =>
-      c.id === contactId
-        ? { ...c, contactStatus: status, lastContactedAt: new Date().toISOString() }
-        : c
-    );
-    onContactsChange(updated);
-    await storageService.saveContacts(updated);
-  }, [contacts, onContactsChange]);
+  const updateItemNotes = useCallback(
+    async (itemId: string, notes: string) => {
+      const updated = checklist.map((item) =>
+        item.id === itemId ? { ...item, notes: notes || undefined } : item
+      );
+      onChecklistChange(updated);
+      await storageService.saveChecklist(updated);
+    },
+    [checklist, onChecklistChange]
+  );
 
-  // Memoize checklist items grouped by category
+  const updateContactStatus = useCallback(
+    async (contactId: string, status: ContactEntry['contactStatus']) => {
+      const updated = contacts.map((c) =>
+        c.id === contactId
+          ? { ...c, contactStatus: status, lastContactedAt: new Date().toISOString() }
+          : c
+      );
+      onContactsChange(updated);
+      await storageService.saveContacts(updated);
+    },
+    [contacts, onContactsChange]
+  );
+
   const checklistByCategory = useMemo(() => {
-    const grouped: Record<ExecutorChecklistCategory, ExecutorChecklistItem[]> = {
-      DOCUMENTS: [],
-      COMMUNICATION: [],
-      ASSET_TRACKING: [],
-      RECORD_KEEPING: [],
-      FOLLOW_UP: [],
-    };
-    checklist.forEach(item => {
-      if (grouped[item.category]) {
-        grouped[item.category].push(item);
-      }
+    const grouped: Record<string, ExecutorChecklistItem[]> = {};
+    categoryOrder.forEach((cat) => {
+      grouped[cat] = checklist.filter((item) => item.category === cat);
     });
     return grouped;
-  }, [checklist]);
+  }, [checklist, categoryOrder]);
+
+  const legalCategories = new Set<ExecutorChecklistCategory>([
+    'IMMEDIATE_LEGAL_DOCUMENTS', 'COURT_AND_PROBATE', 'BENEFICIARIES_DISTRIBUTIONS',
+  ]);
+  const financialCategories = new Set<ExecutorChecklistCategory>([
+    'FINANCIAL_ACCOUNTS', 'DEBTS_OBLIGATIONS', 'TAXES_GOVERNMENT',
+  ]);
+  const optionalCategories = new Set<ExecutorChecklistCategory>([
+    'BUSINESS_INTERESTS', 'DIGITAL_ASSETS',
+  ]);
+
+  const filteredCategoryOrder = useMemo(() => {
+    if (quickFilter === 'all') return categoryOrder;
+    return categoryOrder.filter((cat) => {
+      if (quickFilter === 'legal') return legalCategories.has(cat);
+      if (quickFilter === 'financial') return financialCategories.has(cat);
+      if (quickFilter === 'optional') return optionalCategories.has(cat);
+      if (quickFilter === 'required') return !optionalCategories.has(cat);
+      return true;
+    });
+  }, [categoryOrder, quickFilter]);
+
+  const handleExportChecklist = useCallback(async () => {
+    if (!plan) return;
+    setExportStatus('copying');
+    try {
+      const { exportAftercareBinder } = await import('../../services/exportService');
+      await exportAftercareBinder(
+        plan,
+        [],
+        checklist,
+        { includeNotesPerItem: true, includeKeyDocumentsList: false },
+        undefined
+      );
+      setExportStatus('copied');
+      setTimeout(() => setExportStatus('idle'), 2000);
+    } catch (e) {
+      console.error(e);
+      setExportStatus('idle');
+    }
+  }, [plan, checklist]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-semibold text-white">Executor Tools</h2>
-        <p className="text-slate-400 text-sm mt-1">
-          Comprehensive tools for estate administration
+      {/* Header — flat zone: subtle gradient, bottom inner shadow, thin gold rule */}
+      <div className="page-header-zone flex flex-col items-center text-center">
+        <div className="flex flex-col items-center">
+          <h2 className="text-xl font-semibold text-text-primary">Executor Tools</h2>
+          <TitleBar className="mt-1.5" />
+        </div>
+        <p className="text-slate-400 text-sm mt-1.5 max-w-md">
+          Tools and references commonly used when administering an estate.
+        </p>
+        <p className="text-slate-500 text-xs mt-1 max-w-xl">
+          For legal, financial, or medical decisions, consult a qualified professional.
         </p>
       </div>
 
-      {/* Tab Navigation */}
+      {/* Tab Navigation — no counts */}
       <nav role="tablist" aria-label="Executor tools navigation">
         <div className="flex gap-2 border-b border-slate-700 pb-2">
           <button
@@ -157,15 +195,12 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
             id="checklist-tab"
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === 'checklist'
-                ? 'bg-brand-gold/20 text-brand-gold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-slate-600/50 text-text-primary border border-slate-500'
+                : 'text-slate-400 hover:text-text-primary border border-transparent'
             }`}
           >
             <CheckSquare className="w-4 h-4" aria-hidden="true" />
-            Checklist
-            <span className="ml-1 px-2 py-0.5 bg-slate-700 rounded-full text-xs" aria-label={`${checklistProgress.completed} of ${checklistProgress.total} items completed`}>
-              {checklistProgress.completed}/{checklistProgress.total}
-            </span>
+            Executor Checklist
           </button>
           <button
             onClick={() => setActiveTab('contacts')}
@@ -175,15 +210,12 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
             id="contacts-tab"
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === 'contacts'
-                ? 'bg-brand-gold/20 text-brand-gold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-slate-600/50 text-text-primary border border-slate-500'
+                : 'text-slate-400 hover:text-text-primary border border-transparent'
             }`}
           >
             <Users className="w-4 h-4" aria-hidden="true" />
-            Contacts
-            <span className="ml-1 px-2 py-0.5 bg-slate-700 rounded-full text-xs" aria-label={`${contacts.length} contacts`}>
-              {contacts.length}
-            </span>
+            Key Contacts
           </button>
           <button
             onClick={() => setActiveTab('export')}
@@ -193,12 +225,12 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
             id="export-tab"
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === 'export'
-                ? 'bg-brand-gold/20 text-brand-gold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-slate-600/50 text-text-primary border border-slate-500'
+                : 'text-slate-400 hover:text-text-primary border border-transparent'
             }`}
           >
             <FileDown className="w-4 h-4" aria-hidden="true" />
-            Export Binder
+            Export Estate Binder
           </button>
         </div>
       </nav>
@@ -206,93 +238,189 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
       {/* Checklist Tab */}
       {activeTab === 'checklist' && (
         <div className="space-y-4" role="tabpanel" id="checklist-panel" aria-labelledby="checklist-tab">
-          {/* Disclaimer and Progress */}
-          <div className="bg-brand-gold/10 border border-brand-gold/20 rounded-xl p-4 mb-4">
-            <p className="text-sm text-brand-gold/80">
-              <strong>Not everything here will apply.</strong> These are common executor tasks, but your situation may be simpler. 
-              Mark items as "Done" or skip them entirely—there's no requirement to complete everything.
-            </p>
-          </div>
-          
-          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-slate-300 font-medium">Items Addressed</span>
-              <span className="text-brand-gold">{checklistProgress.completed} of {checklistProgress.total}</span>
-            </div>
-            <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-brand-gold rounded-full transition-all"
-                style={{ width: `${checklistProgress.percentage}%` }}
+          <p className="text-sm text-slate-400">
+            Track what applies to this estate. Not all items will be needed.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {(['all', 'required', 'optional', 'legal', 'financial'] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setQuickFilter(f)}
+                className={`px-2.5 py-1 text-xs rounded border transition-colors ${
+                  quickFilter === f
+                    ? 'bg-slate-600 text-text-primary border-slate-500'
+                    : 'bg-transparent text-slate-400 border-slate-600 hover:bg-slate-800/50'
+                }`}
+              >
+                {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+            <label className="ml-2 flex items-center gap-1.5 text-xs text-slate-400">
+              <input
+                type="checkbox"
+                checked={hideCompleted}
+                onChange={(e) => setHideCompleted(e.target.checked)}
+                className="rounded border-slate-600"
               />
-            </div>
+              Hide completed
+            </label>
+            <button
+              type="button"
+              onClick={handleExportChecklist}
+              disabled={!plan || exportStatus === 'copying'}
+              className="ml-auto text-xs text-slate-400 hover:text-text-primary transition-colors flex items-center gap-1"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              Export checklist
+            </button>
           </div>
 
-          {/* Checklist Categories */}
-          {categories.map((category) => {
+          {filteredCategoryOrder.map((category) => {
             const info = getChecklistCategoryInfo(category);
-            // Use memoized grouping instead of filtering on every render
-            const categoryItems = checklistByCategory[category];
-            const completed = categoryItems.filter(i => i.status === 'DONE').length;
-            const isExpanded = expandedCategories.has(category);
+            let categoryItems = checklistByCategory[category] ?? [];
+            if (hideCompleted) {
+              categoryItems = categoryItems.filter((i) => i.status !== 'DONE' && i.status !== 'NOT_APPLICABLE');
+            }
+            if (categoryItems.length === 0) return null;
 
+            const isExpanded = expandedCategories.has(category);
             return (
               <div
                 key={category}
-                ref={el => { categoryRefs.current[category] = el; }}
+                ref={(el) => {
+                  categoryRefs.current[category] = el;
+                }}
                 className="bg-slate-800/30 border border-slate-700/50 rounded-xl overflow-hidden"
               >
                 <button
+                  type="button"
                   onClick={() => toggleCategory(category)}
                   className="w-full flex items-center justify-between p-4 hover:bg-slate-700/20 text-left"
                 >
                   <div className="flex items-center gap-3">
                     {isExpanded ? (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                      <ChevronDown className="w-5 h-5 text-accent-gold" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                      <ChevronRight className="w-5 h-5 text-text-muted" />
                     )}
                     <div className="text-left">
-                      <h4 className="font-medium text-white">{info.label}</h4>
+                      <h4 className="font-medium text-text-primary">{info.label}</h4>
                       <p className="text-sm text-slate-400">{info.description}</p>
                     </div>
                   </div>
-                  <span className="text-sm text-slate-400">
-                    {completed}/{categoryItems.length}
-                  </span>
                 </button>
 
                 {isExpanded && (
-                  <div id={`category-${category}-content`} className="border-t border-slate-700/50 divide-y divide-slate-700/30" role="region" aria-label={`${info.label} items`}>
-                    {categoryItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-start gap-3 p-4 hover:bg-slate-700/10"
-                      >
-                        <button
-                          onClick={() => toggleChecklistItem(item.id)}
-                          aria-label={`${item.status === 'DONE' ? 'Unmark' : 'Mark'} ${item.title} as ${item.status === 'DONE' ? 'pending' : 'done'}`}
-                          className="flex-shrink-0 mt-0.5"
-                        >
-                          {item.status === 'DONE' ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                          ) : (
-                            <Circle className="w-5 h-5 text-slate-500 hover:text-slate-400" />
+                  <div
+                    id={`category-${category}-content`}
+                    className="border-t border-slate-700/50 divide-y divide-slate-700/30"
+                    role="region"
+                    aria-label={`${info.label} items`}
+                  >
+                    {categoryItems.map((item) => {
+                      const isItemExpanded = expandedItemId === item.id;
+                      return (
+                        <div key={item.id} className="bg-slate-800/20">
+                          <div className="flex items-start gap-3 p-4">
+                            {/* Mark Addressed / Not applicable — decisive, no "leave for now" */}
+                            <div className="flex flex-shrink-0 gap-1" role="group" aria-label={`Status for ${item.title}`}>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setItemStatus(item.id, 'DONE');
+                                }}
+                                className={`px-2.5 py-1.5 text-xs font-normal rounded border transition-colors ${
+                                  item.status === 'DONE'
+                                    ? 'bg-slate-600 text-text-primary border-slate-500'
+                                    : 'bg-transparent text-slate-400 border-slate-600 hover:bg-slate-700/50'
+                                }`}
+                              >
+                                Addressed
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setItemStatus(item.id, 'NOT_APPLICABLE');
+                                }}
+                                className={`px-2.5 py-1.5 text-xs font-normal rounded border transition-colors ${
+                                  item.status === 'NOT_APPLICABLE'
+                                    ? 'bg-slate-600 text-text-primary border-slate-500'
+                                    : 'bg-transparent text-slate-400 border-slate-600 hover:bg-slate-700/50'
+                                }`}
+                              >
+                                Not applicable
+                              </button>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => setExpandedItemId(isItemExpanded ? null : item.id)}
+                              className="flex-1 min-w-0 text-left"
+                            >
+                              <h5
+                                className={`font-medium ${
+                                  item.status === 'DONE' || item.status === 'NOT_APPLICABLE'
+                                    ? 'text-slate-400'
+                                    : 'text-text-primary'
+                                } ${item.status === 'DONE' ? 'line-through' : ''}`}
+                              >
+                                {item.title}
+                              </h5>
+                            </button>
+                            <span className={`flex-shrink-0 ${isItemExpanded ? 'text-accent-gold' : 'text-text-muted'}`}>
+                              {isItemExpanded ? (
+                                <ChevronDown className="w-4 h-4" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4" />
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Expanded: What this is, Why it matters, What you may need, Notes */}
+                          {isItemExpanded && (
+                            <div
+                              className="px-4 pb-4 pt-0 ml-14 space-y-3 text-sm border-t border-slate-700/30 pt-3"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div>
+                                <p className="text-slate-500 font-medium">What this is</p>
+                                <p className="text-slate-300 mt-0.5">{item.description}</p>
+                              </div>
+                              {item.whyItMatters && (
+                                <div>
+                                  <p className="text-slate-500 font-medium">Why it matters</p>
+                                  <p className="text-slate-300 mt-0.5">{item.whyItMatters}</p>
+                                </div>
+                              )}
+                              {item.whatYouMayNeed && item.whatYouMayNeed.length > 0 && (
+                                <div>
+                                  <p className="text-slate-500 font-medium">What you may need</p>
+                                  <ul className="list-disc list-inside text-slate-300 mt-0.5 space-y-0.5">
+                                    {item.whatYouMayNeed.map((need, i) => (
+                                      <li key={i}>{need}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              <div>
+                                <label className="text-slate-500 font-medium block mb-1">Notes</label>
+                                <textarea
+                                  value={item.notes ?? ''}
+                                  onChange={(e) => updateItemNotes(item.id, e.target.value)}
+                                  placeholder="Optional notes"
+                                  rows={2}
+                                  className="w-full px-3 py-2 bg-slate-800/60 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-500 text-sm"
+                                />
+                              </div>
+                            </div>
                           )}
-                        </button>
-                        <div>
-                          <h5 className={`font-medium ${
-                            item.status === 'DONE' 
-                              ? 'text-slate-400 line-through' 
-                              : 'text-white'
-                          }`}>
-                            {item.title}
-                          </h5>
-                          <p className="text-sm text-slate-400 mt-0.5">
-                            {item.description}
-                          </p>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -301,30 +429,13 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
         </div>
       )}
 
-      {/* Contacts Tab */}
+      {/* Key Contacts Tab */}
       {activeTab === 'contacts' && (
         <div className="space-y-4" role="tabpanel" id="contacts-panel" aria-labelledby="contacts-tab">
-          {/* Contact Stats */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-white">{contactProgress.total}</div>
-              <div className="text-sm text-slate-400">Total Contacts</div>
-            </div>
-            <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-brand-gold">{contactProgress.inProgress}</div>
-              <div className="text-sm text-slate-400">In Progress</div>
-            </div>
-            <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-emerald-400">{contactProgress.contacted}</div>
-              <div className="text-sm text-slate-400">Completed</div>
-            </div>
-          </div>
-
-          {/* Contact List */}
           <div className="grid gap-4 md:grid-cols-2">
             {contacts.map((contact) => {
-              const typeInfo = getContactTypeInfo(contact.type);
-              
+              const label = getContactDisplayLabel(contact);
+              const color = getContactDisplayColor(contact);
               return (
                 <div
                   key={contact.id}
@@ -332,142 +443,128 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${typeInfo.color}20` }}
+                      <span
+                        className="flex items-center justify-center w-8 h-8 rounded text-sm font-medium"
+                        style={{ backgroundColor: `${color}20`, color }}
                       >
-                        <span style={{ color: typeInfo.color }}>
-                          {typeInfo.label.charAt(0)}
-                        </span>
-                      </div>
+                        {label.charAt(0)}
+                      </span>
                       <div>
-                        <h4 className="font-medium text-white">{contact.name}</h4>
-                        <p className="text-xs text-slate-400">{typeInfo.label}</p>
+                        <h4 className="font-medium text-text-primary">{contact.name}</h4>
+                        <p className="text-xs text-slate-400">{contact.organization || label}</p>
                       </div>
                     </div>
                     <select
-                      value={contact.contactStatus || 'NOT_CONTACTED'}
-                      onChange={(e) => updateContactStatus(
-                        contact.id, 
-                        e.target.value as ContactEntry['contactStatus']
-                      )}
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        contact.contactStatus === 'COMPLETED'
-                          ? 'bg-emerald-500/20 text-emerald-300'
-                          : contact.contactStatus === 'IN_PROGRESS'
-                            ? 'bg-brand-gold/20 text-brand-gold'
-                            : 'bg-slate-700 text-slate-400'
-                      }`}
+                      value={contact.contactStatus ?? 'NOT_CONTACTED'}
+                      onChange={(e) =>
+                        updateContactStatus(contact.id, e.target.value as ContactEntry['contactStatus'])
+                      }
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-600/50 bg-slate-800 text-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500"
                     >
-                      <option value="NOT_CONTACTED">Not Contacted</option>
-                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="NOT_CONTACTED">Not contacted</option>
+                      <option value="IN_PROGRESS">In progress</option>
                       <option value="COMPLETED">Completed</option>
                     </select>
                   </div>
-
-                  <div className="space-y-2 text-sm">
-                    {contact.phone && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <Phone className="w-4 h-4" />
-                        <span>{contact.phone}</span>
-                      </div>
-                    )}
-                    {contact.email && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <Mail className="w-4 h-4" />
-                        <span>{contact.email}</span>
-                      </div>
-                    )}
-                    {contact.website && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <Globe className="w-4 h-4" />
-                        <span className="truncate">{contact.website}</span>
-                      </div>
-                    )}
+                  <div className="space-y-2 text-sm text-slate-400">
+                    {contact.phone && <p>{contact.phone}</p>}
+                    {contact.email && <p>{contact.email}</p>}
+                    {contact.website && <p className="truncate">{contact.website}</p>}
                   </div>
-
                   {contact.notes && (
-                    <p className="mt-3 text-sm text-slate-500 border-t border-slate-700 pt-3">
-                      {contact.notes}
-                    </p>
+                    <p className="mt-3 text-sm text-slate-500 border-t border-slate-700 pt-3">{contact.notes}</p>
                   )}
                 </div>
               );
             })}
           </div>
-
           {contacts.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-400">No contacts yet</p>
-              <p className="text-slate-500 text-sm mt-1">
-                Contacts will be populated from your Local Legacy Vault data
-              </p>
+            <div className="text-center py-12 text-slate-400">
+              <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No contacts yet. Contacts are populated from your Local Legacy Vault data.</p>
             </div>
           )}
         </div>
       )}
 
-      {/* Export Tab */}
+      {/* Export Estate Binder Tab */}
       {activeTab === 'export' && (
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6" role="tabpanel" id="export-panel" aria-labelledby="export-tab">
+        <div
+          className="bg-slate-800/50 border border-slate-700 rounded-xl p-6"
+          role="tabpanel"
+          id="export-panel"
+          aria-labelledby="export-tab"
+        >
           <div className="text-center mb-6">
-            <FileDown className="w-12 h-12 text-brand-gold mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white">Export Aftercare Binder</h3>
+            <FileDown className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-text-primary">Export Estate Binder</h3>
             <p className="text-slate-400 text-sm mt-1">
-              Copy a text summary to your clipboard for printing or saving
+              Professional handoff artifact for attorneys, courts, and beneficiaries.
             </p>
           </div>
 
-          <div className="space-y-4 max-w-md mx-auto">
-            <label className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg cursor-pointer">
+          <div className="space-y-3 max-w-md mx-auto">
+            <label className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg cursor-pointer">
               <input
                 type="checkbox"
-                checked={exportOptions.includeTasks}
-                onChange={(e) => setExportOptions({...exportOptions, includeTasks: e.target.checked})}
+                checked={exportOptions.includeChecklistSummary}
+                onChange={(e) =>
+                  setExportOptions({ ...exportOptions, includeChecklistSummary: e.target.checked })
+                }
                 className="w-4 h-4 rounded border-slate-500"
               />
-              <span className="text-slate-300">Include Task Plan</span>
+              <span className="text-slate-300">Checklist summary (addressed / not applicable)</span>
             </label>
-            <label className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg cursor-pointer">
+            <label className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg cursor-pointer">
               <input
                 type="checkbox"
-                checked={exportOptions.includeChecklist}
-                onChange={(e) => setExportOptions({...exportOptions, includeChecklist: e.target.checked})}
+                checked={exportOptions.includeNotesPerItem}
+                onChange={(e) =>
+                  setExportOptions({ ...exportOptions, includeNotesPerItem: e.target.checked })
+                }
                 className="w-4 h-4 rounded border-slate-500"
               />
-              <span className="text-slate-300">Include Executor Checklist</span>
+              <span className="text-slate-300">Notes per item</span>
             </label>
-            <label className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg cursor-pointer">
+            <label className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg cursor-pointer">
               <input
                 type="checkbox"
-                checked={exportOptions.includeContacts}
-                onChange={(e) => setExportOptions({...exportOptions, includeContacts: e.target.checked})}
+                checked={exportOptions.includeKeyDocumentsList}
+                onChange={(e) =>
+                  setExportOptions({ ...exportOptions, includeKeyDocumentsList: e.target.checked })
+                }
                 className="w-4 h-4 rounded border-slate-500"
               />
-              <span className="text-slate-300">Include Contact Directory</span>
+              <span className="text-slate-300">Key documents list</span>
             </label>
-            <label className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-lg cursor-pointer">
+            <label className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg cursor-pointer">
               <input
                 type="checkbox"
-                checked={exportOptions.includeDocumentSummaries}
-                onChange={(e) => setExportOptions({...exportOptions, includeDocumentSummaries: e.target.checked})}
+                checked={exportOptions.includeKeyContacts}
+                onChange={(e) =>
+                  setExportOptions({ ...exportOptions, includeKeyContacts: e.target.checked })
+                }
                 className="w-4 h-4 rounded border-slate-500"
               />
-              <span className="text-slate-300">Include Document Summaries</span>
+              <span className="text-slate-300">Key contacts list</span>
             </label>
 
             <button
+              type="button"
               onClick={async () => {
                 if (!plan) return;
                 setExportStatus('copying');
-                
                 try {
                   const { exportAftercareBinder } = await import('../../services/exportService');
                   await exportAftercareBinder(
                     plan,
-                    exportOptions.includeContacts ? contacts : [],
-                    exportOptions.includeChecklist ? checklist : []
+                    exportOptions.includeKeyContacts ? contacts : [],
+                    exportOptions.includeChecklistSummary ? checklist : [],
+                    {
+                      includeNotesPerItem: exportOptions.includeNotesPerItem,
+                      includeKeyDocumentsList: exportOptions.includeKeyDocumentsList,
+                    },
+                    exportOptions.includeKeyDocumentsList ? documents : undefined
                   );
                   setExportStatus('copied');
                   setTimeout(() => setExportStatus('idle'), 2000);
@@ -478,32 +575,29 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
               }}
               disabled={!plan || exportStatus === 'copying'}
               className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all mt-6 ${
-                exportStatus === 'copied' 
-                  ? 'bg-emerald-500 text-white' 
+                exportStatus === 'copied'
+                  ? 'bg-slate-600 text-text-primary'
                   : exportStatus === 'copying'
-                  ? 'bg-slate-600 text-slate-300 cursor-not-allowed'
-                  : 'bg-brand-gold hover:bg-brand-gold/90 text-slate-900'
+                    ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-600 hover:bg-slate-500 text-text-primary'
               }`}
             >
               {exportStatus === 'copied' ? (
                 <>
                   <Check className="w-5 h-5" />
-                  PDF Downloaded!
+                  PDF downloaded
                 </>
               ) : exportStatus === 'copying' ? (
-                <>
-                  <FileDown className="w-5 h-5 animate-pulse" />
-                  Generating PDF...
-                </>
+                <>Generating PDF…</>
               ) : (
                 <>
                   <FileDown className="w-5 h-5" />
-                  Download PDF Binder
+                  Download PDF
                 </>
               )}
             </button>
             <p className="text-xs text-slate-500 text-center">
-              PDF will download automatically
+              Disclaimer included at bottom of PDF.
             </p>
           </div>
         </div>
@@ -511,4 +605,3 @@ export const ExecutorTools: React.FC<ExecutorToolsProps> = ({
     </div>
   );
 };
-
