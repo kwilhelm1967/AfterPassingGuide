@@ -21,6 +21,7 @@ import {
 
 interface OnboardingWizardProps {
   onComplete: (profile: AftercareProfile) => void;
+  onBackToOverview?: () => void;
 }
 
 // Step configurations

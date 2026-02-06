@@ -10,7 +10,6 @@ import {
   UploadedDocument,
   ContactEntry,
   ExecutorChecklistItem,
-  AppState,
 } from '../types';
 import { storageService } from './storageService';
 

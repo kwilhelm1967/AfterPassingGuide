@@ -45,11 +45,9 @@ import {
   ContactsView,
   ExecutorTools,
   SettingsView,
-  LicenseActivationScreen,
   TrialStatusBanner,
 } from './components';
 import { FaveIcon } from './components/common/FaveIcon';
-import { LandingPage } from './LAV/LandingPage';
 import { MarketingLandingPage } from './LAV/MarketingLandingPage';
 
 // ============================================================================
@@ -72,8 +70,8 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLandingPage, setShowLandingPage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [showActivation, setShowActivation] = useState(false);
-  const [isLicensed, setIsLicensed] = useState(false);
+  const [, setShowActivation] = useState(false);
+  const [, setIsLicensed] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
 
   // ============================================================================

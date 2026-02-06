@@ -24,7 +24,6 @@ import {
 } from '../../types';
 import {
   getChecklistCategoryInfo,
-  getContactTypeInfo,
   getContactDisplayLabel,
   getContactDisplayColor,
   getExecutorChecklistCategoryOrder,

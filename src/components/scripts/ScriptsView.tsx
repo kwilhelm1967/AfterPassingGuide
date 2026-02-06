@@ -221,7 +221,7 @@ export const ScriptsView: React.FC<ScriptsViewProps> = ({ profile }) => {
             const typeInfo = getTemplateTypeInfo(type);
             const templates = templatesByType[type] || [];
             return (
-              <details key={type} className="group" defaultOpen={templateTypes.indexOf(type) < 2}>
+              <details key={type} className="group" open={templateTypes.indexOf(type) < 2}>
                 <summary className="text-[13px] font-normal text-slate-500 cursor-pointer list-none flex items-center gap-1">
                   <span className="group-open:rotate-90 transition-transform">▶</span>
                   {typeInfo.label}

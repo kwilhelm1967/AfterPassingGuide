@@ -39,21 +39,6 @@ export async function exportPlanToPdf(plan: AftercarePlan): Promise<void> {
     }
   };
   
-  // Batch processing for large lists to prevent memory issues
-  const processInBatches = <T,>(items: T[], batchSize: number, processor: (item: T) => void) => {
-    for (let i = 0; i < items.length; i += batchSize) {
-      const batch = items.slice(i, i + batchSize);
-      batch.forEach(processor);
-      // Allow UI to remain responsive
-      if (i + batchSize < items.length) {
-        // Small delay for very large lists
-        const shouldYield = items.length > 100 && i % (batchSize * 10) === 0;
-        if (shouldYield) {
-          // Yield to event loop (would need async/await in real implementation)
-        }
-      }
-    }
-  };
 
   // Header
   doc.setFontSize(20);

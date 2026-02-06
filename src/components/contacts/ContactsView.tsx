@@ -365,7 +365,7 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, onContacts
                         </p>
                       </div>
                       {contact.isKeyContact && (
-                        <Star className="w-3.5 h-3.5 text-accent-gold fill-accent-gold flex-shrink-0" title="Key contact" />
+                        <span title="Key contact" aria-hidden><Star className="w-3.5 h-3.5 text-accent-gold fill-accent-gold flex-shrink-0" /></span>
                       )}
                     </div>
                     <select

@@ -11,7 +11,6 @@ import {
   FileText, 
   MessageSquare, 
   ClipboardCheck,
-  ArrowRight,
   Shield,
   Lock,
   Zap,
@@ -110,7 +109,7 @@ const LANDING_FAQS: { q: string; a: string }[] = [
 /** Local Legacy Vault purchase URL — same as in the Local Legacy Vault app. */
 const LLV_PURCHASE_URL = 'https://locallegacyvault.com/pricing.html#pricing';
 
-export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGetStarted, onPurchaseLocalLegacyVault }) => {
+export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onPurchaseLocalLegacyVault }) => {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);

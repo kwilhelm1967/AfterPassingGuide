@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Key, ArrowLeft, HelpCircle, Loader2, AlertCircle, Copy, Check, Clock } from 'lucide-react';
+import { ArrowLeft, HelpCircle, Loader2, AlertCircle, Copy, Check, Clock } from 'lucide-react';
 import { licenseService } from '../../services/licenseService';
 import { trialService } from '../../services/trialService';
 

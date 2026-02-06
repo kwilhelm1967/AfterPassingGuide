@@ -5,7 +5,7 @@
  * Clarity over completeness; fewer decisions. No required fields beyond upload.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Upload, Trash2 } from 'lucide-react';
 import { TitleBar } from '../common/TitleBar';
 import type {
@@ -13,20 +13,12 @@ import type {
   AftercareProfile,
   DocumentCategory,
   DocumentStatus,
-  DocumentType,
-  DocumentOwner,
-  DocumentImportance,
-  DocumentAppliesTo,
   ExecutorChecklistItem,
 } from '../../types';
 import { storageService } from '../../services/storageService';
 import {
   DOCUMENT_CATEGORIES,
   DOCUMENT_STATUSES,
-  DOCUMENT_TYPES,
-  DOCUMENT_OWNERS,
-  DOCUMENT_IMPORTANCE,
-  APPLIES_TO,
 } from '../../constants/documentTypes';
 
 interface DocumentsViewProps {
@@ -39,7 +31,7 @@ interface DocumentsViewProps {
 export const DocumentsView: React.FC<DocumentsViewProps> = ({
   documents,
   onDocumentsChange,
-  checklistItems = [],
+  checklistItems: _checklistItems = [],
 }) => {
   const saveDocs = async (updated: UploadedDocument[]) => {
     onDocumentsChange(updated);
@@ -94,42 +86,6 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
     ));
   };
 
-  const handleTypeChange = async (docId: string, documentType: DocumentType) => {
-    await saveDocs(documents.map((d) =>
-      d.id === docId ? { ...d, documentType } : d
-    ));
-  };
-
-  const handleOwnerChange = async (docId: string, ownerOrRelatedPerson: DocumentOwner | '') => {
-    await saveDocs(documents.map((d) =>
-      d.id === docId ? { ...d, ownerOrRelatedPerson: ownerOrRelatedPerson || undefined } : d
-    ));
-  };
-
-  const handleImportanceChange = async (docId: string, importance: DocumentImportance | '') => {
-    await saveDocs(documents.map((d) =>
-      d.id === docId ? { ...d, importance: importance || undefined } : d
-    ));
-  };
-
-  const handleAppliesToChange = async (docId: string, appliesTo: DocumentAppliesTo | '') => {
-    await saveDocs(documents.map((d) =>
-      d.id === docId ? { ...d, appliesTo: appliesTo || undefined } : d
-    ));
-  };
-
-  const handleActionRequiredChange = async (docId: string, actionRequired: boolean) => {
-    await saveDocs(documents.map((d) =>
-      d.id === docId ? { ...d, actionRequired } : d
-    ));
-  };
-
-  const handleLinkedTaskChange = async (docId: string, linkedTaskId: string) => {
-    await saveDocs(documents.map((d) =>
-      d.id === docId ? { ...d, linkedTaskId: linkedTaskId || undefined } : d
-    ));
-  };
-
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   return (
@@ -177,9 +133,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
       {/* Document list — filename + date in header; metadata inline two-column; notes collapsible; delete on hover */}
       {documents.length > 0 && (
         <div className="max-w-xl space-y-2">
-          {documents.map((doc) => {
-            const displayName = doc.userLabel || doc.fileName;
-            return (
+          {documents.map((doc) => (
               <div
                 key={doc.id}
                 className="group/doc bg-slate-800/30 border border-slate-700/50 rounded-lg p-3"
@@ -262,8 +216,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   </div>
                 </details>
               </div>
-            );
-          })}
+          ))}
         </div>
       )}
     </div>
