@@ -68,7 +68,6 @@ Activates a license.
   error?: string;
   requiresTransfer?: boolean;
   status?: ActivationStatus;
-  isTrial?: boolean;
 }
 ```
 
@@ -89,9 +88,9 @@ Validates license against local license file (offline).
 ```
 
 ##### `async isLicensed(): Promise<boolean>`
-Checks if user has active license or trial.
+Checks if user has an active license (valid local license for this device).
 
-**Returns:** `true` if licensed or trial active, `false` otherwise.
+**Returns:** `true` if licensed, `false` otherwise.
 
 ##### `async getLicenseInfo(): Promise<LicenseInfo>`
 Gets current license information.
@@ -126,98 +125,8 @@ Formats license key for display.
 ##### `validateKeyFormat(key: string): boolean`
 Validates license format.
 
-##### `async isLicenseOrTrialActive(): Promise<boolean>`
-Checks if license or trial is active.
-
----
-
-### TrialService
-
-Singleton service for 14-day trial management.
-
-#### Methods
-
-##### `getInstance(): TrialService`
-Returns the singleton instance.
-
-##### `generateTrialKey(): string`
-Generates a new trial key.
-
-**Returns:** 16-character trial license code.
-
-##### `async startTrial(): Promise<TrialStartResult>`
-Starts a new 14-day trial.
-
-**Returns:**
-```typescript
-{
-  success: boolean;
-  trialKey?: string;
-  error?: string;
-}
-```
-
-##### `async validateAndBindTrialKey(trialKey: string): Promise<TrialValidationResult>`
-Validates and binds a trial key to device.
-
-**Parameters:**
-- `trialKey`: Trial license to validate
-
-**Returns:**
-```typescript
-{
-  valid: boolean;
-  error?: string;
-}
-```
-
-##### `async canStartTrial(): Promise<boolean>`
-Checks if user can start a new trial.
-
-**Returns:** `true` if no trial has been started, `false` otherwise.
-
-##### `async loadTrialStatus(): Promise<void>`
-Loads trial status from localStorage.
-
-##### `updateTimeRemaining(): void`
-Updates time remaining calculations.
-
-##### `getTrialStatus(): TrialStatus`
-Gets current trial status.
-
-**Returns:**
-```typescript
-{
-  isTrial: boolean;
-  trialKey?: string;
-  startDate?: Date;
-  endDate?: Date;
-  deviceFingerprint?: string;
-  isExpired: boolean;
-  daysRemaining: number;
-  hoursRemaining: number;
-  minutesRemaining: number;
-  secondsRemaining?: number;
-}
-```
-
-##### `isTrialActive(): boolean`
-Checks if trial is currently active.
-
-##### `shouldShowWarning(): WarningInfo`
-Determines if trial expiration warning should be shown.
-
-**Returns:**
-```typescript
-{
-  show: boolean;
-  type?: 'day' | 'hour';
-  message?: string;
-}
-```
-
-##### `async convertToLicense(licenseKey: string): Promise<void>`
-Converts trial to full license.
+##### `async isLicenseActive(): Promise<boolean>`
+Equivalent to `isLicensed()`. AfterPassing Guide has no trial; license only.
 
 ---
 
@@ -510,7 +419,6 @@ All localStorage keys are prefixed with `aftercare_*`:
 - `aftercare_license_key`
 - `aftercare_license_activated`
 - `aftercare_device_id`
-- `aftercare_trial_status`
 - `aftercare_has_visited`
 - `aftercare_user_state`
 - `aftercare_focus_tasks`

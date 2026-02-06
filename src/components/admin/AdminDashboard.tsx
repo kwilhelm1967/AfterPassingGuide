@@ -157,7 +157,7 @@ export function AdminDashboard() {
 
       <main className="p-4 max-w-5xl mx-auto">
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          <div className="mb-4 p-3 rounded-lg bg-accent-gold/10 border border-accent-gold/40 text-accent-gold text-sm">
             {error}
           </div>
         )}
@@ -194,7 +194,7 @@ export function AdminDashboard() {
                         <button
                           type="button"
                           onClick={() => revoke(row.id)}
-                          className="p-1.5 rounded text-red-400 hover:bg-red-500/10"
+                          className="p-1.5 rounded text-accent-gold hover:bg-accent-gold/10"
                           title="Revoke"
                         >
                           <Trash2 className="w-4 h-4" />

@@ -36,7 +36,7 @@ import {
 } from './services';
 
 // Components — eager for shell and first paint
-import { TrialStatusBanner, AdminDashboard } from './components';
+import { AdminDashboard } from './components';
 import { FaveIcon } from './components/common/FaveIcon';
 
 // Lazy-loaded routes and heavy views (code-splitting to reduce initial bundle)
@@ -106,24 +106,10 @@ function App() {
           
           if (currentMode === 'STANDALONE') {
             const { licenseService } = await import('./services/licenseService');
-            const { trialService } = await import('./services/trialService');
-            
-            // Check trial status first
-            await trialService.loadTrialStatus();
-            trialService.updateTimeRemaining(); // Update expiration status
-            const trialStatus = trialService.getTrialStatus();
-            
-            // If trial expired, block access
-            if (trialStatus.isTrial && trialStatus.isExpired) {
-              licensed = false;
-              setIsLicensed(false);
+            licensed = await licenseService.isLicensed();
+            setIsLicensed(licensed);
+            if (!licensed) {
               setShowActivation(true);
-            } else {
-              licensed = await licenseService.isLicensed();
-              setIsLicensed(licensed);
-              if (!licensed) {
-                setShowActivation(true);
-              }
             }
           } else {
             // Embedded mode - check LLV's license store for add-on flag
@@ -138,7 +124,7 @@ function App() {
         
         await checkLicense();
         
-        // Periodically check license/trial status (every 30 seconds)
+        // Periodically check license status (every 30 seconds)
         licenseCheckInterval = setInterval(async () => {
           await checkLicense();
         }, 30000);
@@ -438,28 +424,6 @@ function App() {
       {/* Main Content — subtle textured background for depth */}
       <main ref={mainContentRef} className="flex-1 overflow-y-auto bg-vault-dark">
         <div className="min-h-full p-4 md:p-5 bg-textured">
-          {/* Trial Status Banner */}
-          {mode === 'STANDALONE' && (
-            <TrialStatusBanner 
-              onPurchase={() => {
-                const purchaseUrl = (import.meta as any).env?.VITE_LLV_PURCHASE_URL || 'https://locallegacyvault.com/pricing.html#pricing';
-                const api = (window as any).electronAPI;
-                if (api?.openExternal) {
-                  api.openExternal(purchaseUrl).catch(() => window.open(purchaseUrl, '_blank', 'noopener,noreferrer'));
-                } else {
-                  window.open(purchaseUrl, '_blank', 'noopener,noreferrer');
-                }
-              }}
-              onExport={async () => {
-                // Export data functionality
-                const { exportPlanToPdf } = await import('./services/exportService');
-                if (plan) {
-                  await exportPlanToPdf(plan);
-                }
-              }}
-            />
-          )}
-          
           {/* Tab Content — lazy-loaded chunks */}
           <div className="mt-4">
             <Suspense fallback={<PageFallback />}>

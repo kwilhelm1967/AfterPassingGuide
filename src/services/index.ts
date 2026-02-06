@@ -6,7 +6,6 @@
 
 export { storageService } from './storageService';
 export { licenseService } from './licenseService';
-export { trialService } from './trialService';
 export { llvIntegration } from './llvIntegration';
 export { generateAftercarePlan } from './taskGenerationEngine';
 export { 

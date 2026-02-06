@@ -57,7 +57,7 @@ If you use only Supabase for licensing, set both `VITE_APG_ACTIVATE_URL` and `VI
 Templates live in `supabase/functions/apg-send-email/templates/`:
 
 - **purchase-confirmation.html** – Sent after payment. Placeholders: `{{customer_name}}`, `{{license_key}}`, `{{plan_type}}`, `{{current_year}}`.
-- **trial-welcome.html** – For trial signup (if you add a trial-signup flow). Placeholders: `{{customer_name}}`, `{{current_year}}`.
+- **trial-welcome.html** – Optional welcome email template (no trial; AfterPassing Guide is license-only).
 
 The webhook calls `apg-send-email` with `templateName: "purchase-confirmation"` and the same params. No need to store the raw license anywhere except in the one-time email.
 

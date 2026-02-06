@@ -18,8 +18,7 @@ AfterPassing Guide is a React-based desktop application built with Electron, pro
 
 ### Standalone Mode
 - Independent desktop application
-- Own license activation system
-- 14-day trial support
+- Own license activation system (license only; no trial)
 - Device-bound licensing
 - No external dependencies after activation
 
@@ -37,7 +36,7 @@ src/
 │   ├── common/         # Shared components (DisclaimerBanner)
 │   ├── documents/      # Document management view
 │   ├── executor/       # Executor tools (checklist, contacts)
-│   ├── license/        # License activation & trial status
+│   ├── license/        # License activation
 │   ├── onboarding/     # First-run wizard
 │   ├── scripts/        # Script templates view
 │   ├── settings/       # Settings/profile management
@@ -50,7 +49,6 @@ src/
 │   ├── scriptTemplates.ts       # Phone/letter/email templates
 │   ├── storageService.ts        # Local storage abstraction
 │   ├── taskGenerationEngine.ts  # Core task generation logic
-│   └── trialService.ts          # 14-day trial management
 ├── types/              # TypeScript type definitions
 │   └── index.ts
 ├── utils/              # Utility functions
@@ -64,7 +62,7 @@ src/
 
 ### Service Layer Pattern
 All business logic is encapsulated in service classes/modules:
-- **Singleton Services**: `licenseService`, `storageService`, `trialService`
+- **Singleton Services**: `licenseService`, `storageService`
 - **Stateless Services**: `taskGenerationEngine`, `executorService`, `exportService`
 - **Integration Layer**: `llvIntegration` handles mode switching
 
@@ -95,17 +93,6 @@ All business logic is encapsulated in service classes/modules:
   - Device fingerprint binding
   - Offline validation (local license file)
   - License transfer support
-  - Integration with trial service
-
-### TrialService
-- **Purpose**: 14-day trial management
-- **Pattern**: Singleton
-- **Features**:
-  - Trial key generation
-  - Device binding
-  - Time remaining calculation
-  - Expiration warnings
-  - Trial-to-license conversion
 
 ### TaskGenerationEngine
 - **Purpose**: Generate personalized task plans
@@ -230,5 +217,4 @@ See `FUNCTIONALITY_GAPS.md` for known issues:
 - Error boundaries needed
 - PDF generation (currently placeholder)
 - Document summarization (currently mock)
-- Trial expiration enforcement
 

@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 /* ============================================================
-   LOCAL AFTERCARE VAULT — THEME VARIABLES (Matches LLV)
+   AfterPassing Guide — Theme variables (app colors and branding)
    ============================================================ */
 
 :root {
@@ -112,7 +112,7 @@ body {
 }
 
 /* ============================================================
-   NAVIGATION - LLV Style
+   Navigation
    ============================================================ */
 
 .nav-item-hover {
@@ -337,6 +337,12 @@ select.select-pill:focus {
 /* ============================================================
    SUBTLE TEXTURED BACKGROUND
    ============================================================ */
+
+/* Full-page background to match main app (gradient + optional texture) */
+.page-background-match {
+  background: linear-gradient(180deg, #1F2534 0%, #252D3B 50%, #1F2534 100%);
+  background-color: #1F2534;
+}
 
 .bg-textured {
   position: relative;

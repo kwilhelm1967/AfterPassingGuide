@@ -10,7 +10,7 @@ src/
 │   ├── common/         # Shared/reusable components
 │   ├── documents/      # Document management
 │   ├── executor/       # Executor tools
-│   ├── license/        # License activation & trial
+│   ├── license/        # License activation
 │   ├── onboarding/     # First-run wizard
 │   ├── scripts/        # Script templates
 │   ├── settings/       # Settings/profile
@@ -27,7 +27,6 @@ src/
 │   ├── scriptTemplates.ts
 │   ├── storageService.ts
 │   ├── taskGenerationEngine.ts
-│   ├── trialService.ts
 │   └── index.ts        # Barrel export for all services
 ├── types/              # TypeScript type definitions
 │   └── index.ts        # All type definitions

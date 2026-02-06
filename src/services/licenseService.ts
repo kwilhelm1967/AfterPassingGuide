@@ -209,56 +209,31 @@ export class LicenseService {
   }
 
   /**
-   * Check if user has an active license or trial
-   * Returns true if either a valid license OR an active trial exists
+   * Check if user has an active license (same as isLicensed). AfterPassing Guide has no trial; license only.
    */
-  async isLicenseOrTrialActive(): Promise<boolean> {
-    // Check for active license first
-    const licenseInfo = await this.getLicenseInfo();
-    if (licenseInfo.isValid) {
-      return true;
-    }
-
-    // Check for active trial (must not be expired)
-    try {
-      const { trialService } = await import('./trialService');
-      await trialService.loadTrialStatus();
-      const trialStatus = trialService.getTrialStatus();
-      return trialStatus.isTrial && !trialStatus.isExpired;
-    } catch {
-      return false;
-    }
+  async isLicenseActive(): Promise<boolean> {
+    return this.isLicensed();
   }
 
   /**
-   * Activate a license or trial license
-   * 
+   * Activate a license
+   *
    * Flow:
-   * 1. Check if it's a trial license first
-   * 2. If not trial, validate license format
-   * 3. Get device fingerprint
-   * 4. Call activation API (ONE network call for licenses)
-   * 5. Handle response (activated, device_mismatch, invalid)
-   * 6. On success, save local license file for offline use
+   * 1. Validate license format
+   * 2. Get device fingerprint
+   * 3. Call activation API (ONE network call)
+   * 4. Handle response (activated, device_mismatch, invalid)
+   * 5. On success, save local license file for offline use
    */
-  async activateLicense(licenseKey: string): Promise<{ 
-    success: boolean; 
-    error?: string; 
+  async activateLicense(licenseKey: string): Promise<{
+    success: boolean;
+    error?: string;
     requiresTransfer?: boolean;
     status?: ActivationStatus;
-    isTrial?: boolean;
   }> {
     const isDevMode = import.meta.env.DEV;
 
     try {
-      // First check if it's a trial key
-      const { trialService } = await import('./trialService');
-      const trialValidation = await trialService.validateAndBindTrialKey(licenseKey.trim());
-      if (trialValidation.valid) {
-        return { success: true, isTrial: true };
-      }
-
-      // Sanitize and validate license format
       const cleanKey = licenseKey.replace(/[^A-Z0-9-]/g, "").toUpperCase();
       const isValidFormat = this.validateKeyFormat(cleanKey);
       
@@ -353,6 +328,59 @@ export class LicenseService {
 
       return { success: false, error: "License activation failed" };
     }
+  }
+
+  /**
+   * Import license from file content (same model as LLV: file-first activation).
+   * File must be JSON with license_key and device_id. Validates device_id against this device.
+   * If device matches, saves locally and returns success. If not, returns requiresTransfer so UI can offer transfer.
+   */
+  async importLicenseFromFile(fileContent: string): Promise<{
+    success: boolean;
+    error?: string;
+    requiresTransfer?: boolean;
+    licenseKey?: string;
+  }> {
+    let data: unknown;
+    try {
+      data = JSON.parse(fileContent);
+    } catch {
+      return { success: false, error: 'Invalid file format. The license file should be JSON.' };
+    }
+    if (!data || typeof data !== 'object' || !('license_key' in data) || !('device_id' in data)) {
+      return { success: false, error: 'Invalid file format. File must contain license_key and device_id.' };
+    }
+    const license_key = (data as Record<string, unknown>).license_key;
+    const device_id = (data as Record<string, unknown>).device_id;
+    if (typeof license_key !== 'string' || typeof device_id !== 'string') {
+      return { success: false, error: 'Invalid file format.' };
+    }
+    const cleanKey = license_key.replace(/[-\s]/g, '').toUpperCase();
+    if (!this.validateKeyFormat(cleanKey)) {
+      return { success: false, error: 'Invalid license format in file.' };
+    }
+    const currentDeviceId = await this.getDeviceId();
+    if (device_id !== currentDeviceId) {
+      return {
+        success: false,
+        requiresTransfer: true,
+        licenseKey: this.formatLicenseKey(cleanKey),
+        error: 'This license is for a different device. Use Transfer to this device below, or open the license file on the computer it was activated on.',
+      };
+    }
+    const formattedKey = this.formatLicenseKey(cleanKey);
+    const activated_at = (data as Record<string, unknown>).activated_at;
+    const activatedAt = typeof activated_at === 'string' ? activated_at : new Date().toISOString();
+    this.saveLocalLicenseFile({
+      license_key: formattedKey,
+      device_id: currentDeviceId,
+      activated_at: activatedAt,
+      plan_type: (data as Record<string, unknown>).plan_type as string | undefined || 'aftercare_single',
+    });
+    localStorage.setItem(LICENSE_KEY_STORAGE, formattedKey);
+    localStorage.setItem(LICENSE_ACTIVATED_STORAGE, activatedAt);
+    localStorage.setItem(DEVICE_ID_STORAGE, currentDeviceId);
+    return { success: true };
   }
 
   /**
@@ -518,25 +546,12 @@ export class LicenseService {
   }
 
   /**
-   * Check if app should run (valid local license for this device OR active trial)
-   * This is the main guard check - used throughout the app
+   * Check if app should run (valid local license for this device).
+   * This is the main guard check - used throughout the app.
    */
   async isLicensed(): Promise<boolean> {
-    // Check for valid license first
     const validation = await this.validateLocalLicense();
-    if (validation.valid) {
-      return true;
-    }
-
-    // Check for active trial (must not be expired)
-    try {
-      const { trialService } = await import('./trialService');
-      await trialService.loadTrialStatus();
-      const trialStatus = trialService.getTrialStatus();
-      return trialStatus.isTrial && !trialStatus.isExpired;
-    } catch {
-      return false;
-    }
+    return validation.valid;
   }
 
   /**

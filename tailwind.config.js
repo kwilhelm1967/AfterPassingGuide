@@ -7,18 +7,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary Background - matches LLV
+        // AfterPassing Guide — primary background
         'vault-dark': '#1F2534',
         'vault-darker': '#1A2130',
         
-        // Sidebar Background
+        // Sidebar / card
         'sidebar-bg': '#2A3340',
-        
-        // Card Backgrounds
         'card-bg': '#303A48',
         'card-bg-hover': '#3A4552',
         
-        // Accent Gold - matches LLV
+        // Accent (APG branding)
         'accent-gold': '#C9AE66',
         'accent-gold-hover': '#D1B26E',
         
