@@ -109,7 +109,7 @@ const LANDING_FAQS: { q: string; a: string }[] = [
 /** Local Legacy Vault purchase URL — same as in the Local Legacy Vault app. */
 const LLV_PURCHASE_URL = 'https://locallegacyvault.com/pricing.html#pricing';
 
-export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onPurchaseLocalLegacyVault }) => {
+export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGetStarted, onPurchaseLocalLegacyVault }) => {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
@@ -447,6 +447,14 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onPu
             >
               Get Started
             </button>
+            {onGetStarted && (
+              <p className="text-sm text-text-muted/80 mb-2">
+                Already have access?{' '}
+                <button type="button" onClick={onGetStarted} className="text-accent-gold hover:underline">
+                  Open the app
+                </button>
+              </p>
+            )}
             <p className="text-[11px] text-text-muted/60 flex items-center justify-center gap-1.5">
               <Lock className="w-3 h-3" strokeWidth={1.75} />
               <span>All data stored locally · No cloud · No tracking</span>
@@ -461,8 +469,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onPu
             <div className="footer-grid">
               <div className="footer-brand">
                 <div className="name">AfterPassing Guide</div>
-                <div className="tagline">Administrative guidance. No legal or financial advice.</div>
-                <p>A local, offline tool for organizing administrative tasks after a loss.</p>
+                <div className="tagline">Administrative guidance. Not legal or financial advice.</div>
+                <p>A local, offline tool for organizing tasks after a loss.</p>
                 <p>Part of the Local Legacy Vault ecosystem.</p>
               </div>
               <div className="footer-col">
@@ -478,9 +486,9 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onPu
               <div className="footer-col">
                 <h4>Resources</h4>
                 <ul>
-                  <li><a href="#user-guide">User Guide</a></li>
-                  <li><a href="#official-resources">Official Resources (US)</a></li>
-                  <li><a href="#support">Contact Support</a></li>
+                  <li><a href="#faqs">User Guide</a></li>
+                  <li><a href="#faqs">Official Resources (US)</a></li>
+                  <li><a href="mailto:support@afterpassingguide.com">Contact Support</a></li>
                 </ul>
               </div>
               <div className="footer-col footer-trust">

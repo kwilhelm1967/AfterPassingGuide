@@ -42,9 +42,9 @@ Screens are listed in **user-flow order**. Each screen has a unique **ID**, **na
 |-------|--------|
 | **ID** | `license-activation` |
 | **Name** | License Activation Screen |
-| **Purpose** | Let user enter a license key when not licensed (standalone mode). |
+| **Purpose** | Let user enter a license when not licensed (standalone mode). |
 | **Entry** | When `showActivation && !isLicensed` (can be toggled off in dev). |
-| **Key elements** | Full-screen form: title, description, license key input, "Activate" primary button, optional "Start trial" / "Purchase" links. |
+| **Key elements** | Full-screen form: title, description, license input, "Activate" primary button, optional "Start trial" / "Purchase" links. |
 | **Variants** | None. |
 
 ---
@@ -187,7 +187,7 @@ Screens are listed in **user-flow order**. Each screen has a unique **ID**, **na
 | **Name** | Preview Pill Modal |
 | **Purpose** | Explain preview and offer trial or license entry. |
 | **Entry** | User clicks "Preview" pill in main shell (when edition = PREVIEW). |
-| **Key elements** | Modal overlay; title "Preview"; short copy; "Start trial" primary; "Enter license key" secondary; "Not now" dismiss. |
+| **Key elements** | Modal overlay; title "Preview"; short copy; "Start trial" primary; "Enter license" secondary; "Not now" dismiss. |
 | **Variants** | None. |
 
 ---
@@ -288,7 +288,7 @@ Use these instructions for visual design, UX copy, and consistency. The app shou
 - **Templates:** Left: list of template buttons; selected = primary-soft background. Right: card for editor; Copy = primary, Word = secondary. Placeholder when nothing selected: card, primary icon.
 - **Executor (all tabs):** Same tab bar (Checklist, Contacts, Export Binder); active tab = primary-soft + primary text. Checklist: accordion categories, primary progress bar. Contacts: status badges use primary-soft/success/surface. Export: checkboxes in surface style; one primary button.
 - **Settings:** Sections as cards. "Your Situation" is the main block; Save = primary. Backup buttons: primary-soft for export, surface for import. Preview-only block: primary for upgrade/export.
-- **Preview Modal:** Small modal; primary for "Start trial," secondary for "Enter license key." Copy short and neutral.
+- **Preview Modal:** Small modal; primary for "Start trial," secondary for "Enter license." Copy short and neutral.
 - **Trial Expired / Banner:** Expired: alert style (warning/danger family), primary for Purchase. Banner: compact bar, primary for actions.
 - **Error:** Card in center; warning icon; primary "Try again," secondary "Reload app." No alarming imagery.
 

@@ -66,7 +66,7 @@ The only network call in the entire application is:
 - **License Activation**: One-time call to license server during activation
   - Endpoint: `https://server.localpasswordvault.com/api/aftercare/license/activate`
   - Method: POST
-  - Data Sent: License key, device ID, product identifier
+  - Data Sent: License, device ID, product identifier
   - Data Received: Activation status, device binding confirmation
   - **No user data is transmitted**
 
@@ -114,7 +114,7 @@ All storage keys are prefixed with `aftercare_*`:
 - `aftercare_checklist` - Encrypted executor checklist
 - `aftercare_settings` - Encrypted settings
 - `aftercare_license_file` - Unencrypted license file (non-sensitive)
-- `aftercare_license_key` - Unencrypted license key (non-sensitive)
+- `aftercare_license_key` - Unencrypted license (non-sensitive)
 - `aftercare_trial_status` - Unencrypted trial metadata (non-sensitive)
 
 ## Privacy Guarantees

@@ -3,9 +3,9 @@
 You need three kinds of installers for each OS:
 
 1. **Preview (limited)** — For the email link. Limited features only; no trial or license in-app.
-2. **Full (trial + paid)** — Same file: user gets a 14-day trial or enters a license key after purchase.
+2. **Full (trial + paid)** — Same file: user gets a 14-day trial or enters a license after purchase.
 
-So you build **two variants** per OS: Preview and Full. The “paid” version is the **same file** as the full build; you give it to customers after purchase (they enter their license key in the app).
+So you build **two variants** per OS: Preview and Full. The “paid” version is the **same file** as the full build; you give it to customers after purchase (they enter their license in the app).
 
 ---
 
@@ -62,7 +62,7 @@ Use the **Preview** .exe / .dmg / .AppImage as the link you add to the email.
 |----------|-------------|----------------|
 | Email link (limited) | Preview | `release-preview/` — use the .exe / .dmg / .AppImage for each OS |
 | Trial (full app, 14-day) | Full | `dist/` — same installer as paid |
-| Paid (full app, license key) | Full | `dist/` — same installer as trial; customer enters key after purchase |
+| Paid (full app, license) | Full | `dist/` — same installer as trial; customer enters license after purchase |
 
 ---
 

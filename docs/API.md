@@ -56,7 +56,7 @@ Singleton service for license management.
 Returns the singleton instance.
 
 ##### `async activateLicense(licenseKey: string): Promise<ActivationResult>`
-Activates a license key.
+Activates a license.
 
 **Parameters:**
 - `licenseKey`: 16-character license key (format: XXXX-XXXX-XXXX-XXXX)
@@ -110,7 +110,7 @@ Gets current license information.
 Transfers license to current device.
 
 **Parameters:**
-- `licenseKey`: License key to transfer
+- `licenseKey`: License to transfer
 
 **Returns:**
 ```typescript
@@ -124,7 +124,7 @@ Transfers license to current device.
 Formats license key for display.
 
 ##### `validateKeyFormat(key: string): boolean`
-Validates license key format.
+Validates license format.
 
 ##### `async isLicenseOrTrialActive(): Promise<boolean>`
 Checks if license or trial is active.
@@ -143,7 +143,7 @@ Returns the singleton instance.
 ##### `generateTrialKey(): string`
 Generates a new trial key.
 
-**Returns:** 16-character trial key.
+**Returns:** 16-character trial license code.
 
 ##### `async startTrial(): Promise<TrialStartResult>`
 Starts a new 14-day trial.
@@ -161,7 +161,7 @@ Starts a new 14-day trial.
 Validates and binds a trial key to device.
 
 **Parameters:**
-- `trialKey`: Trial key to validate
+- `trialKey`: Trial license to validate
 
 **Returns:**
 ```typescript

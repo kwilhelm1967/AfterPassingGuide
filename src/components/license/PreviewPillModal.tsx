@@ -74,7 +74,7 @@ export function PreviewPillModal({ onStartTrial, onEnterLicense }: PreviewPillMo
                   }}
                   className="btn-secondary w-full py-2.5 px-4 text-sm font-medium"
                 >
-                  Enter license key
+                  Enter license
                 </button>
               )}
               <button

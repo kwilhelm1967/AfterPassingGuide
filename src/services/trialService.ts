@@ -38,7 +38,7 @@ class TrialService {
   }
 
   /**
-   * Generate a trial key
+   * Generate a trial license code
    */
   generateTrialKey(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -58,7 +58,7 @@ class TrialService {
    */
   async startTrial(): Promise<{ success: boolean; trialKey?: string; error?: string }> {
     try {
-      // Generate trial key
+      // Generate trial license code
       const trialKey = this.generateTrialKey();
       const startDate = new Date();
       // Use setTime to correctly add days (avoids month boundary issues with setDate)
@@ -121,8 +121,8 @@ class TrialService {
   }
 
   /**
-   * Validate and bind trial key to device (REQUIRED)
-   * This is called when user enters the key to activate
+   * Validate and bind trial license to device (REQUIRED)
+   * This is called when user enters the license to activate
    */
   async validateAndBindTrialKey(trialKey: string): Promise<{ valid: boolean; error?: string }> {
     try {
@@ -147,7 +147,7 @@ class TrialService {
 
           // Check if already bound to different device
           if (keyData.deviceFingerprint && keyData.deviceFingerprint !== deviceFingerprint) {
-            return { valid: false, error: 'This trial key has already been activated on another device.' };
+            return { valid: false, error: 'This trial license has already been activated on another device.' };
           }
 
           // Bind to this device if not already bound
@@ -197,9 +197,9 @@ class TrialService {
         }
       }
 
-      return { valid: false, error: 'Invalid trial key' };
+      return { valid: false, error: 'Invalid trial license' };
     } catch (error) {
-      console.error('Failed to validate trial key:', error);
+      console.error('Failed to validate trial license:', error);
       return { valid: false, error: 'Validation failed' };
     }
   }
@@ -335,7 +335,7 @@ class TrialService {
   async convertToLicense(_licenseKey: string): Promise<void> {
     // Clear trial status
     localStorage.removeItem('aftercare_trial_status');
-    // Clear trial key mappings
+    // Clear trial license mappings
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('aftercare_trial_key_')) {
         localStorage.removeItem(key);

@@ -4,12 +4,12 @@
  * Implements the same licensing model as LPV and LLV:
  * - Single-device activation with transfer capability
  * - ONE network call during activation, then fully offline
- * - No user data transmitted, only license key + device hash
+ * - No user data transmitted, only license + device hash
  * - Local license file for offline validation
  * 
  * Security Philosophy:
  * - Offline-first, single-device activation
- * - No cloud storage, no telemetry, no shared keys
+ * - No cloud storage, no telemetry, no shared license data
  * - Zero user data on the internet
  * 
  * Product Identifier: AFTERCARE_ASSISTANT
@@ -25,6 +25,9 @@ const DEVICE_ID_STORAGE = 'aftercare_device_id';
 
 // License server URL (can be overridden via env var)
 const LICENSE_SERVER_URL = import.meta.env.VITE_LICENSE_SERVER_URL || 'https://server.localpasswordvault.com';
+// Optional: use Supabase Edge Functions for APG (e.g. https://xxx.supabase.co/functions/v1/apg-activate)
+const ACTIVATE_URL = import.meta.env.VITE_APG_ACTIVATE_URL || `${LICENSE_SERVER_URL}/api/aftercare/license/activate`;
+const TRANSFER_URL = import.meta.env.VITE_APG_TRANSFER_URL || `${LICENSE_SERVER_URL}/api/aftercare/license/transfer`;
 
 /**
  * Local license file structure
@@ -187,7 +190,7 @@ export class LicenseService {
   }
 
   /**
-   * Format license key for display (XXXX-XXXX-XXXX-XXXX)
+   * Format license for display (XXXX-XXXX-XXXX-XXXX)
    */
   formatLicenseKey(key: string): string {
     const cleanKey = key.replace(/[-\s]/g, '').toUpperCase();
@@ -198,7 +201,7 @@ export class LicenseService {
   }
 
   /**
-   * Validate license key format
+   * Validate license format
    */
   validateKeyFormat(key: string): boolean {
     const cleanKey = key.replace(/[-\s]/g, '').toUpperCase();
@@ -228,11 +231,11 @@ export class LicenseService {
   }
 
   /**
-   * Activate a license key or trial key
+   * Activate a license or trial license
    * 
    * Flow:
-   * 1. Check if it's a trial key first
-   * 2. If not trial, validate key format
+   * 1. Check if it's a trial license first
+   * 2. If not trial, validate license format
    * 3. Get device fingerprint
    * 4. Call activation API (ONE network call for licenses)
    * 5. Handle response (activated, device_mismatch, invalid)
@@ -255,12 +258,12 @@ export class LicenseService {
         return { success: true, isTrial: true };
       }
 
-      // Sanitize and validate license key format
+      // Sanitize and validate license format
       const cleanKey = licenseKey.replace(/[^A-Z0-9-]/g, "").toUpperCase();
       const isValidFormat = this.validateKeyFormat(cleanKey);
       
       if (!isValidFormat) {
-        return { success: false, error: "Invalid license key format. Key must be in format XXXX-XXXX-XXXX-XXXX." };
+        return { success: false, error: "Invalid license format. License must be in format XXXX-XXXX-XXXX-XXXX." };
       }
 
       // Get device fingerprint
@@ -272,18 +275,15 @@ export class LicenseService {
       }
 
       // Call activation API (ONE network call)
-      const response = await fetch(
-        `${LICENSE_SERVER_URL}/api/aftercare/license/activate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            license_key: cleanKey,
-            device_id: deviceId,
-            product: "AFTERCARE_ASSISTANT",
-          }),
-        }
-      );
+      const response = await fetch(ACTIVATE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          license_key: cleanKey,
+          device_id: deviceId,
+          product: "AFTERCARE_ASSISTANT",
+        }),
+      });
 
       if (!response.ok) {
         return {
@@ -309,7 +309,7 @@ export class LicenseService {
         return {
           success: false,
           status: result.status,
-          error: result.error || "This is not a valid license key."
+          error: result.error || "This is not a valid license."
         };
       }
 
@@ -374,18 +374,15 @@ export class LicenseService {
         return this.transferLocalLicense(cleanKey, deviceId);
       }
 
-      const response = await fetch(
-        `${LICENSE_SERVER_URL}/api/aftercare/license/transfer`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            license_key: cleanKey,
-            new_device_id: deviceId,
-            product: "AFTERCARE_ASSISTANT",
-          }),
-        }
-      );
+      const response = await fetch(TRANSFER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          license_key: cleanKey,
+          new_device_id: deviceId,
+          product: "AFTERCARE_ASSISTANT",
+        }),
+      });
 
       if (!response.ok) {
         return {

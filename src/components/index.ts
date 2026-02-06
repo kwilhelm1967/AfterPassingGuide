@@ -17,4 +17,5 @@ export { LicenseActivationScreen } from './license/LicenseActivationScreen';
 export { TrialStatusBanner } from './license/TrialStatusBanner';
 export { ErrorBoundary } from './common/ErrorBoundary';
 export { VirtualizedList } from './common/VirtualizedList';
+export { AdminDashboard } from './admin/AdminDashboard';
 

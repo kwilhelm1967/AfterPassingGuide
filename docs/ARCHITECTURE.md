@@ -91,7 +91,7 @@ All business logic is encapsulated in service classes/modules:
 - **Purpose**: License activation, validation, device binding
 - **Pattern**: Singleton
 - **Features**:
-  - License key validation (16-char format)
+  - License validation (16-char format)
   - Device fingerprint binding
   - Offline validation (local license file)
   - License transfer support
@@ -176,7 +176,7 @@ Contact information with type classification and status.
 - Device fingerprinting (hardware-based)
 - Local license file validation
 - Offline-first validation
-- No license key transmission after activation
+- No license transmission after activation
 
 ### Privacy
 - No analytics

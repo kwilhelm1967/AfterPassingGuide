@@ -5,8 +5,8 @@
  * This application does not provide legal, financial, or medical advice.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { safeSetItem } from './utils/safeStorage';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import { safeGetItem, safeSetItem } from './utils/safeStorage';
 import { AlertTriangle, Lock, ArrowLeft } from 'lucide-react';
 
 // Types
@@ -35,20 +35,27 @@ import {
   hasLegacyChecklistCategories,
 } from './services';
 
-// Components
-import {
-  OnboardingWizard,
-  FocusView,
-  ChecklistView,
-  DocumentsView,
-  ScriptsView,
-  ContactsView,
-  ExecutorTools,
-  SettingsView,
-  TrialStatusBanner,
-} from './components';
+// Components — eager for shell and first paint
+import { TrialStatusBanner, AdminDashboard } from './components';
 import { FaveIcon } from './components/common/FaveIcon';
-import { MarketingLandingPage } from './LAV/MarketingLandingPage';
+
+// Lazy-loaded routes and heavy views (code-splitting to reduce initial bundle)
+const MarketingLandingPage = lazy(() => import('./LAV/MarketingLandingPage').then(m => ({ default: m.MarketingLandingPage })));
+const OnboardingWizard = lazy(() => import('./components/onboarding/OnboardingWizard').then(m => ({ default: m.OnboardingWizard })));
+const LicenseActivationScreen = lazy(() => import('./components/license/LicenseActivationScreen').then(m => ({ default: m.LicenseActivationScreen })));
+const FocusView = lazy(() => import('./components/tasks/FocusView').then(m => ({ default: m.FocusView })));
+const ChecklistView = lazy(() => import('./components/tasks/ChecklistView').then(m => ({ default: m.ChecklistView })));
+const DocumentsView = lazy(() => import('./components/documents/DocumentsView').then(m => ({ default: m.DocumentsView })));
+const ScriptsView = lazy(() => import('./components/scripts/ScriptsView').then(m => ({ default: m.ScriptsView })));
+const ContactsView = lazy(() => import('./components/contacts/ContactsView').then(m => ({ default: m.ContactsView })));
+const ExecutorTools = lazy(() => import('./components/executor/ExecutorTools').then(m => ({ default: m.ExecutorTools })));
+const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
+
+const PageFallback = () => (
+  <div className="flex items-center justify-center py-16">
+    <div className="animate-spin rounded-full h-8 w-8 border-2 border-accent-gold border-t-transparent" aria-hidden />
+  </div>
+);
 
 // ============================================================================
 // MAIN APP COMPONENT
@@ -70,8 +77,8 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLandingPage, setShowLandingPage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [, setShowActivation] = useState(false);
-  const [, setIsLicensed] = useState(false);
+  const [showActivation, setShowActivation] = useState(false);
+  const [isLicensed, setIsLicensed] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
 
   // ============================================================================
@@ -153,19 +160,12 @@ function App() {
         setContacts(savedContacts);
         setExecutorChecklist(savedChecklist);
         
-        // TEMPORARY: Always show landing page for development
-        setShowLandingPage(true);
-        
-        // Check if user has seen landing page
-        // const hasSeenLandingPage = localStorage.getItem('aftercare_hasSeenLandingPage') === 'true';
-        
-        // Show landing page if not seen before
-        // if (!hasSeenLandingPage) {
-        //   setShowLandingPage(true);
-        // } else if (!savedProfile) {
-        //   // Show onboarding if no profile exists (and landing page already seen)
-        //   setShowOnboarding(true);
-        // }
+        const hasSeenLandingPage = safeGetItem('aftercare_hasSeenLandingPage') === 'true';
+        if (!hasSeenLandingPage) {
+          setShowLandingPage(true);
+        } else if (!savedProfile) {
+          setShowOnboarding(true);
+        }
       } catch (error) {
         console.error('Initialization error:', error);
       } finally {
@@ -292,6 +292,10 @@ function App() {
   // RENDER
   // ============================================================================
 
+  if (typeof window !== 'undefined' && window.location.pathname === '/admin') {
+    return <AdminDashboard />;
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-vault-dark flex items-center justify-center">
@@ -303,37 +307,42 @@ function App() {
     );
   }
 
-  // Show landing page if not seen before (show this FIRST, before license check)
+  // Show landing page if not seen before (before license check)
   if (showLandingPage) {
     return (
-      <MarketingLandingPage
-        onGetStarted={handleLandingPageDismiss}
-        onPurchaseLocalLegacyVault={handlePurchaseLocalLegacyVault}
-      />
+      <Suspense fallback={<PageFallback />}>
+        <MarketingLandingPage
+          onGetStarted={handleLandingPageDismiss}
+          onPurchaseLocalLegacyVault={handlePurchaseLocalLegacyVault}
+        />
+      </Suspense>
     );
   }
 
-  // TEMPORARY: Skip activation to work on landing page
-  // License guard - show activation screen if not licensed (standalone mode only)
-  // if (showActivation && mode === 'STANDALONE' && !isLicensed) {
-  //   return (
-  //     <LicenseActivationScreen
-  //       onActivated={async () => {
-  //         const { licenseService } = await import('./services/licenseService');
-  //         const licensed = await licenseService.isLicensed();
-  //         setIsLicensed(licensed);
-  //         setShowActivation(false);
-  //       }}
-  //     />
-  //   );
-  // }
+  // License guard — show activation screen if not licensed (standalone mode only)
+  if (showActivation && mode === 'STANDALONE' && !isLicensed) {
+    return (
+      <Suspense fallback={<PageFallback />}>
+        <LicenseActivationScreen
+          onActivated={async () => {
+            const { licenseService } = await import('./services/licenseService');
+            const nowLicensed = await licenseService.isLicensed();
+            setIsLicensed(nowLicensed);
+            setShowActivation(!nowLicensed);
+          }}
+        />
+      </Suspense>
+    );
+  }
 
   if (showOnboarding || !profile) {
     return (
-      <OnboardingWizard
-        onComplete={handleOnboardingComplete}
-        onBackToOverview={handleBackToOverview}
-      />
+      <Suspense fallback={<PageFallback />}>
+        <OnboardingWizard
+          onComplete={handleOnboardingComplete}
+          onBackToOverview={handleBackToOverview}
+        />
+      </Suspense>
     );
   }
 
@@ -433,8 +442,13 @@ function App() {
           {mode === 'STANDALONE' && (
             <TrialStatusBanner 
               onPurchase={() => {
-                // Open purchase link or show purchase modal
-                window.open('https://localpasswordvault.com/purchase', '_blank');
+                const purchaseUrl = (import.meta as any).env?.VITE_LLV_PURCHASE_URL || 'https://locallegacyvault.com/pricing.html#pricing';
+                const api = (window as any).electronAPI;
+                if (api?.openExternal) {
+                  api.openExternal(purchaseUrl).catch(() => window.open(purchaseUrl, '_blank', 'noopener,noreferrer'));
+                } else {
+                  window.open(purchaseUrl, '_blank', 'noopener,noreferrer');
+                }
               }}
               onExport={async () => {
                 // Export data functionality
@@ -446,14 +460,15 @@ function App() {
             />
           )}
           
-          {/* Tab Content */}
+          {/* Tab Content — lazy-loaded chunks */}
           <div className="mt-4">
-            {activeTab === 'guidance' && plan && (
-              <FocusView onViewFullChecklist={() => setActiveTab('checklist')} />
-            )}
+            <Suspense fallback={<PageFallback />}>
+              {activeTab === 'guidance' && plan && (
+                <FocusView onViewFullChecklist={() => setActiveTab('checklist')} />
+              )}
 
-            {activeTab === 'checklist' && plan && (
-              <ChecklistView
+              {activeTab === 'checklist' && plan && (
+                <ChecklistView
                 plan={plan}
                 onPlanUpdate={handlePlanUpdate}
                 onReturnToFocus={() => setActiveTab('guidance')}
@@ -497,22 +512,20 @@ function App() {
                   await storageService.saveProfile(p);
                 }}
                 onRegenerateTasks={async () => {
-                  // Regenerate tasks with updated profile
+                  if (!profile || !plan) return;
                   try {
                     const vaultRecords = await llvIntegration.loadLegacyVaultSummary();
                     const result = generateAftercarePlan({
-                      profile: profile,
+                      profile,
                       vaultRecords,
                     });
-                    
                     const newPlan: AftercarePlan = {
                       id: `plan_${Date.now()}`,
-                      profile: profile,
+                      profile,
                       tasks: result.tasks,
-                      createdAt: plan?.createdAt || new Date().toISOString(),
+                      createdAt: plan.createdAt,
                       lastUpdatedAt: new Date().toISOString(),
                     };
-                    
                     setPlan(newPlan);
                     await storageService.savePlan(newPlan);
                     setActiveTab('guidance');
@@ -525,6 +538,7 @@ function App() {
                 }}
               />
             )}
+            </Suspense>
           </div>
         </div>
       </main>

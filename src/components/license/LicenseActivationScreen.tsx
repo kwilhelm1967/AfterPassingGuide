@@ -1,13 +1,11 @@
 /**
  * License Activation Screen
- * 
- * Matches the UX pattern from Local Legacy Vault.
- * Supports both license activation and 14-day trial.
- * Standalone app - fully local after activation.
+ *
+ * License activation only. Standalone app - fully local after activation.
  */
 
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, HelpCircle, Loader2, AlertCircle, Copy, Check, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, HelpCircle, Loader2, AlertCircle } from 'lucide-react';
 import { licenseService } from '../../services/licenseService';
 import { trialService } from '../../services/trialService';
 
@@ -25,26 +23,12 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
   const [error, setError] = useState<string | null>(null);
   const [requiresTransfer, setRequiresTransfer] = useState(false);
   const [transferKey, setTransferKey] = useState<string | null>(null);
-  const [isStartingTrial, setIsStartingTrial] = useState(false);
-  const [showTrialOption, setShowTrialOption] = useState(true);
-  const [trialKey, setTrialKey] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [canStartTrial, setCanStartTrial] = useState(true);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isActivating) {
       handleActivate();
     }
   };
-
-  useEffect(() => {
-    // Check if user can start trial
-    const checkTrial = async () => {
-      const canStart = await trialService.canStartTrial();
-      setCanStartTrial(canStart);
-    };
-    checkTrial();
-  }, []);
 
   const handleActivate = async () => {
     if (!licenseKey.trim()) return;
@@ -67,48 +51,13 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
         setTransferKey(licenseKey.trim());
         setError('This license is active on another device. Would you like to transfer it to this device?');
       } else {
-        setError(result.error || 'Activation failed. Please check your license key and try again.');
+        setError(result.error || 'Activation failed. Please check your license and try again.');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error('Activation error:', err);
     } finally {
       setIsActivating(false);
-    }
-  };
-
-  const handleStartTrial = async () => {
-    setError(null);
-    setIsStartingTrial(true);
-    setTrialKey(null);
-
-    try {
-      const result = await trialService.startTrial();
-      
-      if (result.success && result.trialKey) {
-        setTrialKey(result.trialKey);
-        setLicenseKey(result.trialKey);
-        setShowTrialOption(false);
-      } else {
-        setError(result.error || 'Failed to start trial. Please try again.');
-      }
-    } catch (err) {
-      console.error('Trial start failed:', err);
-      setError('Failed to start trial. Please try again.');
-    } finally {
-      setIsStartingTrial(false);
-    }
-  };
-
-  const handleCopyTrialKey = async () => {
-    if (trialKey) {
-      try {
-        await navigator.clipboard.writeText(trialKey);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy trial key:', err);
-      }
     }
   };
 
@@ -177,17 +126,17 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
               AfterPassing Guide
             </h1>
             <h2 className="text-lg font-semibold text-text-primary mb-1">
-              Activate Your Vault
+              Activate
             </h2>
             <p className="text-text-secondary text-[10px]">
-              Enter your license key or start a free trial
+              Enter your license
             </p>
           </div>
 
-          {/* License Key Input */}
+          {/* License Input */}
           <div className="space-y-2 mb-3 flex-shrink-0">
             <label className="block text-xs font-medium text-text-primary mb-1">
-              Activation Key
+              License
             </label>
             <input
               type="text"
@@ -210,40 +159,6 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
               </div>
             )}
           </div>
-
-          {/* Trial Key Display */}
-          {trialKey && (
-            <div className="p-2.5 bg-slate-700/30 rounded-lg border border-accent-gold/30 mb-3 flex-shrink-0">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-medium text-text-primary flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-accent-gold" />
-                  Your Trial Key
-                </p>
-                <button
-                  onClick={handleCopyTrialKey}
-                  className="flex items-center gap-1 text-xs text-accent-gold hover:text-accent-gold/80 transition-colors"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3 h-3" />
-                      <span>Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3" />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              <code className="block text-center text-xs font-mono text-text-primary tracking-wider py-1.5">
-                {trialKey}
-              </code>
-              <p className="text-xs text-text-secondary text-center mt-1.5">
-                Click "Activate Vault" above to begin your 14-day trial
-              </p>
-            </div>
-          )}
 
           {/* Action Buttons */}
           <div className="space-y-2 mb-3 flex-shrink-0">
@@ -288,38 +203,9 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
                       <span>Activating...</span>
                     </>
                   ) : (
-                    <span>Activate Vault</span>
+                    <span>Activate</span>
                   )}
                 </button>
-
-                {/* Divider */}
-                {showTrialOption && !trialKey && canStartTrial && (
-                  <>
-                    <div className="flex items-center gap-2 my-2">
-                      <div className="flex-1 h-px bg-border-subtle" />
-                      <span className="text-[10px] text-text-muted font-medium">OR</span>
-                      <div className="flex-1 h-px bg-border-subtle" />
-                    </div>
-
-                    <button
-                      onClick={handleStartTrial}
-                      disabled={isStartingTrial}
-                      className="w-full py-2 px-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 bg-slate-700/50 hover:bg-slate-700/70 border border-border-subtle text-text-primary disabled:opacity-60 disabled:cursor-not-allowed text-xs"
-                    >
-                      {isStartingTrial ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Starting Trial...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Clock className="w-4 h-4" />
-                          <span>Start 14-Day Free Trial</span>
-                        </>
-                      )}
-                    </button>
-                  </>
-                )}
 
                 {onBack && (
                   <button
@@ -327,7 +213,7 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
                     className="w-full text-text-secondary hover:text-text-primary transition-colors flex items-center justify-center gap-2 py-2 text-sm"
                   >
                     <ArrowLeft className="w-4 h-4" strokeWidth={1.75} />
-                    <span>I Don't Have My Key</span>
+                    <span>I Don't Have My License</span>
                   </button>
                 )}
               </>
@@ -341,7 +227,7 @@ export const LicenseActivationScreen: React.FC<LicenseActivationScreenProps> = (
               <div>
                 <p className="font-medium mb-0.5 text-text-secondary text-[10px]">Need help?</p>
                 <p className="leading-tight text-[10px]">
-                  Your license key is a 16-character code in the format XXXX-XXXX-XXXX-XXXX. 
+                  Your license is a 16-character code in the format XXXX-XXXX-XXXX-XXXX. 
                   It was sent to your email after purchase.
                 </p>
               </div>

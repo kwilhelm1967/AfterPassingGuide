@@ -238,7 +238,7 @@ All keys prefixed with `aftercare_*`:
 - `aftercare_contacts`: Contact entries
 - `aftercare_checklist`: Executor checklist
 - `aftercare_license_file`: License data
-- `aftercare_license_key`: License key
+- `aftercare_license_key`: License
 - `aftercare_license_activated`: Activation date
 - `aftercare_device_id`: Device fingerprint
 - `aftercare_trial_status`: Trial information
@@ -256,12 +256,12 @@ Use `storageService` for all data operations:
 
 For development, you can:
 1. Use trial mode (14 days)
-2. Use test license keys (if available)
+2. Use test licenses (if available)
 3. Bypass license check (modify `licenseService.ts`)
 
 ### License Flow
 
-1. User enters license key
+1. User enters license
 2. `licenseService.activateLicense()` called
 3. Server validation (one-time)
 4. Local license file created
