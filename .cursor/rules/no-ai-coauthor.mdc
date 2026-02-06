@@ -1,0 +1,11 @@
+---
+description: Never add AI or Cursor co-author lines to commits
+alwaysApply: true
+---
+
+# No AI / Cursor References in Commits
+
+- **Never** add `Co-authored-by: Cursor <cursoragent@cursor.com>` to any commit message.
+- **Never** add any "Co-authored-by" line referring to Cursor, cursoragent, or any AI/agent.
+- When committing (e.g. via git commit or suggested commit message), use only the user's chosen message. Do not append or suggest appending co-author lines.
+- If the user or tooling asks for a commit message, output only the message body they want—no trailers, no Co-authored-by, no AI attribution.
