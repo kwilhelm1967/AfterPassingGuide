@@ -7,7 +7,7 @@
 import React from 'react';
 import type { NavigationTab } from '../types';
 import type { LucideIcon } from 'lucide-react';
-import { Heart, ListChecks, FileText, MessageSquare, Users, ClipboardCheck, Settings } from 'lucide-react';
+import { Heart, ListChecks, FileText, MessageSquare, Users, ClipboardCheck, Settings, Briefcase } from 'lucide-react';
 
 export interface NavItemConfig {
   id: NavigationTab;
@@ -18,6 +18,7 @@ export interface NavItemConfig {
 }
 
 export const NAV_ITEMS_CONFIG: NavItemConfig[] = [
+  { id: 'cases', label: 'Cases', iconComponent: Briefcase },
   { id: 'guidance', label: 'Guidance', iconComponent: Heart },
   { id: 'checklist', label: 'Checklist', iconComponent: ListChecks },
   { id: 'documents', label: 'Documents', iconComponent: FileText },

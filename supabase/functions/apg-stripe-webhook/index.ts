@@ -205,8 +205,19 @@ serve(async (req) => {
   }
 
   await logWebhook(supabase, true, event.type);
+
+  console.log(`[WEBHOOK] License created (last4: ****-****-****-${keyLast4}) for ${customerEmail}`);
+  console.log(`[WEBHOOK] Returning 200 OK response`);
+
   return new Response(
-    JSON.stringify({ received: true, session_id: session.id }),
-    { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    JSON.stringify({
+      received: true,
+      license_key: formatLicenseKey(licenseKey),
+      session_id: session.id,
+    }),
+    {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    }
   );
 });

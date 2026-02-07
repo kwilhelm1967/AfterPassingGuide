@@ -65,8 +65,24 @@ The webhook calls `apg-send-email` with `templateName: "purchase-confirmation"` 
 
 - URL: your app origin + `/admin` (e.g. https://yourapp.com/admin).
 - Login: user enters the same value as `APG_ADMIN_SECRET`.
-- Actions: list licenses (email, key last 4, status, created, activated), revoke license.
+- **Licenses** tab: list licenses (email, key last 4, status, created, activated), revoke license.
+- **My Paths** tab: save file/folder paths (e.g. project folder, build output) for quick copy; stored in this browser only (localStorage).
+- **My Links** tab: save tool links (Supabase dashboard, Host Armada, GitHub repo, Stripe, etc.); open in new tab or copy URL; stored in this browser only (localStorage).
 - Resend license email: not supported (license codes are not stored; only hash). To “resend” you’d need to issue a new license (manual process or separate tool).
+
+### Admin guide — optional features to consider later
+
+Examples of features used in similar admin tools (for inspiration only):
+
+- **Processes / checklist** — Daily tasks (e.g. check support inbox, review recent orders, confirm download links).
+- **Metrics / home** — Tiles for key numbers (licenses created, activations); period toggle (24h / 30d); simple alerts.
+- **Release & distribution** — Version, build artifacts, release notes for support.
+- **Email templates** — List templates and where they live; reminder to redeploy after editing.
+- **Support / playbooks** — Common problems and troubleshooting steps.
+- **Audit log** — Who did what (if you add audit events later).
+- **System status** — Quick check that key URLs (Supabase, Stripe) are reachable.
+
+AfterPassing Guide's admin focuses on **licenses**, **My Paths**, and **My Links**; the list above is a roadmap of options.
 
 ## 7. Flow summary
 

@@ -53,6 +53,7 @@ In Dashboard: **Project Settings → Edge Functions → Secrets**. Add:
 | `STRIPE_APG_PRICE_ID` | (Optional) Stripe Price ID(s), comma-separated. If set, only these create licenses. |
 | `BREVO_API_KEY` | Brevo (Sendinblue) API key for sending purchase emails. |
 | `FROM_EMAIL` | Sender email (e.g. `noreply@afterpassingguide.com`). Must be verified in Brevo. |
+| `APG_PARTNER_SECRET` | **For LLV Family → APG license.** Long random string; LLV webhook sends this when granting an APG license for a Family purchase. Same value must be set in the LLV Supabase project as `APG_PARTNER_SECRET`. |
 
 ---
 
@@ -65,6 +66,7 @@ supabase functions deploy apg-activate
 supabase functions deploy apg-transfer
 supabase functions deploy apg-stripe-webhook
 supabase functions deploy apg-send-email
+supabase functions deploy apg-grant-license-from-partner
 supabase functions deploy admin-licenses-list
 supabase functions deploy admin-license-actions
 ```
@@ -107,6 +109,30 @@ If you use Stripe for purchases:
 4. Copy the **Signing secret** into the Supabase secret `STRIPE_WEBHOOK_SECRET`.
 
 See [LICENSE-AND-ADMIN-SETUP.md](./LICENSE-AND-ADMIN-SETUP.md) for the full purchase → email → activation flow.
+
+---
+
+## 7. (Optional) LLV Family → APG license
+
+When a customer buys **Local Legacy Vault Family**, they can automatically receive an AfterPassing Guide license.
+
+1. **APG project:** Set secret `APG_PARTNER_SECRET` (e.g. a 32+ character random string). Deploy `apg-grant-license-from-partner`.
+2. **LLV project (Local Legacy Vault Supabase):** Set secrets:
+   - `APG_GRANT_LICENSE_URL` = `https://<APG_PROJECT_REF>.supabase.co/functions/v1/apg-grant-license-from-partner`
+   - `APG_PARTNER_SECRET` = same value as in the APG project.
+3. **LLV Stripe webhook** (in this repo: Local Legacy Vault) already calls the APG grant endpoint when `plan_type === "family"`. Redeploy the LLV `stripe-webhook` after setting the secrets.
+
+**Testing the flow:**
+
+- **Option A – Stripe test mode:** Use a test card to complete a Family purchase; check APG Supabase `apg_licenses` for a new row for the customer email, and the customer should receive the “Your AfterPassing Guide License (Included with Local Legacy Vault Family)” email.
+- **Option B – Call grant endpoint directly:** To verify the APG function without Stripe:
+  ```bash
+  curl -X POST "https://<APG_PROJECT_REF>.supabase.co/functions/v1/apg-grant-license-from-partner" \
+    -H "Content-Type: application/json" \
+    -H "X-Partner-Secret: YOUR_APG_PARTNER_SECRET" \
+    -d '{"email":"test@example.com","customer_name":"Test User","source":"llv_family"}'
+  ```
+  Expect `200` and `{"success":true,"key_last4":"XXXX"}`. Check `apg_licenses` and the inbox for `test@example.com` (if Brevo is configured).
 
 ---
 

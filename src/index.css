@@ -375,8 +375,8 @@ select.select-pill:focus {
 }
 .footer-tagline {
   text-align: center;
-  font-size: 14px;
-  color: var(--color-text-muted);
+  font-size: calc(14px + 3pt);
+  color: #FFFFF0;
   padding: 1.5rem 2rem 0;
 }
 .footer-inner {

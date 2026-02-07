@@ -600,7 +600,7 @@
         }
 
         .cta-title {
-            font-size: 2.5rem;
+            font-size: calc(2.5rem + 2pt);
             font-weight: 700;
             color: var(--color-text-primary);
             margin-bottom: 1.25rem;
@@ -678,7 +678,7 @@
             }
 
             .cta-title {
-                font-size: 2rem;
+                font-size: calc(2rem + 2pt);
             }
         }
 
@@ -703,7 +703,7 @@
                     <p>Administrative guidance</p>
                 </div>
             </div>
-            <button class="nav-button" onclick="scrollToCTA()">Get Started</button>
+            <button class="nav-button" onclick="openStripeCheckout()">Get Started</button>
         </div>
     </nav>
 
@@ -768,13 +768,13 @@
 
         <!-- CTAs -->
         <div class="cta-buttons">
-            <button class="btn-primary" onclick="scrollToCTA()">
+            <button class="btn-primary" onclick="openStripeCheckout()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
-                <span>Start Free Trial</span>
+                <span>Get AfterPassing Guide</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <line x1="5" y1="12" x2="19" y2="12" />
                     <polyline points="12 5 19 12 12 19" />
@@ -993,13 +993,13 @@
             </div>
             <h2 class="cta-title">Ready to Get Organized?</h2>
             <p class="cta-description">Purchase once. Use forever. All data stays on your device.</p>
-            <button class="btn-primary" onclick="scrollToCTA()" style="margin-bottom: 1.25rem;">
+            <button class="btn-primary" onclick="openStripeCheckout()" style="margin-bottom: 1.25rem;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
-                <span>Start Free Trial</span>
+                <span>Get AfterPassing Guide</span>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <line x1="5" y1="12" x2="19" y2="12" />
                     <polyline points="12 5 19 12 12 19" />
@@ -1032,6 +1032,17 @@
     </footer>
 
     <script>
+        // AfterPassing Guide: Stripe Payment Link
+        var APG_STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/eVq28r8r98Xv9q9bN34ZG0t';
+
+        function openStripeCheckout() {
+            if (APG_STRIPE_CHECKOUT_URL && APG_STRIPE_CHECKOUT_URL.indexOf('PASTE_YOUR') === -1) {
+                window.open(APG_STRIPE_CHECKOUT_URL, '_blank', 'noopener,noreferrer');
+            } else {
+                document.getElementById('cta').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
         function scrollToCTA() {
             document.getElementById('cta').scrollIntoView({ behavior: 'smooth' });
         }

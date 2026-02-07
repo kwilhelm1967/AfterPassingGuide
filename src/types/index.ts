@@ -22,6 +22,21 @@ export interface LLVAddonsState {
 }
 
 // ============================================================================
+// CASE TYPES
+// ============================================================================
+
+export type CaseStatus = 'active' | 'archived';
+
+export interface Case {
+  id: string;
+  label: string;
+  notes?: string;
+  status: CaseStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ============================================================================
 // PROFILE TYPES
 // ============================================================================
 
@@ -105,10 +120,16 @@ export interface AftercareTask {
   createdAt: string;
   completedAt?: string;
   notes?: string;
+  /** Optional: what is blocking this task (show warning badge when set). */
+  blockedBy?: string;
+  /** Optional: do not do until this condition (show warning badge when set). */
+  doNotDoUntil?: string;
 }
 
 export interface AftercarePlan {
   id: string;
+  /** Id of the case this plan belongs to. */
+  caseId: string;
   profile: AftercareProfile;
   tasks: AftercareTask[];
   createdAt: string;
@@ -208,6 +229,8 @@ export type DocumentStatus = 'Reference' | 'Original' | 'Copy' | 'Not sure';
 
 export interface UploadedDocument {
   id: string;
+  /** Id of the case this document belongs to. */
+  caseId: string;
   filePath: string;
   fileName: string;
   fileSize: number;
@@ -233,6 +256,12 @@ export interface UploadedDocument {
   linkedTaskId?: string;
   summary?: string;
   keyPoints?: string[];
+  /** Death certificate: estimated copies needed. */
+  copiesNeededEstimate?: number;
+  /** Death certificate: copies obtained so far. */
+  copiesObtained?: number;
+  /** Death certificate: used for (e.g. tags). */
+  usedFor?: string[];
 }
 
 export interface DocumentSummary {
@@ -314,6 +343,8 @@ export type ExecutorChecklistCategory =
 
 export interface ExecutorChecklistItem {
   id: string;
+  /** Id of the case this item belongs to. */
+  caseId: string;
   category: ExecutorChecklistCategory;
   title: string;
   /** What this is (1–2 sentences). */
@@ -353,6 +384,8 @@ export type ContactRole =
 
 export interface ContactEntry {
   id: string;
+  /** Id of the case this contact belongs to. */
+  caseId: string;
   type: ContactType;
   name: string;
   phone?: string;
@@ -371,6 +404,12 @@ export interface ContactEntry {
   isKeyContact?: boolean;
   /** 'manual' = user-created; 'vault' = from Local Legacy Vault import. */
   source?: 'manual' | 'vault';
+  /** Optional case reference number (e.g. probate number). */
+  caseReferenceNumber?: string;
+  /** Optional next follow-up date. */
+  nextFollowUpDate?: string;
+  /** Who we are waiting on. */
+  waitingOn?: 'THEM' | 'ME' | 'DOCUMENT' | 'COURT' | 'UNKNOWN';
 }
 
 // ============================================================================
@@ -410,6 +449,7 @@ export interface TaskGenerationResult {
 // ============================================================================
 
 export type NavigationTab =
+  | 'cases'
   | 'guidance'
   | 'checklist'
   | 'documents'

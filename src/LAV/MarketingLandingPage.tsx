@@ -109,6 +109,9 @@ const LANDING_FAQS: { q: string; a: string }[] = [
 /** Local Legacy Vault purchase URL — same as in the Local Legacy Vault app. */
 const LLV_PURCHASE_URL = 'https://locallegacyvault.com/pricing.html#pricing';
 
+/** AfterPassing Guide Stripe Payment Link — set in .env as VITE_APG_STRIPE_URL. */
+const APG_STRIPE_URL = (import.meta as any).env?.VITE_APG_STRIPE_URL || '';
+
 export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGetStarted, onPurchaseLocalLegacyVault }) => {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -121,6 +124,24 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGe
   /** Scroll to pricing; do not enter app until after purchase. */
   const handleGetStarted = () => {
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  /** Open AfterPassing Guide Stripe checkout (Payment Link from Stripe Dashboard). */
+  const handlePurchaseAfterPassingGuide = () => {
+    if (!APG_STRIPE_URL || APG_STRIPE_URL.includes('YOUR_LINK')) {
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    const api = (window as any).electronAPI;
+    if (api?.openExternal) {
+      api.openExternal(APG_STRIPE_URL).then((ok: boolean) => {
+        if (!ok) window.open(APG_STRIPE_URL, '_blank', 'noopener,noreferrer');
+      }).catch(() => {
+        window.open(APG_STRIPE_URL, '_blank', 'noopener,noreferrer');
+      });
+    } else {
+      window.open(APG_STRIPE_URL, '_blank', 'noopener,noreferrer');
+    }
   };
 
   /** Open Local Legacy Vault purchase (same process as in LLV app). */
@@ -290,7 +311,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGe
         {/* Pricing — simple, transparent, one-time */}
         <section id="pricing" className="max-w-[1200px] mx-auto px-8 py-12 scroll-mt-20">
           <div className="text-center mb-10">
-            <h2 className="text-[34px] font-semibold text-text-primary mb-2">
+            <h2 className="text-[36px] font-semibold text-text-primary mb-2">
               Simple, transparent pricing.
             </h2>
             <p className="text-sm text-text-muted">
@@ -299,8 +320,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGe
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
-            {/* Left – AfterPassing Guide (neutral border; secondary CTA) */}
-            <div className="bg-card-bg/80 rounded-xl border border-border-subtle p-6 flex flex-col flex-1 min-h-0">
+            {/* Left – AfterPassing Guide (cyan border; hover reaction) */}
+            <div className="bg-card-bg/80 rounded-xl border-2 border-cyan-400/80 p-6 flex flex-col flex-1 min-h-0 transition-all duration-200 ease-out hover:scale-[1.02] hover:border-cyan-400 hover:bg-card-bg hover:shadow-lg hover:shadow-cyan-400/10">
               <h3 className="text-lg font-semibold text-text-primary">AfterPassing Guide</h3>
               <p className="text-sm text-text-muted mt-1">Administrative guidance for the critical weeks after a loss.</p>
               <p className="mt-5 text-2xl font-semibold text-text-primary">$49 one-time</p>
@@ -338,7 +359,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGe
               </div>
               <div className="mt-6 pt-5 border-t border-border-subtle flex-shrink-0">
                 <button
-                  onClick={handleGetStarted}
+                  onClick={handlePurchaseAfterPassingGuide}
                   className="w-full py-3 px-4 border-2 border-border-subtle text-text-primary font-medium rounded-lg hover:bg-card-bg-hover transition-colors"
                 >
                   Buy AfterPassing Guide
@@ -349,8 +370,8 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGe
               </div>
             </div>
 
-            {/* Right – Local Legacy Vault (primary: gold outline, primary CTA) */}
-            <div className="bg-card-bg/80 rounded-xl border-2 border-accent-gold/40 p-7 flex flex-col flex-1 min-h-0 relative">
+            {/* Right – Local Legacy Vault (primary: gold outline; hover reaction) */}
+            <div className="bg-card-bg/80 rounded-xl border-2 border-accent-gold/40 p-7 flex flex-col flex-1 min-h-0 relative transition-all duration-200 ease-out hover:scale-[1.02] hover:border-accent-gold/70 hover:bg-card-bg hover:shadow-lg hover:shadow-accent-gold/10">
               <div className="absolute top-4 right-4 text-[10px] font-medium text-accent-gold bg-accent-gold/10 px-2 py-1 rounded">
                 Includes AfterPassing Guide ($49 value)
               </div>
@@ -435,7 +456,7 @@ export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({ onGe
         {/* Final CTA — decisive, calm, final */}
         <section id="cta" className="max-w-[1200px] mx-auto px-8 py-12">
           <div className="bg-card-bg/80 rounded-xl py-9 px-8 md:py-10 md:px-10 border border-border-subtle text-center">
-            <h2 className="text-2xl font-semibold text-text-primary mb-3">
+            <h2 className="text-[26px] font-semibold text-text-primary mb-3">
               Ready to Get Organized?
             </h2>
             <p className="text-lg text-text-secondary mb-6 max-w-2xl mx-auto">

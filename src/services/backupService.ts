@@ -180,6 +180,71 @@ export async function downloadBackup(): Promise<void> {
 }
 
 /**
+ * Export a single case to JSON (for .apgcase or backup).
+ * Contains plan, documents, contacts, checklist for that case only.
+ */
+export interface CaseExportData {
+  version: string;
+  exportDate: string;
+  caseId: string;
+  caseLabel: string;
+  profile: AftercareProfile | null;
+  plan: AftercarePlan | null;
+  documents: UploadedDocument[];
+  contacts: ContactEntry[];
+  checklist: ExecutorChecklistItem[];
+  metadata: {
+    documentCount: number;
+    contactCount: number;
+    checklistItemCount: number;
+    taskCount: number;
+  };
+}
+
+export async function exportCaseToJson(caseId: string, caseLabel: string): Promise<string> {
+  const plan = await storageService.loadPlanForCase(caseId);
+  const allDocs = await storageService.loadAllDocuments();
+  const allContacts = await storageService.loadAllContacts();
+  const allChecklist = await storageService.loadAllChecklist();
+  const documents = allDocs.filter((d) => d.caseId === caseId);
+  const contacts = allContacts.filter((c) => c.caseId === caseId);
+  const checklist = allChecklist.filter((i) => i.caseId === caseId);
+  const taskCount = plan?.tasks?.length ?? 0;
+  const data: CaseExportData = {
+    version: '1.0.0',
+    exportDate: new Date().toISOString(),
+    caseId,
+    caseLabel,
+    profile: plan?.profile ?? null,
+    plan,
+    documents,
+    contacts,
+    checklist,
+    metadata: {
+      documentCount: documents.length,
+      contactCount: contacts.length,
+      checklistItemCount: checklist.length,
+      taskCount,
+    },
+  };
+  return JSON.stringify(data, null, 2);
+}
+
+export async function downloadCaseExport(caseId: string, caseLabel: string): Promise<void> {
+  const json = await exportCaseToJson(caseId, caseLabel);
+  const safeName = caseLabel.replace(/[^a-zA-Z0-9-_]/g, '_').slice(0, 40);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${safeName}_${new Date().toISOString().split('T')[0]}.apgcase.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
  * Load backup from file
  */
 export async function loadBackupFromFile(file: File): Promise<ImportResult> {

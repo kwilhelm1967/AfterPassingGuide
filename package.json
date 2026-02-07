@@ -58,6 +58,7 @@
       "dist/**/*",
       "electron/**/*"
     ],
+    "icon": "public/favicon.png",
     "mac": {
       "category": "public.app-category.productivity",
       "target": [

@@ -16,7 +16,7 @@ function createWindow() {
     minHeight: 600,
     backgroundColor: '#0f172a',
     titleBarStyle: 'default',
-    icon: path.join(__dirname, '../public/favicon.svg'),
+    icon: path.join(__dirname, '../public/favicon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

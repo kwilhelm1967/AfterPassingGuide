@@ -6,6 +6,7 @@
  */
 
 import {
+  Case,
   AftercarePlan,
   AftercareProfile,
   AftercareTask,
@@ -20,14 +21,19 @@ import { getDeviceFingerprint } from '../utils/deviceFingerprint';
 
 // Storage keys
 const STORAGE_KEYS = {
-  PROFILE: 'aftercare_profile',
-  PLAN: 'aftercare_plan',
+  CASES: 'aftercare_cases',
+  ACTIVE_CASE_ID: 'aftercare_active_case_id',
+  PLANS_BY_CASE: 'aftercare_plans_by_case',
+  PROFILE: 'aftercare_profile', // legacy; migration moves to plan.profile
+  PLAN: 'aftercare_plan', // legacy; migration moves to plans_by_case
   DOCUMENTS: 'aftercare_documents',
   CONTACTS: 'aftercare_contacts',
   CHECKLIST: 'aftercare_checklist',
   LICENSE: 'aftercare_license',
   SETTINGS: 'aftercare_settings',
 };
+
+const DEFAULT_FIRST_CASE_LABEL = 'My First Case';
 
 /** Patch saved plans so task descriptions match current copy (e.g. after content updates). Returns true if any task was updated. */
 function patchPlanTaskDescriptions(plan: AftercarePlan): boolean {
@@ -129,29 +135,224 @@ class StorageService {
   }
 
   // ============================================================================
-  // PROFILE
+  // CASES
   // ============================================================================
 
-  async saveProfile(profile: AftercareProfile): Promise<void> {
+  async ensureCasesMigrated(): Promise<void> {
+    const rawCases = localStorage.getItem(STORAGE_KEYS.CASES);
+    let cases: Case[] = rawCases ? (() => { try { return JSON.parse(rawCases); } catch { return []; } })() : [];
+    let activeId = localStorage.getItem(STORAGE_KEYS.ACTIVE_CASE_ID);
+
+    if (cases.length === 0) {
+      const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `case_${Date.now()}`;
+      const now = new Date().toISOString();
+      cases = [{
+        id,
+        label: DEFAULT_FIRST_CASE_LABEL,
+        notes: '',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      }];
+      try {
+        await this.setEncryptedItem(STORAGE_KEYS.CASES, JSON.stringify(cases));
+      } catch {
+        localStorage.setItem(STORAGE_KEYS.CASES, JSON.stringify(cases));
+      }
+      activeId = id;
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_CASE_ID, id);
+    }
+
+    if (!activeId && cases.length > 0) {
+      activeId = cases[0].id;
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_CASE_ID, activeId);
+    }
+
+    const defaultCaseId = activeId || cases[0]?.id;
+    if (!defaultCaseId) return;
+
+    const plansRaw = await this.getEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE);
+    let plansByCase: Record<string, AftercarePlan> = plansRaw ? (() => { try { return JSON.parse(plansRaw); } catch { return {}; } })() : {};
+
+    const legacyPlanRaw = await this.getEncryptedItem(STORAGE_KEYS.PLAN);
+    const legacyProfileRaw = await this.getEncryptedItem(STORAGE_KEYS.PROFILE);
+    if ((legacyPlanRaw || legacyProfileRaw) && !plansByCase[defaultCaseId]) {
+      let plan: AftercarePlan | null = null;
+      if (legacyPlanRaw) {
+        try {
+          plan = JSON.parse(legacyPlanRaw) as AftercarePlan;
+          if (!(plan as any).caseId) (plan as any).caseId = defaultCaseId;
+        } catch { plan = null; }
+      }
+      if (!plan && legacyProfileRaw) {
+        try {
+          const profile = JSON.parse(legacyProfileRaw) as AftercareProfile;
+          plan = {
+            id: `plan_${Date.now()}`,
+            caseId: defaultCaseId,
+            profile,
+            tasks: [],
+            createdAt: new Date().toISOString(),
+            lastUpdatedAt: new Date().toISOString(),
+          };
+        } catch { plan = null; }
+      }
+      if (plan) {
+        plan.caseId = defaultCaseId;
+        if (legacyProfileRaw && !plan.profile) {
+          try {
+            plan.profile = JSON.parse(legacyProfileRaw) as AftercareProfile;
+          } catch { /* ignore */ }
+        }
+        if (patchPlanTaskDescriptions(plan)) plan.lastUpdatedAt = new Date().toISOString();
+        plansByCase[defaultCaseId] = plan;
+        await this.setEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE, JSON.stringify(plansByCase));
+      }
+    }
+
+    const docsRaw = await this.getEncryptedItem(STORAGE_KEYS.DOCUMENTS);
+    let docs: UploadedDocument[] = docsRaw ? (() => { try { return JSON.parse(docsRaw); } catch { return []; } })() : [];
+    let docsDirty = false;
+    for (const d of docs) {
+      if (!(d as any).caseId) { (d as any).caseId = defaultCaseId; docsDirty = true; }
+    }
+    if (docsDirty) await this.setEncryptedItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(docs));
+
+    const contactsRaw = await this.getEncryptedItem(STORAGE_KEYS.CONTACTS);
+    let contacts: ContactEntry[] = contactsRaw ? (() => { try { return JSON.parse(contactsRaw); } catch { return []; } })() : [];
+    let contactsDirty = false;
+    for (const c of contacts) {
+      if (!(c as any).caseId) { (c as any).caseId = defaultCaseId; contactsDirty = true; }
+    }
+    if (contactsDirty) await this.setEncryptedItem(STORAGE_KEYS.CONTACTS, JSON.stringify(contacts));
+
+    const checklistRaw = await this.getEncryptedItem(STORAGE_KEYS.CHECKLIST);
+    let checklist: ExecutorChecklistItem[] = checklistRaw ? (() => { try { return JSON.parse(checklistRaw); } catch { return []; } })() : [];
+    let checklistDirty = false;
+    for (const i of checklist) {
+      if (!(i as any).caseId) { (i as any).caseId = defaultCaseId; checklistDirty = true; }
+    }
+    if (checklistDirty) await this.setEncryptedItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklist));
+  }
+
+  getActiveCaseId(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.ACTIVE_CASE_ID);
+  }
+
+  async setActiveCaseId(caseId: string): Promise<void> {
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_CASE_ID, caseId);
+  }
+
+  async loadCases(): Promise<Case[]> {
+    const data = await this.getEncryptedItem(STORAGE_KEYS.CASES);
+    if (!data) return [];
     try {
-      const data = JSON.stringify(profile);
-      await this.setEncryptedItem(STORAGE_KEYS.PROFILE, data);
-    } catch (error) {
-      console.error('Failed to save profile:', error);
-      throw new Error('Failed to save profile. Please try again.');
+      return JSON.parse(data) as Case[];
+    } catch {
+      return [];
     }
   }
 
-  async loadProfile(): Promise<AftercareProfile | null> {
-    try {
-      const data = await this.getEncryptedItem(STORAGE_KEYS.PROFILE);
-      if (!data) return null;
-      return JSON.parse(data) as AftercareProfile;
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-      // Try to recover by returning null (will trigger onboarding)
-      return null;
+  async saveCases(cases: Case[]): Promise<void> {
+    await this.setEncryptedItem(STORAGE_KEYS.CASES, JSON.stringify(cases));
+  }
+
+  async createCase(label: string, notes?: string): Promise<Case> {
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `case_${Date.now()}`;
+    const now = new Date().toISOString();
+    const c: Case = { id, label, notes: notes || '', status: 'active', createdAt: now, updatedAt: now };
+    const cases = await this.loadCases();
+    cases.push(c);
+    await this.saveCases(cases);
+    return c;
+  }
+
+  async updateCase(c: Case): Promise<void> {
+    const cases = await this.loadCases();
+    const i = cases.findIndex(x => x.id === c.id);
+    if (i >= 0) {
+      cases[i] = { ...c, updatedAt: new Date().toISOString() };
+      await this.saveCases(cases);
     }
+  }
+
+  async archiveCase(caseId: string): Promise<void> {
+    const cases = await this.loadCases();
+    const c = cases.find(x => x.id === caseId);
+    if (c) {
+      c.status = 'archived';
+      c.updatedAt = new Date().toISOString();
+      await this.saveCases(cases);
+    }
+  }
+
+  async deleteCasePermanently(caseId: string): Promise<void> {
+    const cases = (await this.loadCases()).filter(x => x.id !== caseId);
+    await this.saveCases(cases);
+    const plansRaw = await this.getEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE);
+    const plans: Record<string, AftercarePlan> = plansRaw ? JSON.parse(plansRaw) : {};
+    delete plans[caseId];
+    await this.setEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE, JSON.stringify(plans));
+    const docs = await this.loadAllDocuments();
+    const filteredDocs = docs.filter(d => d.caseId !== caseId);
+    await this.setEncryptedItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(filteredDocs));
+    const contacts = await this.loadAllContacts();
+    const filteredContacts = contacts.filter(c => c.caseId !== caseId);
+    await this.setEncryptedItem(STORAGE_KEYS.CONTACTS, JSON.stringify(filteredContacts));
+    const checklist = await this.loadAllChecklist();
+    const filteredChecklist = checklist.filter(i => i.caseId !== caseId);
+    await this.setEncryptedItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(filteredChecklist));
+    if (this.getActiveCaseId() === caseId && cases.length > 0) {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_CASE_ID, cases[0].id);
+    }
+  }
+
+  /** Return approximate data counts for a case (for UI: allow delete only when empty). */
+  async getCaseDataCounts(caseId: string): Promise<{ tasks: number; documents: number; contacts: number; checklist: number }> {
+    const plan = await this.loadPlanForCase(caseId);
+    const allDocs = await this.loadAllDocuments();
+    const allContacts = await this.loadAllContacts();
+    const allChecklist = await this.loadAllChecklist();
+    return {
+      tasks: plan?.tasks?.length ?? 0,
+      documents: allDocs.filter(d => d.caseId === caseId).length,
+      contacts: allContacts.filter(c => c.caseId === caseId).length,
+      checklist: allChecklist.filter(i => i.caseId === caseId).length,
+    };
+  }
+
+  /** Clear all content for a case (keeps case record; removes plan, documents, contacts, checklist). */
+  async clearCaseContent(caseId: string): Promise<void> {
+    const plans = await this.loadPlansByCase();
+    delete plans[caseId];
+    await this.setEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE, JSON.stringify(plans));
+    const docs = await this.loadAllDocuments();
+    await this.setEncryptedItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(docs.filter(d => d.caseId !== caseId)));
+    const contacts = await this.loadAllContacts();
+    await this.setEncryptedItem(STORAGE_KEYS.CONTACTS, JSON.stringify(contacts.filter(c => c.caseId !== caseId)));
+    const checklist = await this.loadAllChecklist();
+    await this.setEncryptedItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklist.filter(i => i.caseId !== caseId)));
+  }
+
+  // ============================================================================
+  // PROFILE (from active case plan)
+  // ============================================================================
+
+  async saveProfile(profile: AftercareProfile): Promise<void> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return;
+    const plan = await this.loadPlanForCase(caseId);
+    if (!plan) return;
+    plan.profile = profile;
+    plan.lastUpdatedAt = new Date().toISOString();
+    await this.savePlanForCase(plan);
+  }
+
+  async loadProfile(): Promise<AftercareProfile | null> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return null;
+    const plan = await this.loadPlanForCase(caseId);
+    return plan?.profile ?? null;
   }
 
   deleteProfile(): void {
@@ -159,31 +360,52 @@ class StorageService {
   }
 
   // ============================================================================
-  // PLAN
+  // PLAN (per case)
   // ============================================================================
 
-  async savePlan(plan: AftercarePlan): Promise<void> {
-    const data = JSON.stringify(plan);
-    await this.setEncryptedItem(STORAGE_KEYS.PLAN, data);
-  }
-
-  async loadPlan(): Promise<AftercarePlan | null> {
-    const data = await this.getEncryptedItem(STORAGE_KEYS.PLAN);
-    if (!data) return null;
+  async loadPlansByCase(): Promise<Record<string, AftercarePlan>> {
+    const data = await this.getEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE);
+    if (!data) return {};
     try {
-      const plan = JSON.parse(data) as AftercarePlan;
-      if (patchPlanTaskDescriptions(plan)) {
-        plan.lastUpdatedAt = new Date().toISOString();
-        await this.savePlan(plan);
-      }
-      return plan;
+      return JSON.parse(data) as Record<string, AftercarePlan>;
     } catch {
-      return null;
+      return {};
     }
   }
 
-  deletePlan(): void {
-    localStorage.removeItem(STORAGE_KEYS.PLAN);
+  async loadPlanForCase(caseId: string): Promise<AftercarePlan | null> {
+    const plans = await this.loadPlansByCase();
+    return plans[caseId] ?? null;
+  }
+
+  async savePlanForCase(plan: AftercarePlan): Promise<void> {
+    const plans = await this.loadPlansByCase();
+    plans[plan.caseId] = plan;
+    await this.setEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE, JSON.stringify(plans));
+  }
+
+  async savePlan(plan: AftercarePlan): Promise<void> {
+    await this.savePlanForCase(plan);
+  }
+
+  async loadPlan(): Promise<AftercarePlan | null> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return null;
+    const plan = await this.loadPlanForCase(caseId);
+    if (!plan) return null;
+    if (patchPlanTaskDescriptions(plan)) {
+      plan.lastUpdatedAt = new Date().toISOString();
+      await this.savePlanForCase(plan);
+    }
+    return plan;
+  }
+
+  async deletePlan(): Promise<void> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return;
+    const plans = await this.loadPlansByCase();
+    delete plans[caseId];
+    await this.setEncryptedItem(STORAGE_KEYS.PLANS_BY_CASE, JSON.stringify(plans));
   }
 
   // ============================================================================
@@ -203,27 +425,43 @@ class StorageService {
   }
 
   // ============================================================================
-  // DOCUMENTS
+  // DOCUMENTS (case-scoped)
   // ============================================================================
 
-  async saveDocuments(documents: UploadedDocument[]): Promise<void> {
-    const data = JSON.stringify(documents);
-    await this.setEncryptedItem(STORAGE_KEYS.DOCUMENTS, data);
-  }
-
-  async loadDocuments(): Promise<UploadedDocument[]> {
+  async loadAllDocuments(): Promise<UploadedDocument[]> {
     const data = await this.getEncryptedItem(STORAGE_KEYS.DOCUMENTS);
     if (!data) return [];
     try {
-      return JSON.parse(data) as UploadedDocument[];
+      const arr = JSON.parse(data) as UploadedDocument[];
+      return arr.map(d => ({ ...d, caseId: (d as any).caseId || '' }));
     } catch {
       return [];
     }
   }
 
+  async loadDocuments(): Promise<UploadedDocument[]> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return [];
+    const all = await this.loadAllDocuments();
+    return all.filter(d => d.caseId === caseId);
+  }
+
+  async saveDocuments(documents: UploadedDocument[]): Promise<void> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return;
+    const all = await this.loadAllDocuments();
+    const others = all.filter(d => d.caseId !== caseId);
+    const withCaseId = documents.map(d => ({ ...d, caseId }));
+    const data = JSON.stringify([...others, ...withCaseId]);
+    await this.setEncryptedItem(STORAGE_KEYS.DOCUMENTS, data);
+  }
+
   async addDocument(document: UploadedDocument): Promise<void> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return;
+    const doc = { ...document, caseId };
     const documents = await this.loadDocuments();
-    documents.push(document);
+    documents.push(doc);
     await this.saveDocuments(documents);
   }
 
@@ -231,7 +469,7 @@ class StorageService {
     const documents = await this.loadDocuments();
     const index = documents.findIndex(d => d.id === document.id);
     if (index >= 0) {
-      documents[index] = document;
+      documents[index] = { ...document, caseId: document.caseId || this.getActiveCaseId()! };
       await this.saveDocuments(documents);
     }
   }
@@ -243,32 +481,45 @@ class StorageService {
   }
 
   // ============================================================================
-  // CONTACTS
+  // CONTACTS (case-scoped)
   // ============================================================================
 
-  async saveContacts(contacts: ContactEntry[]): Promise<void> {
-    const data = JSON.stringify(contacts);
-    await this.setEncryptedItem(STORAGE_KEYS.CONTACTS, data);
-  }
-
-  async loadContacts(): Promise<ContactEntry[]> {
+  async loadAllContacts(): Promise<ContactEntry[]> {
     const data = await this.getEncryptedItem(STORAGE_KEYS.CONTACTS);
     if (!data) return [];
     try {
-      return JSON.parse(data) as ContactEntry[];
+      const arr = JSON.parse(data) as ContactEntry[];
+      return arr.map(c => ({ ...c, caseId: (c as any).caseId || '' }));
     } catch {
       return [];
     }
   }
 
+  async loadContacts(): Promise<ContactEntry[]> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return [];
+    const all = await this.loadAllContacts();
+    return all.filter(c => c.caseId === caseId);
+  }
+
+  async saveContacts(contacts: ContactEntry[]): Promise<void> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return;
+    const all = await this.loadAllContacts();
+    const others = all.filter(c => c.caseId !== caseId);
+    const withCaseId = contacts.map(c => ({ ...c, caseId }));
+    await this.setEncryptedItem(STORAGE_KEYS.CONTACTS, JSON.stringify([...others, ...withCaseId]));
+  }
+
   async updateContact(contact: ContactEntry): Promise<void> {
     const contacts = await this.loadContacts();
     const index = contacts.findIndex(c => c.id === contact.id);
+    const caseId = this.getActiveCaseId()!;
     if (index >= 0) {
-      contacts[index] = contact;
+      contacts[index] = { ...contact, caseId };
       await this.saveContacts(contacts);
     } else {
-      contacts.push(contact);
+      contacts.push({ ...contact, caseId });
       await this.saveContacts(contacts);
     }
   }
@@ -280,29 +531,42 @@ class StorageService {
   }
 
   // ============================================================================
-  // EXECUTOR CHECKLIST
+  // EXECUTOR CHECKLIST (case-scoped)
   // ============================================================================
 
-  async saveChecklist(checklist: ExecutorChecklistItem[]): Promise<void> {
-    const data = JSON.stringify(checklist);
-    await this.setEncryptedItem(STORAGE_KEYS.CHECKLIST, data);
-  }
-
-  async loadChecklist(): Promise<ExecutorChecklistItem[]> {
+  async loadAllChecklist(): Promise<ExecutorChecklistItem[]> {
     const data = await this.getEncryptedItem(STORAGE_KEYS.CHECKLIST);
     if (!data) return [];
     try {
-      return JSON.parse(data) as ExecutorChecklistItem[];
+      const arr = JSON.parse(data) as ExecutorChecklistItem[];
+      return arr.map(i => ({ ...i, caseId: (i as any).caseId || '' }));
     } catch {
       return [];
     }
   }
 
+  async loadChecklist(): Promise<ExecutorChecklistItem[]> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return [];
+    const all = await this.loadAllChecklist();
+    return all.filter(i => i.caseId === caseId);
+  }
+
+  async saveChecklist(checklist: ExecutorChecklistItem[]): Promise<void> {
+    const caseId = this.getActiveCaseId();
+    if (!caseId) return;
+    const all = await this.loadAllChecklist();
+    const others = all.filter(i => i.caseId !== caseId);
+    const withCaseId = checklist.map(i => ({ ...i, caseId }));
+    await this.setEncryptedItem(STORAGE_KEYS.CHECKLIST, JSON.stringify([...others, ...withCaseId]));
+  }
+
   async updateChecklistItem(item: ExecutorChecklistItem): Promise<void> {
     const checklist = await this.loadChecklist();
     const index = checklist.findIndex(i => i.id === item.id);
+    const caseId = this.getActiveCaseId()!;
     if (index >= 0) {
-      checklist[index] = item;
+      checklist[index] = { ...item, caseId };
       await this.saveChecklist(checklist);
     }
   }
@@ -381,6 +645,7 @@ class StorageService {
     Object.values(STORAGE_KEYS).forEach(key => {
       localStorage.removeItem(key);
     });
+    localStorage.removeItem(STORAGE_KEYS.ACTIVE_CASE_ID);
   }
 
   // ============================================================================

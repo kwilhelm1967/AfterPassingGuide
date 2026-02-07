@@ -11,6 +11,7 @@ import { AlertTriangle, Lock, ArrowLeft } from 'lucide-react';
 
 // Types
 import type { 
+  Case as CaseType,
   AftercareProfile, 
   AftercarePlan, 
   NavigationTab,
@@ -34,10 +35,14 @@ import {
   generateContactsFromVault,
   hasLegacyChecklistCategories,
 } from './services';
+import { downloadCaseExport } from './services/backupService';
 
 // Components — eager for shell and first paint
 import { AdminDashboard } from './components';
 import { FaveIcon } from './components/common/FaveIcon';
+import { CaseSwitcher } from './components/cases/CaseSwitcher';
+import { CasesView } from './components/cases/CasesView';
+import { CloseCaseWizard } from './components/cases/CloseCaseWizard';
 
 // Lazy-loaded routes and heavy views (code-splitting to reduce initial bundle)
 const MarketingLandingPage = lazy(() => import('./LAV/MarketingLandingPage').then(m => ({ default: m.MarketingLandingPage })));
@@ -66,6 +71,8 @@ function App() {
   const [mode, setMode] = useState<AppMode>('STANDALONE');
   
   // Data state
+  const [cases, setCases] = useState<CaseType[]>([]);
+  const [activeCaseId, setActiveCaseIdState] = useState<string | null>(null);
   const [profile, setProfile] = useState<AftercareProfile | null>(null);
   const [plan, setPlan] = useState<AftercarePlan | null>(null);
   const [documents, setDocuments] = useState<UploadedDocument[]>([]);
@@ -79,7 +86,34 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [showActivation, setShowActivation] = useState(false);
   const [isLicensed, setIsLicensed] = useState(false);
+  const [showCloseCaseWizard, setShowCloseCaseWizard] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
+
+  const currentCase = cases.find((c) => c.id === activeCaseId) ?? null;
+
+  const refreshData = useCallback(async () => {
+    const savedProfile = await storageService.loadProfile();
+    const savedPlan = await storageService.loadPlan();
+    const savedDocs = await storageService.loadDocuments();
+    const savedContacts = await storageService.loadContacts();
+    let savedChecklist = await storageService.loadChecklist();
+    if (savedChecklist.length > 0 && hasLegacyChecklistCategories(savedChecklist)) {
+      savedChecklist = generateExecutorChecklist();
+      await storageService.saveChecklist(savedChecklist);
+    }
+    setProfile(savedProfile);
+    setPlan(savedPlan);
+    setDocuments(savedDocs);
+    setContacts(savedContacts);
+    setExecutorChecklist(savedChecklist);
+  }, []);
+
+  const refreshCases = useCallback(async () => {
+    const list = await storageService.loadCases();
+    setCases(list);
+    const id = storageService.getActiveCaseId();
+    setActiveCaseIdState(id);
+  }, []);
 
   // ============================================================================
   // INITIALIZATION
@@ -129,7 +163,14 @@ function App() {
           await checkLicense();
         }, 30000);
         
-        // Load saved data (encrypted)
+        // Multi-case: ensure default case exists and migrate legacy data
+        await storageService.ensureCasesMigrated();
+        const list = await storageService.loadCases();
+        setCases(list);
+        const activeId = storageService.getActiveCaseId();
+        setActiveCaseIdState(activeId);
+        
+        // Load saved data for active case (encrypted)
         const savedProfile = await storageService.loadProfile();
         const savedPlan = await storageService.loadPlan();
         const savedDocs = await storageService.loadDocuments();
@@ -228,11 +269,13 @@ function App() {
   // ============================================================================
 
   const handleOnboardingComplete = useCallback(async (newProfile: AftercareProfile) => {
+    const caseId = storageService.getActiveCaseId();
+    if (!caseId) return;
     setProfile(newProfile);
     await storageService.saveProfile(newProfile);
     setShowOnboarding(false);
     
-    // Generate initial guidance
+    // Generate initial guidance (scoped to active case)
     try {
       const vaultRecords = await llvIntegration.loadLegacyVaultSummary();
       const result = generateAftercarePlan({
@@ -242,6 +285,7 @@ function App() {
       
       const newPlan: AftercarePlan = {
         id: `plan_${Date.now()}`,
+        caseId,
         profile: newProfile,
         tasks: result.tasks,
         createdAt: new Date().toISOString(),
@@ -251,12 +295,12 @@ function App() {
       setPlan(newPlan);
       await storageService.savePlan(newPlan);
       
-      // Generate contacts from vault records
+      // Generate contacts from vault records (storage adds caseId)
       const newContacts = generateContactsFromVault(vaultRecords);
       setContacts(newContacts);
       await storageService.saveContacts(newContacts);
       
-      // Generate executor checklist
+      // Generate executor checklist (storage adds caseId)
       const checklist = generateExecutorChecklist();
       setExecutorChecklist(checklist);
       await storageService.saveChecklist(checklist);
@@ -273,6 +317,51 @@ function App() {
     setPlan(updatedPlan);
     await storageService.savePlan(updatedPlan);
   }, []);
+
+  // ============================================================================
+  // CASE ACTIONS
+  // ============================================================================
+
+  const handleSwitchCase = useCallback(async (caseId: string) => {
+    await storageService.setActiveCaseId(caseId);
+    setActiveCaseIdState(caseId);
+    await refreshData();
+  }, [refreshData]);
+
+  const handleCreateCase = useCallback(async () => {
+    const label = 'New case ' + new Date().toLocaleDateString();
+    const c = await storageService.createCase(label);
+    await storageService.setActiveCaseId(c.id);
+    setActiveCaseIdState(c.id);
+    await refreshCases();
+    await refreshData();
+  }, [refreshCases, refreshData]);
+
+  const handleArchiveCurrent = useCallback(async () => {
+    if (!activeCaseId) return;
+    await storageService.archiveCase(activeCaseId);
+    await refreshCases();
+  }, [activeCaseId, refreshCases]);
+
+  const handleExportCurrent = useCallback(async () => {
+    if (!currentCase) return;
+    await downloadCaseExport(currentCase.id, currentCase.label);
+  }, [currentCase]);
+
+  const handleClearCurrent = useCallback(async () => {
+    if (!activeCaseId || !currentCase) return;
+    const msg = 'Clear all content in this case? Export first if you want to keep a backup. This cannot be undone.';
+    if (!confirm(msg)) return;
+    await storageService.clearCaseContent(activeCaseId);
+    await refreshData();
+    await refreshCases();
+  }, [activeCaseId, currentCase, refreshData, refreshCases]);
+
+  const handleCloseCaseWizardComplete = useCallback(() => {
+    setShowCloseCaseWizard(false);
+    refreshCases();
+    refreshData();
+  }, [refreshCases, refreshData]);
 
   // ============================================================================
   // RENDER
@@ -373,6 +462,20 @@ function App() {
           )}
         </div>
 
+        {/* Case Switcher — above nav */}
+        <div className="px-3 pb-2">
+          <CaseSwitcher
+            currentCase={currentCase}
+            cases={cases}
+            onSwitchCase={handleSwitchCase}
+            onCreateCase={handleCreateCase}
+            onArchiveCurrent={handleArchiveCurrent}
+            onExportCurrent={handleExportCurrent}
+            onClearCurrent={handleClearCurrent}
+            onOpenCloseCaseFlow={() => setShowCloseCaseWizard(true)}
+          />
+        </div>
+
         {/* Navigation */}
         <nav className="flex-1 py-2.5 pr-1.5 overflow-y-auto">
           <div className="flex flex-col gap-px">
@@ -424,9 +527,41 @@ function App() {
       {/* Main Content — subtle textured background for depth */}
       <main ref={mainContentRef} className="flex-1 overflow-y-auto bg-vault-dark">
         <div className="min-h-full p-4 md:p-5 bg-textured">
+          {/* Archived case banner */}
+          {currentCase?.status === 'archived' && (
+            <div className="mb-4 py-2.5 px-4 rounded-lg bg-accent-gold/15 border border-accent-gold/40 text-accent-gold text-sm font-medium">
+              Archived case — read only
+            </div>
+          )}
+
           {/* Tab Content — lazy-loaded chunks */}
           <div className="mt-4">
             <Suspense fallback={<PageFallback />}>
+              {activeTab === 'cases' && (
+                <CasesView
+                  cases={cases}
+                  activeCaseId={activeCaseId}
+                  onRefreshCases={refreshCases}
+                  onSwitchCase={handleSwitchCase}
+                  onExportCase={async (id) => {
+                    const c = cases.find((x) => x.id === id);
+                    if (c) await downloadCaseExport(id, c.label);
+                  }}
+                  onArchiveCase={async (id) => {
+                    await storageService.archiveCase(id);
+                    await refreshCases();
+                  }}
+                  onDeleteCase={async (id) => {
+                    if (!confirm('Permanently delete this case? This cannot be undone.')) return;
+                    await storageService.deleteCasePermanently(id);
+                    await refreshCases();
+                    if (activeCaseId === id) await refreshData();
+                  }}
+                  onCreateCase={handleCreateCase}
+                  onOpenCloseCaseFlow={() => setShowCloseCaseWizard(true)}
+                />
+              )}
+
               {activeTab === 'guidance' && plan && (
                 <FocusView onViewFullChecklist={() => setActiveTab('checklist')} />
               )}
@@ -485,6 +620,7 @@ function App() {
                     });
                     const newPlan: AftercarePlan = {
                       id: `plan_${Date.now()}`,
+                      caseId: plan.caseId,
                       profile,
                       tasks: result.tasks,
                       createdAt: plan.createdAt,
@@ -506,6 +642,26 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* Close Case Wizard modal */}
+      {showCloseCaseWizard && currentCase && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={() => setShowCloseCaseWizard(false)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <CloseCaseWizard
+              caseToClose={currentCase}
+              summary={{
+                taskCount: plan?.tasks?.length ?? 0,
+                documentCount: documents.length,
+                contactCount: contacts.length,
+                checklistCount: executorChecklist.length,
+                lastUpdated: currentCase.updatedAt ? new Date(currentCase.updatedAt).toLocaleString() : '—',
+              }}
+              onComplete={handleCloseCaseWizardComplete}
+              onCancel={() => setShowCloseCaseWizard(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
